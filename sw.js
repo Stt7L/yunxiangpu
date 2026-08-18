@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v31：PWA 体验优化。顶部导航栏增加 env(safe-area-inset-top)，解决 PWA 添加到桌面后被刘海/状态栏遮挡；收紧手机端底部留白；为关键按钮添加触感反馈。
+// v32：修复 iOS 自动缩放（viewport + input 16px）；优化 PWA 顶部安全区与底部留白；说明 iOS 不支持震动 API 并增强按钮按下视觉反馈。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v31';
+const CACHE = 'dessert-v32';
 const SHELL = [
   './',
   './manifest.json',
