@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v40：修复 sbSignOut 登出后界面不刷新（卡在已登录态）的 bug——改为登出成功后显式重置 currentUser/isAdmin 并刷新导航栏与共享池门禁。
+// v41：退出按钮强化为灰底 pill（导航栏最右侧、用户名旁一眼可见）；updateAuthUI 改用 hidden class 管理用户区显隐，更健壮。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v41';
+const CACHE = 'dessert-v42';
 const SHELL = [
   './',
   './manifest.json',
