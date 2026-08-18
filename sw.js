@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v32：修复 iOS 自动缩放（viewport + input 16px）；优化 PWA 顶部安全区与底部留白；说明 iOS 不支持震动 API 并增强按钮按下视觉反馈。
+// v33：顶部状态栏改为不透明黑色，移动端导航栏用实色背景消除毛玻璃毛边；进一步收紧底部留白；食材清单头部移除与「添加一行食材」重复的「添加」按钮；新增手机端单/双卡片视图切换（保存到 localStorage）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v32';
+const CACHE = 'dessert-v33';
 const SHELL = [
   './',
   './manifest.json',
