@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v37：个人工作台改为默认空白（内置配方仅存于共享配方池，不再自动灌入个人；旧版个人副本一次性清空）；共享池保留全部 60 条配方。
+// v38：接入 Supabase 后端（登录/注册/管理员），降级模式下行为与 v37 完全一致（SUPABASE_CONFIG 留空即纯本地）；个人工作台默认空白，共享池保留全部 60 条配方。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v37';
+const CACHE = 'dessert-v38';
 const SHELL = [
   './',
   './manifest.json',
