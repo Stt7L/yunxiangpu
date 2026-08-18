@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v47：登录/注册防连点（authBusy），Supabase 常见错误（限流/邮箱未验证/已注册/密码错误）翻译为中文友好提示。
+// v48：登录/注册错误友好提示扩充——网络失败/账号封禁/锁定/密码长度/邮箱禁注册；密码错误升级为「邮箱未注册或密码不正确」。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v47';
+const CACHE = 'dessert-v48';
 const SHELL = [
   './',
   './manifest.json',
