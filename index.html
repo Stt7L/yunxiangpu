@@ -231,6 +231,15 @@ button{font-family:inherit}
   gap:20px;
 }
 .grid-single{grid-template-columns:1fr}
+.grid-double{align-items:start}
+.grid-double .cover{height:116px}
+.grid-double .card-body{padding:12px 14px 14px}
+.grid-double .recipe-card h3{font-size:15px;margin-bottom:4px}
+.grid-double .ing-summary{font-size:12px;margin-bottom:12px}
+.grid-double .card-foot{padding-top:10px}
+.grid-double .card-foot-left{display:none}
+.grid-double .card-copy{padding:5px}
+.grid-double .card-copy .copy-text{display:none}
 .recipe-card{
   background:var(--card);border-radius:var(--radius-lg);overflow:hidden;
   box-shadow:var(--shadow-sm);cursor:pointer;position:relative;
@@ -681,7 +690,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* ═══════════════════ 响应式细节 ═══════════════════ */
 @media (max-width:640px){
-  .nav{background:rgba(251,251,253,.98);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .nav{background:rgba(251,251,253,.78);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
   .nav-inner{gap:6px;padding:14px 16px 10px}
   .brand p{display:none}
   .brand h1{font-size:16px}
@@ -807,8 +816,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .cover .cover-mono{transition:transform .6s var(--ease)}
 .recipe-card:hover .cover-mono{transform:scale(1.05)}
 
-/* 毛玻璃强化 */
-.nav{background:rgba(251,251,253,.72)}
+/* 毛玻璃强化：恢复并保留高斯模糊，半透明底让模糊可见 */
+.nav{background:rgba(251,251,253,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
 
 /* 移动端 */
 @media (max-width:640px){
@@ -2255,7 +2264,7 @@ function cardHTML(r, i){
         </div>
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
-          <button data-act="copy" data-id="${r.id}" class="card-copy" title="${t('copyIngredientsTip')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg> ${t('cardCopy')}</button>
+          <button data-act="copy" data-id="${r.id}" class="card-copy" title="${t('copyIngredientsTip')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg> <span class="copy-text">${t('cardCopy')}</span></button>
         </div>
       </div>
     </div>
