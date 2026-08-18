@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v38：接入 Supabase 后端（登录/注册/管理员），降级模式下行为与 v37 完全一致（SUPABASE_CONFIG 留空即纯本地）；个人工作台默认空白，共享池保留全部 60 条配方。
+// v39：SUPABASE_CONFIG 填入真实 Project URL + anon key，共享池正式接入 Supabase 后端（登录/注册/邮箱验证/管理员）；需先在 Supabase SQL Editor 跑 supabase_schema.sql 建表，否则共享池为空。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v38';
+const CACHE = 'dessert-v39';
 const SHELL = [
   './',
   './manifest.json',
