@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v39：SUPABASE_CONFIG 填入真实 Project URL + anon key，共享池正式接入 Supabase 后端（登录/注册/邮箱验证/管理员）；需先在 Supabase SQL Editor 跑 supabase_schema.sql 建表，否则共享池为空。
+// v40：修复 sbSignOut 登出后界面不刷新（卡在已登录态）的 bug——改为登出成功后显式重置 currentUser/isAdmin 并刷新导航栏与共享池门禁。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v40';
+const CACHE = 'dessert-v41';
 const SHELL = [
   './',
   './manifest.json',
