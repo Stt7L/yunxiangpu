@@ -333,10 +333,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .back-to-top.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 .back-to-top:hover{background:rgba(255,255,255,.9);color:var(--text)}
 .back-to-top:active{transform:scale(.94)}
-.back-to-top .ic{width:22px;height:22px}
 .back-to-top .ic{width:20px;height:20px}
 @media (max-width:640px){
-  .back-to-top{right:16px;bottom:84px;width:44px;height:44px}
+  .back-to-top{right:16px;bottom:76px;width:44px;height:44px}
+  .fab{right:16px;bottom:22px;width:44px;height:44px}
+  .fab .ic{width:20px;height:20px}
 }
 
 /* ═══════════════════ 弹层 / 底部面板 ═══════════════════ */
@@ -387,10 +388,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   border-radius:var(--radius);padding:18px;
 }
 .card > label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px}
-.sec-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
-.sec-title span{font-size:13px;font-weight:600;color:var(--text2)}
-.sec-title .sec-sub{font-size:12px;color:var(--text3);font-weight:400}
-.sec-tools{display:inline-flex;gap:6px;margin-left:auto}
+/* 区块标题：icon + 主标题 + 灰色副标题（与封面区统一） */
+.sec-title{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.sec-title-text{flex:1;min-width:0;text-align:left}
+.sec-title-main{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.sec-title-main .ic{width:19px;height:19px;flex:none;color:var(--text2)}
+.sec-title .sec-sub{font-size:12px;color:var(--text3);margin-top:3px;font-weight:400}
+.sec-tools{display:inline-flex;gap:6px;margin-left:auto;flex:none;align-self:flex-start}
 .input,.textarea{
   width:100%;border:1px solid var(--border-2);border-radius:var(--radius-sm);
   padding:10px 13px;font-family:inherit;font-size:14px;color:var(--text);
@@ -672,10 +676,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* ═══════════════════ 响应式细节 ═══════════════════ */
 @media (max-width:640px){
-  .nav-inner{gap:10px}
+  .nav-inner{gap:6px;padding:10px 16px}
   .brand p{display:none}
+  .brand h1{font-size:16px}
+  .nav-tools{gap:2px}
   .search-wrap{order:3;flex-basis:100%;max-width:none;min-width:0}
-  #btnNew,#btnImport,#btnPrices,#btnFill{display:none}
   .container{padding:18px 14px 130px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
   .cover{height:112px}
@@ -914,7 +919,12 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
       <!-- ① 智能解析食谱 -->
       <section class="card">
-        <div class="sec-title"><span data-i18n="bulkTitle">智能解析食谱</span><span class="sec-sub" data-i18n="bulkSub">粘贴小红书/朋友圈长文案，自动提取名称、食材、步骤</span></div>
+        <div class="sec-title">
+          <div class="sec-title-text">
+            <div class="sec-title-main"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="M5 17l1.5 1.5L5 20"/><path d="M19 17l-1.5 1.5L19 20"/></svg> <span data-i18n="bulkTitle">智能解析食谱</span></div>
+            <div class="sec-sub" data-i18n="bulkSub">粘贴小红书/朋友圈长文案，自动提取名称、食材、步骤</div>
+          </div>
+        </div>
         <textarea id="bulkPaste" class="textarea" rows="5" data-i18n-placeholder="bulkPlaceholder" placeholder="例如：&#10;轻乳酪蛋糕‼️不回缩不塌陷超详细做法分享&#10;📝记录一下配方(1个6寸）&#10;鸡蛋3个&#10;奶油奶酪120克&#10;...&#10;📝制作过程&#10;1⃣奶油奶酪+黄油+牛奶隔水搅拌均匀&#10;..."></textarea>
         <div class="bulk-actions">
           <button type="button" class="btn btn-secondary" data-act="applyBulkPaste"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="M5 17l1.5 1.5L5 20"/><path d="M19 17l-1.5 1.5L19 20"/></svg> <span data-i18n="parseBtn">解析并添加</span></button>
@@ -934,8 +944,10 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <!-- ③ 食材清单（成本核算） -->
       <section class="card">
         <div class="sec-title">
-          <span data-i18n="ingTitle">食材清单</span>
-          <span class="sec-sub" id="ingCount">0 项</span>
+          <div class="sec-title-text">
+            <div class="sec-title-main"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><circle cx="12" cy="12" r="3"/></svg> <span data-i18n="ingTitle">食材清单</span></div>
+            <div class="sec-sub" id="ingCount">0 项</div>
+          </div>
           <span class="sec-tools">
             <button type="button" class="mini-btn" data-act="addIng" data-i18n-title="addIngBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="addIngBtn">添加</span></button>
             <button type="button" class="mini-btn" data-act="addGroup" data-i18n-title="addGroupBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg> <span data-i18n="addGroupBtn">添加分组</span></button>
