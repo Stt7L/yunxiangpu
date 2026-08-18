@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v30：移动端细节优化。修复回到顶部按钮与 FAB 在手机端未对齐；恢复手机端右上角导航按钮（价格库/补全成本/新建）；统一表单区块标题为 icon+主标题+灰色副标题。
+// v31：PWA 体验优化。顶部导航栏增加 env(safe-area-inset-top)，解决 PWA 添加到桌面后被刘海/状态栏遮挡；收紧手机端底部留白；为关键按钮添加触感反馈。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v30';
+const CACHE = 'dessert-v31';
 const SHELL = [
   './',
   './manifest.json',
