@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v24：页面(HTML)网络优先；其余同源资源缓存优先+后台更新。
+// v25：修复分类编辑弹窗（删除按钮缺失 id 导致 openCatDialog 抛错、弹窗不显示）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v24';
+const CACHE = 'dessert-v25';
 const SHELL = [
   './',
   './manifest.json',
