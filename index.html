@@ -580,6 +580,22 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .dialog-actions{display:flex;gap:10px}
 .dialog-actions .btn{flex:1}
 
+/* 分类编辑弹窗：删除icon置右上角，输入框与按钮拉开间距 */
+.cat-dialog{position:relative;padding-top:42px}
+.cat-dialog-del{
+  position:absolute;top:14px;right:14px;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;color:#ff3b30;cursor:pointer;
+  transition:background .2s var(--ease), transform .15s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.cat-dialog-del:hover{background:rgba(255,59,48,.08)}
+.cat-dialog-del:active{transform:scale(.9)}
+.cat-dialog-del svg{width:18px;height:18px}
+.cat-dialog .input{margin:16px 0 22px}
+.cat-dialog .dialog-actions{gap:12px}
+
 /* ═══════════════════ 彩蛋弹窗 ═══════════════════ */
 .easter-card{
   background:#fff;border-radius:22px;padding:30px 26px 26px;
@@ -1060,11 +1076,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 <!-- ═════════════ 分类编辑弹窗（新增 / 重命名 / 删除，简约苹果风，与「新分类」弹窗统一） ═════════════ -->
 <div id="catDialogOverlay" class="overlay hidden">
-  <div class="dialog">
+  <div class="dialog cat-dialog">
+    <button type="button" class="cat-dialog-del" data-act="catDialogDelete" id="catDialogDelete" title="删除" aria-label="删除">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+    </button>
     <h3 id="catDialogTitle" data-i18n="catEditTitle">编辑分类</h3>
-    <input id="catDialogInput" class="input" style="margin:14px 0 6px" maxlength="12">
+    <input id="catDialogInput" class="input" maxlength="12">
     <div class="dialog-actions">
-      <button class="btn btn-danger" data-act="catDialogDelete" id="catDialogDelete" data-i18n="deleteCat">删除</button>
       <button class="btn btn-secondary" data-act="catDialogCancel" data-i18n="confirmCancel">取消</button>
       <button class="btn" data-act="catDialogSave" id="catDialogSave" data-i18n="save">完成</button>
     </div>
