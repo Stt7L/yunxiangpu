@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="云享谱">
 <meta name="theme-color" content="#f5f5f7">
 <link rel="apple-touch-icon" href="./icons/app-icon-180.png">
@@ -220,6 +220,9 @@ button{font-family:inherit}
 }
 .stats-line b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
 .sync-tools{display:inline-flex;gap:8px;margin-left:auto;flex:none}
+.view-toggle{display:none;gap:4px;margin-left:8px;flex:none}
+.view-toggle .icon-btn{width:30px;height:30px}
+.view-toggle .icon-btn.on{background:var(--accent-soft);color:var(--accent)}
 
 /* ═══════════════════ 食谱卡片 ═══════════════════ */
 .grid{
@@ -227,6 +230,7 @@ button{font-family:inherit}
   grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
   gap:20px;
 }
+.grid-single{grid-template-columns:1fr}
 .recipe-card{
   background:var(--card);border-radius:var(--radius-lg);overflow:hidden;
   box-shadow:var(--shadow-sm);cursor:pointer;position:relative;
@@ -278,7 +282,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .grid-footer{
   text-align:center;padding:16px 0 0;font-size:13px;color:var(--text3);
   letter-spacing:.02em;animation:fadeIn .5s var(--ease) both;
-  margin-top:auto;margin-bottom:62px;
+  margin-top:auto;margin-bottom:28px;
 }
 
 /* 卡片右上角操作 */
@@ -677,13 +681,18 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* ═══════════════════ 响应式细节 ═══════════════════ */
 @media (max-width:640px){
+  .nav{background:rgba(251,251,253,.98);-webkit-backdrop-filter:none;backdrop-filter:none}
   .nav-inner{gap:6px;padding:14px 16px 10px}
   .brand p{display:none}
   .brand h1{font-size:16px}
   .nav-tools{gap:2px}
   .search-wrap{order:3;flex-basis:100%;max-width:none;min-width:0}
-  .container{padding:18px 14px calc(28px + env(safe-area-inset-bottom))}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .container{padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .grid-single{grid-template-columns:1fr}
+  .grid-single .recipe-card .meta-row{font-size:12px}
+  .grid-single .recipe-card .cost{font-size:16px}
+  .view-toggle{display:inline-flex}
   .cover{height:112px}
   .sheet-head{padding:16px 20px 0}
   .sheet-body{padding:16px 20px 22px}
@@ -691,6 +700,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .stats-line{font-size:12px}
   .input,.textarea,select,.search-wrap input,.search-bar input{font-size:16px}
   .ing-row .input,.pf-form .input{font-size:16px}
+  .sec-title-main{white-space:nowrap}
+  .sec-tools .mini-btn span{display:none}
+  .sec-tools .mini-btn{padding:0 9px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -848,6 +860,10 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <button type="button" class="chip-btn chip-btn-ghost" data-act="exportData" data-i18n-title="exportTitle" title="导出全部数据（备份 / 换设备）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg> <span data-i18n="exportBtn">导出</span></button>
       <button type="button" class="chip-btn chip-btn-ghost" data-act="importData" data-i18n-title="importTitle" title="从文件导入数据（按名称合并，不覆盖）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M12 4v9"/><path d="m8 9 4 4 4-4"/></svg> <span data-i18n="importBtn">导入</span></button>
     </span>
+    <span class="view-toggle" id="viewToggle">
+      <button type="button" class="icon-btn" data-act="viewSingle" data-i18n-title="viewSingle" title="单列视图"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+      <button type="button" class="icon-btn" data-act="viewDouble" data-i18n-title="viewDouble" title="双列视图"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="7" height="14" rx="1.5"/><rect x="13" y="5" width="7" height="14" rx="1.5"/></svg></button>
+    </span>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
   </div>
 
@@ -952,7 +968,6 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
             <div class="sec-sub" id="ingCount">0 项</div>
           </div>
           <span class="sec-tools">
-            <button type="button" class="mini-btn" data-act="addIng" data-i18n-title="addIngBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="addIngBtn">添加</span></button>
             <button type="button" class="mini-btn" data-act="addGroup" data-i18n-title="addGroupBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h16"/><path d="M12 4v16"/></svg> <span data-i18n="addGroupBtn">添加分组</span></button>
             <button type="button" class="mini-btn" id="btnBulkPrice" data-i18n-title="calcBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M7 11v2"/><path d="M7 15v2"/><path d="M12 11v6"/><path d="M17 11v2"/><path d="M17 15v2"/></svg> <span data-i18n="calcBtn">核算</span></button>
           </span>
@@ -1719,6 +1734,7 @@ let recipes     = loadRecipes();   // 全部食谱
 let priceLib    = loadPrices();    // 原材料价格库
 let searchTerm  = '';              // 当前搜索关键字
 let activeCat   = '';              // 主页分类筛选（'' = 全部）
+let cardViewMode = localStorage.getItem('yx-card-view') || 'double'; // 移动端卡片视图：single / double
 let editingId   = null;            // 正在编辑的食谱 id（null = 新建）
 let pendingDeleteId = null;        // 待删除的食谱 id
 let pendingDeleteKind = 'recipe';  // 待删除对象类型：recipe / price
@@ -2167,6 +2183,9 @@ function render(){
     (b.updatedAt||0) - (a.updatedAt||0)
   );
   byId('recipeGrid').innerHTML = sorted.map((r, i) => cardHTML(r, i)).join('');
+  byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
+  byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
+  document.querySelectorAll('#viewToggle .icon-btn').forEach(b => b.classList.toggle('on', b.dataset.act === 'view' + (cardViewMode === 'single' ? 'Single' : 'Double')));
   renderCatFilter();
 
   // 空状态切换
@@ -3140,7 +3159,8 @@ const HAPTIC_MAP = {
   importBuiltin:'medium', fillCosts:'medium', clearSearch:'light', togglePin:'light',
   applyBulkPaste:'medium', clearBulkPaste:'medium', saveForm:'medium',
   catDialogSave:'medium', catDialogCancel:'light', catDialogDelete:'heavy',
-  appConfirmOk:'heavy', appConfirmCancel:'light'
+  appConfirmOk:'heavy', appConfirmCancel:'light',
+  viewSingle:'light', viewDouble:'light'
 };
 
 /* 全局事件委托：按钮动作 */
@@ -3228,6 +3248,8 @@ document.addEventListener('click', async e => {
     case 'catDialogDelete':  catDialogDelete(); break;
     case 'appConfirmOk':   closeAppConfirm(true); break;
     case 'appConfirmCancel': closeAppConfirm(false); break;
+    case 'viewSingle': cardViewMode = 'single'; localStorage.setItem('yx-card-view', 'single'); render(); break;
+    case 'viewDouble': cardViewMode = 'double'; localStorage.setItem('yx-card-view', 'double'); render(); break;
   }
   const hapticType = HAPTIC_MAP[act];
   if(hapticType) haptic(hapticType);
