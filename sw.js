@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v46：注册弹窗新增「确认密码」栏（提交时校验两次一致），登录/注册密码框均加眼睛可视化切换。
+// v47：登录/注册防连点（authBusy），Supabase 常见错误（限流/邮箱未验证/已注册/密码错误）翻译为中文友好提示。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v46';
+const CACHE = 'dessert-v47';
 const SHELL = [
   './',
   './manifest.json',
