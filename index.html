@@ -896,6 +896,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .auth-switch{display:block;text-align:center;margin-top:14px;font-size:14px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .auth-switch:hover{opacity:.8}
 .auth-switch:active{opacity:.6}
+.pwd-wrap{position:relative}
+.pwd-wrap .input{padding-right:44px}
+.pwd-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#86868b;cursor:pointer;padding:7px;border-radius:9px;line-height:0;display:flex}
+.pwd-toggle:active{background:rgba(0,0,0,.06)}
+.pwd-toggle .eye-off{display:none}
+.pwd-toggle.on .eye-on{display:none}
+.pwd-toggle.on .eye-off{display:block}
 .admin-dialog{max-width:520px;max-height:82vh;display:flex;flex-direction:column}
 .admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .admin-head h3{font-size:19px;font-weight:700}
@@ -1294,7 +1301,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <label class="auth-label" data-i18n="authEmail">邮箱</label>
       <input id="loginEmail" class="input" type="email" autocomplete="email" placeholder="you@example.com">
       <label class="auth-label" data-i18n="authPassword">密码</label>
-      <input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="至少 6 位">
+      <div class="pwd-wrap">
+        <input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="至少 6 位">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="loginPassword" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
       <p class="auth-hint" id="loginHint"></p>
     </div>
     <div class="dialog-actions auth-actions">
@@ -1317,7 +1330,21 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <label class="auth-label" data-i18n="authEmail">邮箱</label>
       <input id="regEmail" class="input" type="email" autocomplete="email" placeholder="you@example.com">
       <label class="auth-label" data-i18n="authPassword">密码</label>
-      <input id="regPassword" class="input" type="password" autocomplete="new-password" placeholder="至少 6 位">
+      <div class="pwd-wrap">
+        <input id="regPassword" class="input" type="password" autocomplete="new-password" placeholder="至少 6 位">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="regPassword" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <label class="auth-label" data-i18n="authConfirmPassword">确认密码</label>
+      <div class="pwd-wrap">
+        <input id="regConfirm" class="input" type="password" autocomplete="new-password" data-i18n="authConfirmPassword" placeholder="确认密码">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="regConfirm" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
       <p class="auth-hint" id="regHint"></p>
     </div>
     <div class="dialog-actions auth-actions">
@@ -1466,7 +1493,7 @@ const I18N = {
   confirmDeleteRecipe:'确定删除「{name}」吗？', confirmDeleteRecipeFallback:'确定删除该食谱吗？',
   ingGroupDefault:'食材清单一', addGroupBtn:'添加分组', ingGroupNamePlaceholder:'分组名称',
   toastGroupAdded:'已添加新分组', toastOneGroupLeft:'至少保留一个食材分组',
-  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', toastUpToDate:'已是最新'
+  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', authConfirmPassword:'确认密码', authPwdMismatch:'两次输入的密码不一致', showPassword:'显示密码', hidePassword:'隐藏密码', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', toastUpToDate:'已是最新'
 },
 'ja-JP':{
   appName:'雲享譜', appTagline:'レシピ原価 · 簡単管理', pageTitle:'雲享譜 · レシピ原価管理',
@@ -1566,7 +1593,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」を削除しますか？', confirmDeleteRecipeFallback:'このレシピを削除しますか？',
   ingGroupDefault:'食材リスト1', addGroupBtn:'グループ追加', ingGroupNamePlaceholder:'グループ名',
   toastGroupAdded:'グループを追加しました', toastOneGroupLeft:'食材グループは1つ以上残してください',
-  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', toastUpToDate:'最新です'
+  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', authConfirmPassword:'パスワード（確認）', authPwdMismatch:'パスワードが一致しません', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', toastUpToDate:'最新です'
 },
 'ko-KR':{
   appName:'운샹푸', appTagline:'레시피 원가 · 쉬운 관리', pageTitle:'운샹푸 · 레시피 원가 관리',
@@ -1666,7 +1693,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」을(를) 삭제하시겠습니까?', confirmDeleteRecipeFallback:'이 레시피를 삭제하시겠습니까?',
   ingGroupDefault:'재료 목록1', addGroupBtn:'그룹 추가', ingGroupNamePlaceholder:'그룹 이름',
   toastGroupAdded:'그룹이 추가되었습니다', toastOneGroupLeft:'재료 그룹은 최소 1개 남겨주세요',
-  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', toastUpToDate:'최신 상태'
+  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', authConfirmPassword:'비밀번호 확인', authPwdMismatch:'비밀번호가 일치하지 않습니다', showPassword:'비밀번호 표시', hidePassword:'비밀번호 숨기기', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', toastUpToDate:'최신 상태'
 },
 'en-US':{
   appName:'YunXiangPu', appTagline:'Recipe Cost · Made Simple', pageTitle:'YunXiangPu · Recipe Cost Manager',
@@ -1766,7 +1793,7 @@ const I18N = {
   confirmDeleteRecipe:'Delete 「{name}」?', confirmDeleteRecipeFallback:'Delete this recipe?',
   ingGroupDefault:'Ingredients 1', addGroupBtn:'Add group', ingGroupNamePlaceholder:'Group name',
   toastGroupAdded:'Group added', toastOneGroupLeft:'Keep at least one ingredient group',
-  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', toastUpToDate:'Already up to date'
+  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', authConfirmPassword:'Confirm password', authPwdMismatch:'Passwords do not match', showPassword:'Show password', hidePassword:'Hide password', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', toastUpToDate:'Already up to date'
 },
 'th-TH':{
   appName:'หยุนเซียงผู่', appTagline:'ต้นทุนสูตร · จัดการง่าย', pageTitle:'หยุนเซียงผู่ · จัดการต้นทุนสูตร',
@@ -1866,7 +1893,7 @@ const I18N = {
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
-  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', toastUpToDate:'เป็นปัจจุบันแล้ว'
+  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', authConfirmPassword:'ยืนยันรหัสผ่าน', authPwdMismatch:'รหัสผ่านไม่ตรงกัน', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', toastUpToDate:'เป็นปัจจุบันแล้ว'
 }
 };
 let currentLang = loadLang();
@@ -1914,6 +1941,14 @@ function updateStaticText(){
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.dataset.i18nPlaceholder));
   document.querySelectorAll('[data-i18n-title]').forEach(el => el.title = t(el.dataset.i18nTitle));
   document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  // 密码眼睛按钮：按当前可见状态刷新 title/aria（覆盖上面 [data-i18n-title] 的默认「显示密码」）
+  document.querySelectorAll('.pwd-toggle').forEach(btn => {
+    const inp = btn.dataset.target ? byId(btn.dataset.target) : null;
+    const show = inp && inp.type === 'text';
+    btn.classList.toggle('on', show);
+    btn.title = t(show ? 'hidePassword' : 'showPassword');
+    btn.setAttribute('aria-label', btn.title);
+  });
 }
 function updateLangUI(){
   byId('langMenu').querySelectorAll('.lang-item').forEach(btn => {
@@ -2575,11 +2610,25 @@ function updateAuthUI(){
 function openAuth(mode){
   if(!SB_ENABLED){ toast(t('sbNotConfigured'), 'error'); return; }
   if(mode === 'signup'){
-    byId('regUsername').value = ''; byId('regEmail').value = ''; byId('regPassword').value = ''; byId('regHint').textContent = '';
+    byId('regUsername').value = ''; byId('regEmail').value = ''; byId('regPassword').value = ''; byId('regConfirm').value = ''; byId('regHint').textContent = '';
     hide('loginOverlay'); show('registerOverlay');
   }else{
     byId('loginEmail').value = ''; byId('loginPassword').value = ''; byId('loginHint').textContent = '';
     hide('registerOverlay'); show('loginOverlay');
+  }
+}
+/* 密码可视化切换（眼睛按钮） */
+function togglePwd(targetId){
+  const input = byId(targetId);
+  if(!input) return;
+  const willShow = input.type === 'password';
+  input.type = willShow ? 'text' : 'password';
+  const btn = document.querySelector('.pwd-toggle[data-target="' + targetId + '"]');
+  if(btn){
+    btn.classList.toggle('on', willShow);
+    const label = t(willShow ? 'hidePassword' : 'showPassword');
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
   }
 }
 function closeLogin(){ hide('loginOverlay'); }
@@ -2596,9 +2645,11 @@ async function authSignup(){
   const username = byId('regUsername').value.trim();
   const email = byId('regEmail').value.trim();
   const password = byId('regPassword').value;
+  const confirmPwd = byId('regConfirm').value;
   if(!username){ byId('regHint').textContent = t('fillAuthorFirst'); return; }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ byId('regHint').textContent = t('authEmailInvalid'); return; }
   if(password.length < 6){ byId('regHint').textContent = t('authPwdShort'); return; }
+  if(password !== confirmPwd){ byId('regHint').textContent = t('authPwdMismatch'); return; }
   byId('regHint').textContent = '';
   if(await sbSignUp(email, password, username)){ hide('loginOverlay'); hide('registerOverlay'); }
 }
@@ -3862,6 +3913,7 @@ document.addEventListener('click', async e => {
     case 'switchToLogin':  hide('registerOverlay'); openAuth('signin'); break;
     case 'authSignin':     authSignin(); break;
     case 'authSignup':     authSignup(); break;
+    case 'togglePwd':      togglePwd(btn.dataset.target); break;
     case 'sbLogout':       sbSignOut(); break;
     case 'openAdmin':      openAdmin(); break;
     case 'closeAdmin':     hide('adminOverlay'); break;
