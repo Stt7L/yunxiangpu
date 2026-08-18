@@ -160,7 +160,7 @@ button{font-family:inherit}
   -webkit-tap-highlight-color:transparent;
   -webkit-user-select:none;user-select:none;
 }
-.btn,.mini-btn,.chip-btn,.icon-btn,.fab,.btn-dashed,.cat-chip,.seg button{-webkit-user-select:none;user-select:none}
+.btn,.mini-btn,.chip-btn,.icon-btn,.fab,.btn-dashed,.cat-chip,.seg button,.cat-edit{-webkit-user-select:none;-webkit-touch-callout:none;user-select:none}
 .btn:hover{background:var(--accent-hover)}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -418,12 +418,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   background:#fff;border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   font-size:10px;line-height:1;color:var(--text2);
-  opacity:0;transform:scale(.7);
-  transition:opacity .15s var(--ease), transform .15s var(--ease);
-  box-shadow:0 1px 3px rgba(0,0,0,.10);cursor:pointer;
+  opacity:.6;transform:scale(1);
+  transition:opacity .15s var(--ease), transform .15s var(--ease), background .15s, color .15s;
+  box-shadow:0 1px 3px rgba(0,0,0,.10);cursor:pointer;z-index:3;
 }
+.seg button .cat-edit:active{background:var(--accent);color:#fff;border-color:var(--accent);transform:scale(1.12)}
 @media (hover:hover){
-  .seg button:hover .cat-edit{opacity:1;transform:scale(1)}
+  .seg button:hover .cat-edit{opacity:1}
 }
 .seg button.cat-add{
   padding:6px 14px;border-radius:var(--pill);
@@ -706,6 +707,14 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 }
 .cat-chip .cnt{font-size:11px;color:var(--text3);margin-left:4px;font-variant-numeric:tabular-nums;transition:color .2s}
 .cat-chip.on .cnt{color:var(--accent)}
+.cat-chip .cat-edit{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;line-height:1;color:var(--text3);opacity:.45;
+  margin-left:1px;padding:3px 4px;border-radius:7px;cursor:pointer;
+  transition:opacity .15s var(--ease), color .15s var(--ease), background .15s var(--ease);
+}
+.cat-chip .cat-edit:active{opacity:1;color:#fff;background:var(--accent)}
+.cat-chip.on .cat-edit{opacity:.7;color:var(--accent)}
 @keyframes underlineIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* 苹果式 outline 按钮：通透底蓝描边 → 悬浮蓝底白字 */
@@ -2148,7 +2157,7 @@ function renderCatFilter(){
     .concat(allCats().map(c => {
       const n = counts[c.name] || 0;
       if(n === 0) return '';
-      return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}" data-orig="${esc(c.orig)}" title="${esc(t('editCat')||'编辑')}">${tCat(c.name)} <span class="cnt">${n}</span></button>`;
+      return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}" data-orig="${esc(c.orig)}" title="${esc(t('editCat')||'编辑')}">${tCat(c.name)} <span class="cnt">${n}</span><span class="cat-edit" data-act="catEdit" title="${esc(t('editCat')||'编辑')}" aria-label="${esc(t('editCat')||'编辑')}">&#9998;</span></button>`;
     }))
     .filter(Boolean);
   chips.push(`<button type="button" class="cat-chip${activeCat === '__fav__' ? ' on' : ''}" data-cat="__fav__">${t('catFavorite')} <span class="cnt">${favCount}</span></button>`);
@@ -3212,6 +3221,8 @@ byId('searchInput').addEventListener('input', e => {
 });
 /* 主页分类筛选 */
 byId('catFilter').addEventListener('click', e => {
+  const editBtn = e.target.closest('[data-act="catEdit"]');
+  if(editBtn){ openCatDialog('edit', editBtn.closest('button')); return; }  // 点铅笔直接编辑
   const chip = e.target.closest('.cat-chip');
   if(!chip) return;
   if(lpFired){ lpFired = false; return; }   // 长按/右键后抑制一次切换
@@ -3241,11 +3252,16 @@ byId('catFilter').addEventListener('touchstart', e => {
   if(!b) return;
   lpFired = false;
   clearTimeout(lpTimer);
+  const t = e.touches[0]; lpSX = t.clientX; lpSY = t.clientY;
   lpTimer = setTimeout(() => { lpFired = true; openCatDialog('edit', b); }, 550);
 }, { passive:true });
 byId('catFilter').addEventListener('touchend', () => clearTimeout(lpTimer));
 byId('catFilter').addEventListener('touchcancel', () => clearTimeout(lpTimer));
-byId('catFilter').addEventListener('touchmove', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('touchmove', e => {
+  if(!lpTimer) return;
+  const t = e.touches[0];
+  if(Math.abs(t.clientX - lpSX) > 12 || Math.abs(t.clientY - lpSY) > 12) clearTimeout(lpTimer);  // 仅明显滑动才取消长按
+}, { passive:true });
 byId('catFilter').addEventListener('contextmenu', e => {
   const b = catChipEditableFrom(e);
   if(!b) return;
@@ -3261,7 +3277,7 @@ function clearSearch(){
 }
 
 /* 分类分段控件 + 长按 / 右键 / 悬停 编辑·删除 */
-let lpTimer = null, lpFired = false;
+let lpTimer = null, lpFired = false, lpSX = 0, lpSY = 0;
 function catBtnFrom(e){ const b = e.target.closest('button'); return (b && !b.dataset.act) ? b : null; }
 byId('catSeg').addEventListener('click', e => {
   const b = catBtnFrom(e);
@@ -3287,11 +3303,16 @@ byId('catSeg').addEventListener('touchstart', e => {
   if(!b) return;
   lpFired = false;
   clearTimeout(lpTimer);
+  const t = e.touches[0]; lpSX = t.clientX; lpSY = t.clientY;
   lpTimer = setTimeout(() => { lpFired = true; openCatDialog('edit', b); }, 550);
 }, { passive:true });
 byId('catSeg').addEventListener('touchend', () => clearTimeout(lpTimer));
 byId('catSeg').addEventListener('touchcancel', () => clearTimeout(lpTimer));
-byId('catSeg').addEventListener('touchmove', () => clearTimeout(lpTimer));
+byId('catSeg').addEventListener('touchmove', e => {
+  if(!lpTimer) return;
+  const t = e.touches[0];
+  if(Math.abs(t.clientX - lpSX) > 12 || Math.abs(t.clientY - lpSY) > 12) clearTimeout(lpTimer);  // 仅明显滑动才取消长按
+}, { passive:true });
 /* 桌面：右键直接打开 */
 byId('catSeg').addEventListener('contextmenu', e => {
   const b = catBtnFrom(e);
