@@ -213,7 +213,7 @@ button{font-family:inherit}
 .icon-danger:hover{background:rgba(255,59,48,.1);color:var(--danger)}
 
 /* ═══════════════════ 主区域 ═══════════════════ */
-.container{max-width:1080px;width:100%;margin:0 auto;padding:28px 22px 32px;display:flex;flex-direction:column;flex:1}
+.container{max-width:1080px;width:100%;margin:0 auto;padding:28px 22px calc(32px + env(safe-area-inset-bottom));display:flex;flex-direction:column;flex:1}
 .stats-line{
   display:flex;align-items:center;flex-wrap:wrap;gap:10px;
   font-size:13px;color:var(--text3);margin-bottom:16px;
@@ -291,7 +291,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .grid-footer{
   text-align:center;padding:16px 0 0;font-size:13px;color:var(--text3);
   letter-spacing:.02em;animation:fadeIn .5s var(--ease) both;
-  margin-top:auto;margin-bottom:28px;
+  margin-top:auto;margin-bottom:88px;
 }
 
 /* 卡片右上角操作 */
@@ -333,9 +333,47 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .fab:active{transform:scale(.94)}
 .fab .ic{width:22px;height:22px}
 
-/* 回到顶部按钮（在 FAB 上方，下滑显示，到顶淡出） */
+/* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
+.bottom-tab{
+  position:fixed;left:0;right:0;bottom:0;z-index:80;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 0 calc(env(safe-area-inset-bottom));
+  background:rgba(251,251,253,.94);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid rgba(0,0,0,.08);
+  box-shadow:0 -2px 16px rgba(0,0,0,.05);
+}
+.bottom-tab-item{
+  flex:1;max-width:140px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:10px 8px 12px;
+  border:none;background:transparent;
+  color:var(--text3);font-size:12px;font-weight:500;
+  cursor:pointer;transition:color .2s, transform .15s;
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+}
+.bottom-tab-item .ic{width:22px;height:22px;stroke-width:1.8}
+.bottom-tab-item.active{color:var(--accent);font-weight:600}
+.bottom-tab-item:active{transform:scale(.92)}
+.bottom-tab-center{
+  position:relative;top:-16px;
+  width:58px;height:58px;border-radius:50%;border:none;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 22px rgba(0,113,227,.42), 0 2px 6px rgba(0,113,227,.22);
+  cursor:pointer;transition:transform .15s, background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.bottom-tab-center .ic{width:26px;height:26px}
+.bottom-tab-center:hover{background:var(--accent-hover)}
+.bottom-tab-center:active{transform:scale(.92)}
+@supports (bottom:env(safe-area-inset-bottom)){
+  .bottom-tab{padding-bottom:calc(6px + env(safe-area-inset-bottom))}
+}
+
+/* 回到顶部按钮（在底部 Tab 上方，下滑显示，到顶淡出） */
 .back-to-top{
-  position:fixed;right:22px;bottom:96px;z-index:60;
+  position:fixed;right:22px;bottom:120px;z-index:60;
   width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;
   background:rgba(255,255,255,.72);color:var(--text2);
   display:flex;align-items:center;justify-content:center;
@@ -349,9 +387,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .back-to-top:active{transform:scale(.94)}
 .back-to-top .ic{width:20px;height:20px}
 @media (max-width:640px){
-  .back-to-top{right:16px;bottom:76px;width:44px;height:44px}
-  .fab{right:16px;bottom:22px;width:44px;height:44px}
-  .fab .ic{width:20px;height:20px}
+  .back-to-top{right:16px;bottom:108px;width:44px;height:44px}
+  .bottom-tab-center{width:52px;height:52px;top:-14px}
 }
 
 /* ═══════════════════ 弹层 / 底部面板 ═══════════════════ */
@@ -705,7 +742,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .brand h1{font-size:16px}
   .nav-tools{gap:2px}
   .search-wrap{order:3;flex-basis:100%;max-width:none;min-width:0}
-  .container{padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+  .container{padding:18px 14px calc(78px + env(safe-area-inset-bottom))}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
   .grid-single{grid-template-columns:1fr}
   .grid-single .recipe-card .meta-row{font-size:12px}
@@ -918,11 +955,23 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   </div>
 </main>
 
+<!-- 底部双工作台 Tab 导航（小红书风格：个人工作台 / 中央添加 / 共享配方池） -->
+<nav class="bottom-tab" id="bottomTab" aria-label="工作台切换">
+  <button type="button" class="bottom-tab-item" data-act="switchWorkspace" data-ws="personal" id="tabPersonal">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span data-i18n="tabPersonal">个人工作台</span>
+  </button>
+  <button type="button" class="bottom-tab-center" data-act="new" data-i18n-aria="fabNew" aria-label="新建食谱">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <button type="button" class="bottom-tab-item" data-act="switchWorkspace" data-ws="shared" id="tabShared">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span data-i18n="tabShared">共享配方池</span>
+  </button>
+</nav>
+
 <!-- 回到顶部 -->
 <button id="backToTop" class="back-to-top" data-i18n-aria="backToTop" aria-label="回到顶部"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
-
-<!-- 悬浮新建按钮 -->
-<button id="fab" class="fab" data-act="new" data-i18n-aria="fabNew" aria-label="新建食谱"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <!-- ═════════════ 新建 / 编辑 表单面板 ═════════════ -->
 <div id="formOverlay" class="overlay hidden">
@@ -1005,7 +1054,14 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
         <textarea id="fNotes" class="textarea" rows="3" data-i18n-placeholder="notesPlaceholder" placeholder="口味偏好、保存方法、注意事项…"></textarea>
       </section>
 
-      <!-- ⑥ 灵感/视频来源 -->
+      <!-- ⑥ 共享池作者（仅共享配方池显示） -->
+      <section class="card" id="fAuthorRow" style="display:none">
+        <label data-i18n="authorLabel">作者名称 *</label>
+        <input id="fAuthor" class="input" data-i18n-placeholder="authorPlaceholder" placeholder="你的昵称或署名">
+        <p class="seg-hint" data-i18n="authorHint">共享配方池需要署名，且同一成品名称不能重复</p>
+      </section>
+
+      <!-- ⑦ 灵感/视频来源 -->
       <section class="card">
         <label data-i18n="sourceUrlLabel">灵感/视频来源</label>
         <input id="fSourceUrl" class="input" type="url" data-i18n-placeholder="sourceUrlPlaceholder" placeholder="如：https://www.xiaohongshu.com/...">
@@ -1187,7 +1243,9 @@ const I18N = {
 'zh-CN':{
   appName:'云享谱', appTagline:'配方成本 · 轻松管理', pageTitle:'云享谱 · 配方成本管理',
   navPrices:'价格库', navFill:'补全成本', navNew:'新建食谱', navLang:'切换语言',
+  tabPersonal:'个人工作台', tabShared:'共享配方池',
   statsTotal:'共 {n} 份食谱 · 全部食材成本 {cost} · 覆盖 {cats} 个分类', statsCatPrefix:'「{cat}」 · ',
+  statsSharedTotal:'共享配方池 · 共 {n} 条 · 总参考成本 {cost}',
   searchPlaceholder:'搜索食谱或食材…', searchClear:'清除搜索',
   exportBtn:'导出', exportTitle:'导出全部数据（备份 / 换设备）',
   importBtn:'导入', importTitle:'从文件导入数据（按名称合并，不覆盖）',
@@ -1196,7 +1254,7 @@ const I18N = {
   emptyNoRecipesTitle:'还没有任何食谱', emptyNoRecipesDesc:'创建你的第一份食谱，边记步骤边自动核算每道菜的食材成本。', emptyNoRecipesBtn:'创建食谱',
   emptyNoSearchTitle:'未找到匹配的食谱', emptyNoSearchBtn:'清除搜索',
   backToTop:'回到顶部', fabNew:'新建食谱',
-  formNew:'新建食谱', formEdit:'编辑食谱', formClose:'关闭',
+  formNew:'新建食谱', formEdit:'编辑食谱', formNewShared:'新建共享配方', formClose:'关闭',
   bulkTitle:'智能解析食谱', bulkSub:'粘贴小红书/朋友圈长文案，自动提取名称、食材、步骤',
   bulkPlaceholder:'例如：\n轻乳酪蛋糕‼️不回缩不塌陷超详细做法分享\n📝记录一下配方(1个6寸）\n鸡蛋3个\n奶油奶酪120克\n...\n📝制作过程\n1⃣奶油奶酪+黄油+牛奶隔水搅拌均匀\n...',
   parseBtn:'解析并添加', clearBtn:'清空',
@@ -1211,6 +1269,8 @@ const I18N = {
   stepsLabel:'制作步骤（每行一步）', stepsPlaceholder:'1. 奶油奶酪室温软化，加入细砂糖搅拌顺滑\n2. 分次加入鸡蛋，每次拌匀再加入…',
   notesLabel:'备注', notesPlaceholder:'口味偏好、保存方法、注意事项…',
   sourceUrlLabel:'灵感/视频来源', sourceUrlPlaceholder:'如：https://www.xiaohongshu.com/...', detailSourceUrl:'灵感/视频来源',
+  authorLabel:'作者名称 *', authorPlaceholder:'你的昵称或署名', authorHint:'共享配方池需要署名，且同一成品名称不能重复',
+  sharedAuthor:'作者', sharedLikes:'{n} 赞', unknownAuthor:'佚名', like:'点赞', liked:'已赞', likeSharedTip:'给这条共享配方点赞',
   totalCostLabel:'食材总成本', saveRecipeBtn:'保存食谱',
   detailTitle:'食谱详情', detailPin:'置顶/取消置顶', detailClose:'关闭', detailCopy:'复制食材', detailEdit:'编辑', detailDelete:'删除',
   detailNoSteps:'暂无步骤', detailNoNotes:'暂无备注',
@@ -1239,8 +1299,11 @@ const I18N = {
   toastPriceSynced:'价格库已更新：新增 {n} 种常用材料',
   toastBuiltinLoaded:'已载入内置配方库（{n} 条），单价已按价格库自动填入，可在编辑中微调',
   toastSynced:'已同步 {n} 条新配方',
+  toastSharedBuiltinLoaded:'已载入共享配方库（{n} 条）',
+  toastSharedSynced:'已同步 {n} 条新共享配方',
   toastEmptyCleaned:'已清理 {n} 个空配方',
   toastNoIngCleaned:'已清理 {n} 个无食材配方',
+  toastLike:'已给「{name}」点赞', toastUnlike:'已取消「{name}」的赞',
   toastFavAdded:'「{name}」已收藏',
   toastFavRemoved:'「{name}」已取消收藏',
   toastNoIngredients:'未解析出食材，请检查格式（如：全鸡蛋 260克）',
@@ -1255,10 +1318,12 @@ const I18N = {
   toastNoCover:'没有选择图片', toastCameraNotSupported:'当前设备不支持摄像头',
   timeJustNow:'刚刚', timeMinutesAgo:'{n} 分钟前', timeHoursAgo:'{n} 小时前', timeDaysAgo:'{n} 天前',
   cardIngCount:'{n} 种食材', cardStepCount:'{n} 步', cardCopy:'复制食材', cardPinned:'置顶', cardFavorite:'收藏', cardUnfavorite:'取消收藏',
+  sharedOfficialAuthor:'云享谱',
   emptyNoSearchText:'没有找到与「{term}」匹配的食谱',
   ingContains:'含食材 {name}', noIngredients:'暂无食材', viewRecipe:'查看食谱 {name}',
   copyIngredientsTip:'一键复制食材文本',
-  fillNameFirst:'请先填写食谱名称', recipeUpdated:'食谱已更新', recipeAdded:'食谱已保存',
+  fillNameFirst:'请先填写食谱名称', fillAuthorFirst:'请填写作者名称', recipeUpdated:'食谱已更新', recipeAdded:'食谱已保存',
+  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方',
   pasteRecipeFirst:'请先粘贴食谱文案', parseNoContent:'未解析出有效内容，请检查文案格式',
   importedRecipes:'已导入 {n} 条配方（单价未填，可在编辑中补充）', builtinUpToDate:'配方库已是最新，无需重复导入',
   fillPriceName:'请填写材料名称', fillValidPrice:'请填写有效单价',
@@ -1277,7 +1342,9 @@ const I18N = {
 'ja-JP':{
   appName:'雲享譜', appTagline:'レシピ原価 · 簡単管理', pageTitle:'雲享譜 · レシピ原価管理',
   navPrices:'価格ライブラリ', navFill:'原価補完', navNew:'レシピ作成', navLang:'言語切替',
+  tabPersonal:'マイキッチン', tabShared:'みんなの共有レシピ',
   statsTotal:'計 {n} レシピ · 食材原価合計 {cost} · {cats} カテゴリ', statsCatPrefix:'「{cat}」 · ',
+  statsSharedTotal:'共有レシピ · 計 {n} 件 · 参考原価 {cost}',
   searchPlaceholder:'レシピや食材を検索…', searchClear:'検索をクリア',
   exportBtn:'エクスポート', exportTitle:'全データをエクスポート（バックアップ / 機種変更）',
   importBtn:'インポート', importTitle:'ファイルからインポート（名前で統合、上書きしない）',
@@ -1286,7 +1353,7 @@ const I18N = {
   emptyNoRecipesTitle:'まだレシピがありません', emptyNoRecipesDesc:'初めてのレシピを作成しましょう。手順を記録しながら自動で原価を計算します。', emptyNoRecipesBtn:'レシピを作成',
   emptyNoSearchTitle:'一致するレシピがありません', emptyNoSearchBtn:'検索をクリア',
   backToTop:'トップへ戻る', fabNew:'レシピ作成',
-  formNew:'レシピ作成', formEdit:'レシピ編集', formClose:'閉じる',
+  formNew:'レシピ作成', formEdit:'レシピ編集', formNewShared:'共有レシピ作成', formClose:'閉じる',
   bulkTitle:'スマート解析', bulkSub:'Xiaohongshu/朋友圈の長文を貼り付けると、名前・食材・手順を自動抽出',
   bulkPlaceholder:'例：\nチーズケーキ‼️しっとり失敗しない作り方\n📝レシピメモ(6寸1個）\n卵3個\nクリームチーズ120g\n...\n📝作り方\n1⃣クリームチーズ+バター+牛乳を湯煎で混ぜる\n...',
   parseBtn:'解析して追加', clearBtn:'クリア',
@@ -1301,6 +1368,8 @@ const I18N = {
   stepsLabel:'作り方（1行に1手順）', stepsPlaceholder:'1. クリームチーズを室温に戻し、砂糖を加えて滑らかにする\n2. 卵を数回に分けて加え、都度混ぜる…',
   notesLabel:'メモ', notesPlaceholder:'味の好み、保存方法、注意点…',
   sourceUrlLabel:'参考動画/インスピレーション元', sourceUrlPlaceholder:'例：https://www.xiaohongshu.com/...', detailSourceUrl:'参考元',
+  authorLabel:'作者名 *', authorPlaceholder:'ニックネームまたは署名', authorHint:'共有レシピには作者名が必要で、同じ完成品名は重複できません',
+  sharedAuthor:'作者', sharedLikes:'{n} いいね', unknownAuthor:'名無し', like:'いいね', liked:'いいね済', likeSharedTip:'この共有レシピにいいね',
   totalCostLabel:'食材原価合計', saveRecipeBtn:'レシピを保存',
   detailTitle:'レシピ詳細', detailPin:'固定/解除', detailClose:'閉じる', detailCopy:'食材をコピー', detailEdit:'編集', detailDelete:'削除',
   detailNoSteps:'手順がありません', detailNoNotes:'メモがありません',
@@ -1329,8 +1398,11 @@ const I18N = {
   toastPriceSynced:'価格ライブラリを更新しました：{n} 種類の常用材料を追加',
   toastBuiltinLoaded:'内蔵レシピライブラリを読み込みました（{n} 件）、単価は価格ライブラリから自動入力されています',
   toastSynced:'{n} 件の新しいレシピを同期しました',
+  toastSharedBuiltinLoaded:'共有レシピライブラリを読み込みました（{n} 件）',
+  toastSharedSynced:'{n} 件の新しい共有レシピを同期しました',
   toastEmptyCleaned:'空のレシピを {n} 件削除しました',
   toastNoIngCleaned:'食材がないレシピを {n} 件削除しました',
+  toastLike:'「{name}」にいいねしました', toastUnlike:'「{name}」のいいねを解除しました',
   toastFavAdded:'「{name}」をお気に入りに追加しました',
   toastFavRemoved:'「{name}」をお気に入りから解除しました',
   toastNoIngredients:'食材が解析できませんでした。形式を確認してください（例：卵 3個）',
@@ -1345,10 +1417,12 @@ const I18N = {
   toastNoCover:'画像が選択されていません', toastCameraNotSupported:'このデバイスはカメラをサポートしていません',
   timeJustNow:'たった今', timeMinutesAgo:'{n} 分前', timeHoursAgo:'{n} 時間前', timeDaysAgo:'{n} 日前',
   cardIngCount:'食材 {n} 種類', cardStepCount:'{n} 手順', cardCopy:'食材コピー', cardPinned:'固定', cardFavorite:'お気に入り', cardUnfavorite:'お気に入り解除',
+  sharedOfficialAuthor:'雲享譜',
   emptyNoSearchText:'「{term}」に一致するレシピが見つかりません',
   ingContains:'食材含む {name}', noIngredients:'食材がありません', viewRecipe:'レシピを見る {name}',
   copyIngredientsTip:'食材テキストをコピー',
-  fillNameFirst:'レシピ名を入力してください', recipeUpdated:'レシピを更新しました', recipeAdded:'レシピを保存しました',
+  fillNameFirst:'レシピ名を入力してください', fillAuthorFirst:'作者名を入力してください', recipeUpdated:'レシピを更新しました', recipeAdded:'レシピを保存しました',
+  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します',
   pasteRecipeFirst:'レシピ本文を貼り付けてください', parseNoContent:'有効な内容が解析できませんでした。本文の形式を確認してください',
   importedRecipes:'{n} 件のレシピをインポートしました（単価未入力は編集で補完）', builtinUpToDate:'レシピライブラリは最新です',
   fillPriceName:'材料名を入力してください', fillValidPrice:'有効な単価を入力してください',
@@ -1367,7 +1441,9 @@ const I18N = {
 'ko-KR':{
   appName:'운샹푸', appTagline:'레시피 원가 · 쉬운 관리', pageTitle:'운샹푸 · 레시피 원가 관리',
   navPrices:'가격 라이브러리', navFill:'원가 보완', navNew:'레시피 작성', navLang:'언어 변경',
+  tabPersonal:'개인 작업대', tabShared:'공유 레시피 풀',
   statsTotal:'총 {n} 개 레시피 · 식재료 원가 {cost} · {cats} 개 카테고리', statsCatPrefix:'「{cat}」 · ',
+  statsSharedTotal:'공유 레시피 풀 · 총 {n} 개 · 참고 원가 {cost}',
   searchPlaceholder:'레시피나 식재료 검색…', searchClear:'검색 지우기',
   exportBtn:'납품', exportTitle:'모든 데이터 납품（백업 / 기기 변경）',
   importBtn:'가져오기', importTitle:'파일에서 가져오기（이름으로 병합, 덮어쓰지 않음）',
@@ -1376,7 +1452,7 @@ const I18N = {
   emptyNoRecipesTitle:'아직 레시피가 없습니다', emptyNoRecipesDesc:'첫 번째 레시피를 만들어 보세요. 단계를 기록하면서 자동으로 원가를 계산합니다.', emptyNoRecipesBtn:'레시피 만들기',
   emptyNoSearchTitle:'일치하는 레시피가 없습니다', emptyNoSearchBtn:'검색 지우기',
   backToTop:'맨 위로', fabNew:'레시피 작성',
-  formNew:'레시피 작성', formEdit:'레시피 수정', formClose:'닫기',
+  formNew:'레시피 작성', formEdit:'레시피 수정', formNewShared:'공유 레시피 작성', formClose:'닫기',
   bulkTitle:'스마트 분석', bulkSub:'샤오홍슈/친구 게시글 긴 글을 붙여넣으면 이름·식재료·단계를 자동 추출',
   bulkPlaceholder:'예시：\n치즈케이크‼️꺼지지 않는 촉촉한 만들기\n📝레시피 기록(6인치 1개）\n계란3개\n크림치즈120g\n...\n📝만드는 방법\n1⃣크림치즈+버터+우유 중탕으로 섞기\n...',
   parseBtn:'분석하여 추가', clearBtn:'지우기',
@@ -1391,6 +1467,8 @@ const I18N = {
   stepsLabel:'만드는 방법（한 줄에 한 단계）', stepsPlaceholder:'1. 크림치즈를 실온에 두고 설탕을 넣어 부드럽게 섞는다\n2. 계란을 여러 번 나누어 넣고 매번 섞는다…',
   notesLabel:'메모', notesPlaceholder:'맛 취향、보관 방법、주의사항…',
   sourceUrlLabel:'灵감/영상 출처', sourceUrlPlaceholder:'예：https://www.xiaohongshu.com/...', detailSourceUrl:'灵감/영상 출처',
+  authorLabel:'작가명 *', authorPlaceholder:'닉네임 또는 서명', authorHint:'공유 레시피 풀은 작가명이 필요하며, 같은 완성품명은 중복 불가',
+  sharedAuthor:'작가', sharedLikes:'{n} 좋아요', unknownAuthor:'익명', like:'좋아요', liked:'좋아요 누름', likeSharedTip:'이 공유 레시피에 좋아요',
   totalCostLabel:'식재료 원가 합계', saveRecipeBtn:'레시피 저장',
   detailTitle:'레시피 상세', detailPin:'고정/해제', detailClose:'닫기', detailCopy:'식재료 복사', detailEdit:'수정', detailDelete:'삭제',
   detailNoSteps:'단계가 없습니다', detailNoNotes:'메모가 없습니다',
@@ -1419,8 +1497,11 @@ const I18N = {
   toastPriceSynced:'가격 라이브러리를 업데이트했습니다: {n} 종의 상용 재료 추가',
   toastBuiltinLoaded:'내장 레시피 라이브러리를 불러왔습니다（{n} 개）, 단가는 가격 라이브러리에서 자동 입력되었습니다',
   toastSynced:'{n} 개의 새 레시피를 동기화했습니다',
+  toastSharedBuiltinLoaded:'공유 레시피 라이브러리를 불러왔습니다（{n} 개）',
+  toastSharedSynced:'{n} 개의 새 공유 레시피를 동기화했습니다',
   toastEmptyCleaned:'빈 레시피 {n}개를 삭제했습니다',
   toastNoIngCleaned:'식재료가 없는 레시피 {n}개를 삭제했습니다',
+  toastLike:'「{name}」에 좋아요를 눌렀습니다', toastUnlike:'「{name}」 좋아요를 취소했습니다',
   toastFavAdded:'「{name}」을(를) 즐겨찾기에 추가했습니다',
   toastFavRemoved:'「{name}」을(를) 즐겨찾기에서 제거했습니다',
   toastNoIngredients:'식재료를 분석하지 못했습니다. 형식을 확인하세요（예: 계란 3개）',
@@ -1435,10 +1516,12 @@ const I18N = {
   toastNoCover:'선택한 이미지가 없습니다', toastCameraNotSupported:'이 장치는 칩셋을 지원하지 않습니다',
   timeJustNow:'방금', timeMinutesAgo:'{n} 분 전', timeHoursAgo:'{n} 시간 전', timeDaysAgo:'{n} 일 전',
   cardIngCount:'식재료 {n} 종', cardStepCount:'{n} 단계', cardCopy:'식재료 복사', cardPinned:'고정', cardFavorite:'즐겨찾기', cardUnfavorite:'즐겨찾기 해제',
+  sharedOfficialAuthor:'운샹푸',
   emptyNoSearchText:'「{term}」와(과) 일치하는 레시피가 없습니다',
   ingContains:'식재료 포함 {name}', noIngredients:'식재료가 없습니다', viewRecipe:'레시피 보기 {name}',
   copyIngredientsTip:'식재료 텍스트 복사',
-  fillNameFirst:'레시피명을 입력하세요', recipeUpdated:'레시피를 업데이트했습니다', recipeAdded:'레시피를 저장했습니다',
+  fillNameFirst:'레시피명을 입력하세요', fillAuthorFirst:'작가명을 입력하세요', recipeUpdated:'레시피를 업데이트했습니다', recipeAdded:'레시피를 저장했습니다',
+  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다',
   pasteRecipeFirst:'레시피 본문을 붙여넣으세요', parseNoContent:'유효한 내용을 분석하지 못했습니다. 본문 형식을 확인하세요',
   importedRecipes:'{n} 개 레시피를 가져왔습니다（단가 미입력은 수정에서 보완）', builtinUpToDate:'레시피 라이브러리가 최신 상태입니다',
   fillPriceName:'재료명을 입력하세요', fillValidPrice:'유효한 단가를 입력하세요',
@@ -1457,7 +1540,9 @@ const I18N = {
 'en-US':{
   appName:'YunXiangPu', appTagline:'Recipe Cost · Made Simple', pageTitle:'YunXiangPu · Recipe Cost Manager',
   navPrices:'Price Library', navFill:'Fill Costs', navNew:'New Recipe', navLang:'Language',
+  tabPersonal:'My Kitchen', tabShared:'Shared Recipes',
   statsTotal:'{n} recipes · Total ingredient cost {cost} · {cats} categories', statsCatPrefix:'{cat} · ',
+  statsSharedTotal:'Shared recipes · {n} items · reference cost {cost}',
   searchPlaceholder:'Search recipes or ingredients…', searchClear:'Clear search',
   exportBtn:'Export', exportTitle:'Export all data (backup / switch device)',
   importBtn:'Import', importTitle:'Import from file (merge by name, no overwrite)',
@@ -1466,7 +1551,7 @@ const I18N = {
   emptyNoRecipesTitle:'No recipes yet', emptyNoRecipesDesc:'Create your first recipe and let the app calculate ingredient costs automatically.', emptyNoRecipesBtn:'Create recipe',
   emptyNoSearchTitle:'No matching recipes', emptyNoSearchBtn:'Clear search',
   backToTop:'Back to top', fabNew:'New recipe',
-  formNew:'New Recipe', formEdit:'Edit Recipe', formClose:'Close',
+  formNew:'New Recipe', formEdit:'Edit Recipe', formNewShared:'New Shared Recipe', formClose:'Close',
   bulkTitle:'Smart Parser', bulkSub:'Paste a long recipe text, auto-extract name, ingredients and steps',
   bulkPlaceholder:'Example:\nCheesecake ‼️ No-fail recipe\n📝 Recipe (1 x 6-inch）\nEggs 3\nCream cheese 120g\n...\n📝 Instructions\n1⃣ Melt cream cheese + butter + milk over hot water\n...',
   parseBtn:'Parse & Add', clearBtn:'Clear',
@@ -1481,6 +1566,8 @@ const I18N = {
   stepsLabel:'Steps (one per line)', stepsPlaceholder:'1. Soften cream cheese, add sugar and mix until smooth\n2. Add eggs in batches, mixing between each…',
   notesLabel:'Notes', notesPlaceholder:'Taste preference, storage, tips…',
   sourceUrlLabel:'Inspiration / video source', sourceUrlPlaceholder:'e.g. https://www.xiaohongshu.com/...', detailSourceUrl:'Source',
+  authorLabel:'Author name *', authorPlaceholder:'Your nickname or signature', authorHint:'Shared recipes require an author name, and duplicate finished-product names are not allowed',
+  sharedAuthor:'Author', sharedLikes:'{n} likes', unknownAuthor:'Anonymous', like:'Like', liked:'Liked', likeSharedTip:'Like this shared recipe',
   totalCostLabel:'Total ingredient cost', saveRecipeBtn:'Save recipe',
   detailTitle:'Recipe details', detailPin:'Pin/Unpin', detailClose:'Close', detailCopy:'Copy ingredients', detailEdit:'Edit', detailDelete:'Delete',
   detailNoSteps:'No steps yet', detailNoNotes:'No notes yet',
@@ -1509,8 +1596,11 @@ const I18N = {
   toastPriceSynced:'Price library updated: {n} common ingredients added',
   toastBuiltinLoaded:'Loaded built-in recipe library ({n} recipes), unit prices filled automatically',
   toastSynced:'Synced {n} new recipes',
+  toastSharedBuiltinLoaded:'Loaded shared recipe library ({n} recipes)',
+  toastSharedSynced:'Synced {n} new shared recipes',
   toastEmptyCleaned:'Cleaned up {n} empty recipe(s)',
   toastNoIngCleaned:'Cleaned up {n} recipe(s) with no ingredients',
+  toastLike:'Liked 「{name}」', toastUnlike:'Unliked 「{name}」',
   toastFavAdded:'「{name}」added to favorites',
   toastFavRemoved:'「{name}」removed from favorites',
   toastNoIngredients:'No ingredients parsed. Please check the format (e.g. eggs 3 pcs)',
@@ -1525,10 +1615,12 @@ const I18N = {
   toastNoCover:'No image selected', toastCameraNotSupported:'Camera not supported on this device',
   timeJustNow:'Just now', timeMinutesAgo:'{n} min ago', timeHoursAgo:'{n} h ago', timeDaysAgo:'{n} d ago',
   cardIngCount:'{n} ingredients', cardStepCount:'{n} steps', cardCopy:'Copy', cardPinned:'Pinned', cardFavorite:'Favorite', cardUnfavorite:'Unfavorite',
+  sharedOfficialAuthor:'YunXiangPu',
   emptyNoSearchText:'No recipes matching 「{term}」',
   ingContains:'Contains {name}', noIngredients:'No ingredients', viewRecipe:'View recipe {name}',
   copyIngredientsTip:'Copy ingredient text',
-  fillNameFirst:'Please enter a recipe name', recipeUpdated:'Recipe updated', recipeAdded:'Recipe saved',
+  fillNameFirst:'Please enter a recipe name', fillAuthorFirst:'Please enter an author name', recipeUpdated:'Recipe updated', recipeAdded:'Recipe saved',
+  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists',
   pasteRecipeFirst:'Please paste recipe text first', parseNoContent:'No valid content parsed. Please check the text format',
   importedRecipes:'Imported {n} recipes (fill unit prices in edit if missing)', builtinUpToDate:'Recipe library is already up to date',
   fillPriceName:'Please enter ingredient name', fillValidPrice:'Please enter a valid price',
@@ -1632,7 +1724,16 @@ const I18N = {
   createdAt:'สร้างเมื่อ', updatedAt:'อัปเดตเมื่อ', detailCostBreakdown:'รายละเอียดต้นทุน', detailIngredient:'วัตถุดิบ', detailAmount:'ปริมาณ', detailCost:'ต้นทุน', detailNoIngredients:'ไม่มีวัตถุดิบ',
   confirmDeleteRecipe:'ลบ「{name}」หรือไม่?', confirmDeleteRecipeFallback:'ลบสูตรนี้หรือไม่?',
   ingGroupDefault:'วัตถุดิบ 1', addGroupBtn:'เพิ่มกลุ่ม', ingGroupNamePlaceholder:'ชื่อกลุ่ม',
-  toastGroupAdded:'เพิ่มกลุ่มแล้ว', toastOneGroupLeft:'ต้องคงกลุ่มวัตถุดิบอย่างน้อย 1 กลุ่ม'
+  toastGroupAdded:'เพิ่มกลุ่มแล้ว', toastOneGroupLeft:'ต้องคงกลุ่มวัตถุดิบอย่างน้อย 1 กลุ่ม',
+  tabPersonal:'พื้นที่ส่วนตัว', tabShared:'พูลสูตรแชร์',
+  statsSharedTotal:'พูลสูตรแชร์ · ทั้งหมด {n} รายการ · ต้นทุนอ้างอิงรวม {cost}',
+  formNewShared:'สร้างสูตรแชร์ใหม่',
+  authorLabel:'ชื่อผู้แต่ง *', authorPlaceholder:'ชื่อเล่นหรือลายเซ็นของคุณ', authorHint:'พูลสูตรแชร์ต้องระบุชื่อผู้แต่ง และชื่อผลิตภัณฑ์เดียวกันต้องไม่ซ้ำ',
+  sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้',
+  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว',
+  toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
+  toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
+  sharedOfficialAuthor:'หยุนเซียงผู่'
 }
 };
 let currentLang = loadLang();
@@ -1759,15 +1860,20 @@ const CAT_KEYWORDS = {
 };
 
 /* ═════════════════════ 应用状态 ═════════════════════ */
-let recipes     = loadRecipes();   // 全部食谱
+let recipes     = loadRecipes();   // 个人工作台：全部食谱
+let sharedRecipes = loadSharedRecipes(); // 共享配方池：所有人可见的共享食谱
 let priceLib    = loadPrices();    // 原材料价格库
 let searchTerm  = '';              // 当前搜索关键字
 let activeCat   = '';              // 主页分类筛选（'' = 全部）
 let cardViewMode = localStorage.getItem('yx-card-view') || 'double'; // 移动端卡片视图：single / double
+let currentWorkspace = localStorage.getItem('yx-workspace') || 'personal'; // 'personal' | 'shared'
 let editingId   = null;            // 正在编辑的食谱 id（null = 新建）
+let editingWorkspace = 'personal'; // 正在编辑的食谱属于哪个工作台
 let pendingDeleteId = null;        // 待删除的食谱 id
 let pendingDeleteKind = 'recipe';  // 待删除对象类型：recipe / price
+let pendingDeleteWorkspace = 'personal'; // 待删除对象所属工作台
 let currentDetailId = null;        // 详情面板中的食谱 id
+let currentDetailWorkspace = 'personal'; // 详情面板中的食谱所属工作台
 let pendingCover = null;           // 编辑表单中待保存的自定义封面（dataURL）
 let formCat = '蛋糕';               // 表单中当前选中的分类（有效名称）
 
@@ -2193,9 +2299,36 @@ function saveRecipes(){
     toast(quota ? '保存失败：本地存储已满（约 5MB），可移除部分自定义封面后重试' : '保存失败：浏览器存储不可用', 'error');
   }
 }
+const SHARED_KEY = 'yx-shared-recipes';
+function loadSharedRecipes(){
+  try{
+    const raw = localStorage.getItem(SHARED_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){ return []; }
+}
+function saveSharedRecipes(){
+  try{ localStorage.setItem(SHARED_KEY, JSON.stringify(sharedRecipes)); }
+  catch(e){
+    const quota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014);
+    toast(quota ? t('toastSaveFailedQuota') : t('toastSaveFailed'), 'error');
+  }
+}
 
 /* ═════════════════════ 主渲染 ═════════════════════ */
 function render(){
+  // 底部 Tab 高亮
+  byId('tabPersonal').classList.toggle('active', currentWorkspace === 'personal');
+  byId('tabShared').classList.toggle('active', currentWorkspace === 'shared');
+  // 顶部工具栏：个人工作台显示导出/导入/视图切换；共享池隐藏
+  byId('viewToggle').style.display = currentWorkspace === 'personal' ? '' : 'none';
+  document.querySelector('.sync-tools').style.display = currentWorkspace === 'personal' ? '' : 'none';
+  byId('catFilter').style.display = currentWorkspace === 'personal' ? '' : 'none';
+
+  if(currentWorkspace === 'shared') return renderShared();
+  renderPersonal();
+}
+function renderPersonal(){
   const q = searchTerm.trim().toLowerCase();
   // 按分类 + 名称/食材名过滤
   const list = recipes.filter(r => {
@@ -2227,9 +2360,9 @@ function render(){
   // 列表底部提示
   byId('gridFooter').classList.toggle('hidden', !(recipes.length > 0 && sorted.length > 0));
 
-  renderStats(sorted);
+  renderStats(sorted, 'personal');
 }
-/* 主页分类筛选条（全部 + 各分类，含数量角标） */
+/* 共享配方池渲染：按点赞数降序，同名检查 */
 function renderCatFilter(){
   const counts = {};
   recipes.forEach(r => { const c = displayCat(r.category) || '其他'; counts[c] = (counts[c]||0) + 1; });
@@ -2243,12 +2376,99 @@ function renderCatFilter(){
   }).filter(Boolean));
   byId('catFilter').innerHTML = chips.join('');
 }
-function renderStats(list){
+function renderStats(list, workspace){
+  if(workspace === 'shared'){
+    const totalCost = list.reduce((s,r) => s + recipeCost(r), 0);
+    byId('statsLine').innerHTML = t('statsSharedTotal', {n: list.length, cost: fmt(totalCost)});
+    return;
+  }
   const totalCost = list.reduce((s,r) => s + recipeCost(r), 0);
   const cats = new Set(list.map(r => displayCat(r.category))).size;
   let html = t('statsTotal', {n: list.length, cost: fmt(totalCost), cats});
   if(activeCat) html = t('statsCatPrefix', {cat: tCat(activeCat)}) + html;
   byId('statsLine').innerHTML = html;
+}
+
+function renderShared(){
+  const q = searchTerm.trim().toLowerCase();
+  const list = sharedRecipes.filter(r =>
+    (r.name||'').toLowerCase().includes(q) ||
+    flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q))
+  );
+  const sorted = [...list].sort((a,b) =>
+    (b.likes || 0) - (a.likes || 0) ||
+    (b.updatedAt || 0) - (a.updatedAt || 0)
+  );
+  byId('recipeGrid').innerHTML = sorted.map((r, i) => sharedCardHTML(r, i)).join('');
+  byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
+  byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
+
+  // 空状态
+  byId('emptyState').classList.toggle('hidden', sharedRecipes.length > 0);
+  const se = byId('searchEmpty');
+  const noSearchResult = sharedRecipes.length > 0 && sorted.length === 0;
+  se.classList.toggle('hidden', !noSearchResult);
+  if(noSearchResult) byId('searchEmptyText').textContent = t('emptyNoSearchText', {term: searchTerm});
+  byId('gridFooter').classList.toggle('hidden', !(sharedRecipes.length > 0 && sorted.length > 0));
+
+  renderStats(sorted, 'shared');
+}
+
+/* 共享配方池卡片 HTML */
+function sharedCardHTML(r, i){
+  const cat = findCat(displayCat(r.category));
+  const cover = r.cover || coverFor(r.name);
+  const allIngs = flatIngredients(r);
+  const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
+  const likeCount = (r.likes || 0);
+  return `
+  <article class="recipe-card" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
+    <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
+    <div class="card-body">
+      <div class="card-meta"><span class="badge">${tCat(cat.name)}</span><span class="time">${esc(r.author || t('unknownAuthor'))}</span></div>
+      <h3>${highlight(r.name, searchTerm)}</h3>
+      <p class="ing-summary">${ingLine}</p>
+      <div class="card-foot">
+        <div class="card-foot-left">
+          <span class="shared-likes"><svg class="ic" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${likeCount}</span>
+        </div>
+        <div class="card-foot-right">
+          <span class="cost">${fmt(recipeCost(r))}</span>
+          <button data-act="likeShared" data-id="${r.id}" class="card-copy ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+function isLiked(r){
+  try{
+    const likes = JSON.parse(localStorage.getItem('yx-shared-likes') || '{}');
+    return !!likes[r.id];
+  }catch(e){ return false; }
+}
+function setLiked(id, val){
+  try{
+    const likes = JSON.parse(localStorage.getItem('yx-shared-likes') || '{}');
+    if(val) likes[id] = true; else delete likes[id];
+    localStorage.setItem('yx-shared-likes', JSON.stringify(likes));
+  }catch(e){}
+}
+function likeShared(id){
+  const r = sharedRecipes.find(x => x.id === id);
+  if(!r) return;
+  const liked = isLiked(r);
+  if(liked){
+    r.likes = Math.max(0, (r.likes || 0) - 1);
+    setLiked(id, false);
+    toast(t('toastUnlike', {name: r.name}));
+  }else{
+    r.likes = (r.likes || 0) + 1;
+    setLiked(id, true);
+    toast(t('toastLike', {name: r.name}));
+  }
+  r.updatedAt = Date.now();
+  saveSharedRecipes();
+  render();
 }
 
 /* 食谱卡片 HTML */
@@ -2291,12 +2511,20 @@ function cardHTML(r, i){
 }
 
 /* ═════════════════════ 表单：新建 / 编辑 ═════════════════════ */
-function openForm(id){
+function openForm(id, workspace){
+  workspace = workspace || 'personal';
   editingId = id || null;
-  byId('formTitle').textContent = id ? t('formEdit') : t('formNew');
+  editingWorkspace = workspace;
+  byId('formTitle').textContent = id ? t('formEdit') : (workspace === 'shared' ? t('formNewShared') : t('formNew'));
   byId('bulkPaste').value = '';
+
+  // 共享池才显示作者字段
+  const authorRow = byId('fAuthorRow');
+  if(authorRow) authorRow.style.display = workspace === 'shared' ? 'block' : 'none';
+
+  const pool = workspace === 'shared' ? sharedRecipes : recipes;
   if(id){
-    const r = recipes.find(x => x.id === id);
+    const r = pool.find(x => x.id === id);
     if(!r) return;
     byId('fName').value = r.name || '';
     setCat(r.category || '蛋糕');
@@ -2304,6 +2532,7 @@ function openForm(id){
     byId('fSteps').value = (r.steps||[]).join('\n');
     byId('fNotes').value = r.notes || '';
     byId('fSourceUrl').value = r.sourceUrl || '';
+    if(authorRow) byId('fAuthor').value = r.author || '';
   }else{
     byId('fName').value = '';
     setCat('蛋糕');
@@ -2311,9 +2540,10 @@ function openForm(id){
     byId('fSteps').value = '';
     byId('fNotes').value = '';
     byId('fSourceUrl').value = '';
+    if(authorRow) byId('fAuthor').value = '';
   }
   // 封面
-  pendingCover = (id ? ((recipes.find(x => x.id === id) || {}).cover) : null) || null;
+  pendingCover = (id ? ((pool.find(x => x.id === id) || {}).cover) : null) || null;
   renderCoverPicker();
   updateFormCost();
   byId('formOverlay').querySelector('.sheet-body').scrollTop = 0;
@@ -2399,18 +2629,34 @@ function saveForm(){
     .map(s => s.trim().replace(/^\s*(?:\d+[.、．:：)）]?|[-•·]|步骤\s*\d*\s*[：:.、]?)\s*/, ''))
     .filter(Boolean);
   const category = (document.querySelector('#catSeg button.active')||{}).dataset?.cat || '蛋糕';
-  const data = { name, category, ingredientGroups:collectIngredients(), ingredients:[], steps, notes:byId('fNotes').value.trim(), sourceUrl:byId('fSourceUrl').value.trim(), updatedAt:Date.now(), cover: pendingCover || '' };
+  let sourceUrl = byId('fSourceUrl').value.trim();
+  if(sourceUrl && !/^https?:\/\//i.test(sourceUrl)) sourceUrl = 'https://' + sourceUrl;
+  const data = { name, category, ingredientGroups:collectIngredients(), ingredients:[], steps, notes:byId('fNotes').value.trim(), sourceUrl, updatedAt:Date.now(), cover: pendingCover || '' };
+
+  const ws = editingWorkspace || 'personal';
+  const pool = ws === 'shared' ? sharedRecipes : recipes;
+
+  if(ws === 'shared'){
+    const author = byId('fAuthor').value.trim();
+    if(!author){ toast(t('fillAuthorFirst')); byId('fAuthor').focus(); return; }
+    data.author = author;
+    // 共享池内名称唯一：编辑时排除自身
+    const dup = pool.find(x => x.name === name && x.id !== editingId);
+    if(dup){ toast(t('sharedNameExists')); byId('fName').focus(); return; }
+  }
 
   if(editingId){
-    const r = recipes.find(x => x.id === editingId);
+    const r = pool.find(x => x.id === editingId);
     if(r){ Object.assign(r, data); }
-    toast(t('recipeUpdated'));
+    toast(t(ws === 'shared' ? 'sharedRecipeUpdated' : 'recipeUpdated'));
   }else{
     data.id = uid(); data.createdAt = Date.now();
-    recipes.push(data);
-    toast(t('recipeAdded'));
+    if(ws === 'shared'){ data.likes = 0; }
+    pool.push(data);
+    toast(t(ws === 'shared' ? 'sharedRecipeAdded' : 'recipeAdded'));
   }
-  saveRecipes(); render(); hide('formOverlay');
+  if(ws === 'shared') saveSharedRecipes(); else saveRecipes();
+  render(); hide('formOverlay');
 }
 
 /* ═════════════════════ 详情视图 ═════════════════════ */
@@ -2437,10 +2683,13 @@ function detailHeaderHTML(r, cat){
   </div>`;
 }
 
-function openDetail(id){
-  const r = recipes.find(x => x.id === id);
+function openDetail(id, workspace){
+  workspace = workspace || 'personal';
+  const pool = workspace === 'shared' ? sharedRecipes : recipes;
+  const r = pool.find(x => x.id === id);
   if(!r) return;
   currentDetailId = id;
+  currentDetailWorkspace = workspace;
   const cat = findCat(displayCat(r.category));
   const cover = r.cover;
   const groups = recipeGroups(r);
@@ -2463,6 +2712,7 @@ function openDetail(id){
   const steps = (r.steps||[]).map(s => `<li>${esc(s)}</li>`).join('')
     || `<p class="muted">${t('detailNoSteps')}</p>`;
   byId('detailPinBtn').classList.toggle('pinned', !!r.pinned);
+  byId('detailPinBtn').style.display = workspace === 'personal' ? '' : 'none';
   const isCustomCover = !!r.cover;
   const heroHTML = cover ? `
     <div class="detail-hero ${isCustomCover ? '' : 'detail-hero-auto'}" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">
@@ -2472,10 +2722,14 @@ function openDetail(id){
         <h3>${esc(r.name)}</h3>
       </div>
     </div>` : detailHeaderHTML(r, cat);
+  // 共享池额外显示作者、点赞数
+  const sharedMeta = workspace === 'shared'
+    ? `<p class="muted">${t('sharedAuthor')}: ${esc(r.author || t('unknownAuthor'))} · ${t('sharedLikes', {n: r.likes || 0})} · ${t('createdAt')} ${new Date(r.createdAt).toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : currentLang)}</p>`
+    : `<p class="muted">${t('createdAt')} ${new Date(r.createdAt).toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : currentLang)} · ${t('updatedAt')} ${relTime(r.updatedAt)}</p>`;
   byId('detailBody').innerHTML = `
     ${heroHTML}
     <div class="detail-body">
-      <p class="muted">${t('createdAt')} ${new Date(r.createdAt).toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : currentLang)} · ${t('updatedAt')} ${relTime(r.updatedAt)}</p>
+      ${sharedMeta}
       <section class="d-sec">
         <h4>${t('detailCostBreakdown')}</h4>
         ${ingGroupsHTML}
@@ -2493,17 +2747,23 @@ function openDetail(id){
 }
 
 /* ═════════════════════ 删除确认 ═════════════════════ */
-function askDelete(id){
+function askDelete(id, workspace){
+  workspace = workspace || 'personal';
   pendingDeleteId = id;
   pendingDeleteKind = 'recipe';
-  const r = recipes.find(x => x.id === id);
+  pendingDeleteWorkspace = workspace;
+  const pool = workspace === 'shared' ? sharedRecipes : recipes;
+  const r = pool.find(x => x.id === id);
   byId('confirmText').textContent = r ? t('confirmDeleteRecipe', {name: r.name}) : t('confirmDeleteRecipeFallback');
   show('confirmOverlay');
 }
 function doDelete(){
-  const idx = recipes.findIndex(x => x.id === pendingDeleteId);
-  if(idx > -1){ recipes.splice(idx, 1); saveRecipes(); render(); toast(t('toastRecipeDeleted')); }
-  hide('confirmOverlay'); pendingDeleteId = null;
+  const ws = pendingDeleteWorkspace || 'personal';
+  const pool = ws === 'shared' ? sharedRecipes : recipes;
+  const saveFn = ws === 'shared' ? saveSharedRecipes : saveRecipes;
+  const idx = pool.findIndex(x => x.id === pendingDeleteId);
+  if(idx > -1){ pool.splice(idx, 1); saveFn(); render(); toast(t('toastRecipeDeleted')); }
+  hide('confirmOverlay'); pendingDeleteId = null; pendingDeleteWorkspace = 'personal';
 }
 
 /* ═════════════════════ 置顶 / 取消置顶 ═════════════════════ */
@@ -2853,6 +3113,38 @@ function importBuiltin(opts){
   else if(!silent) toast(t('builtinUpToDate'));
   return added;
 }
+/* 把内置配方导入共享配方池（带作者署名，按名称去重） */
+function importSharedBuiltin(opts){
+  const silent = !!(opts && opts.silent);
+  const names = new Set(sharedRecipes.map(r => (r.name||'').trim()));
+  const base = Date.now();
+  let added = 0;
+  BUILTIN_RECIPES.forEach((b, idx) => {
+    if(names.has(b.n.trim())) return;
+    const ts = base - (BUILTIN_RECIPES.length - idx);
+    sharedRecipes.push({
+      id: uid(), name: b.n, category: b.c, author: t('sharedOfficialAuthor') || '云享谱',
+      likes: 0,
+      ingredientGroups: [{
+        name: t('ingGroupDefault') || '食材清单 一',
+        items: (b.ings||[]).map(([n,a,u]) => {
+          const unit = u || '克(g)';
+          const lp = lookupPrice(n, unit);
+          return { id:uid(), name:n, amount:String(a), unit, unitPrice: lp ? String(lp.unitPrice) : '' };
+        })
+      }],
+      ingredients: [],
+      steps: b.steps || [],
+      notes: b.note || '',
+      sourceUrl: b.sourceUrl || '',
+      createdAt: ts, updatedAt: ts,
+    });
+    names.add(b.n.trim()); added++;
+  });
+  saveSharedRecipes(); render();
+  if(added) toast(t('toastSharedBuiltinLoaded', {n: added}));
+  return added;
+}
 
 /* 一键按价格库补全所有食谱的空单价（不覆盖用户已填值） */
 function fillAllCosts(){
@@ -3132,8 +3424,10 @@ function mergeImported(data){
 }
 
 /* 一键复制食材为纯文本（不包含价格与做法） */
-async function copyIngredients(id){
-  const r = (typeof id === 'string') ? recipes.find(x => x.id === id) : id;
+async function copyIngredients(id, workspace){
+  workspace = workspace || 'personal';
+  const pool = workspace === 'shared' ? sharedRecipes : recipes;
+  const r = (typeof id === 'string') ? pool.find(x => x.id === id) : id;
   if(!r) return;
   const UNIT_MAP = { '克(g)':'克','克':'克','千克(kg)':'千克','千克':'千克','公斤':'千克','毫升(ml)':'毫升','毫升':'毫升','升(L)':'升','升':'升' };
   const groups = recipeGroups(r);
@@ -3202,8 +3496,22 @@ document.addEventListener('click', async e => {
   const act = btn.dataset.act;
   const card = btn.closest('.recipe-card');
   const id = card ? card.dataset.id : null;
+  const workspace = card ? (card.dataset.workspace || 'personal') : 'personal';
   switch(act){
-    case 'new':            openForm(); break;
+    case 'new':            openForm(null, currentWorkspace); break;
+    case 'switchWorkspace': {
+      const ws = btn.dataset.ws;
+      if(ws && ws !== currentWorkspace){
+        currentWorkspace = ws;
+        try{ localStorage.setItem('yx-workspace', ws); }catch(e){}
+        searchTerm = '';
+        byId('searchInput').value = '';
+        byId('clearSearch').classList.add('hidden');
+        activeCat = '';
+        render();
+      }
+      break;
+    }
     case 'closeForm':      hide('formOverlay'); break;
     case 'closeEaster':    hide('easterOverlay'); break;
     case 'addCat':        openCatDialog('add'); break;
@@ -3245,11 +3553,12 @@ document.addEventListener('click', async e => {
       updateFormCost();
       break;
     }
-    case 'edit':           openForm(id); break;
-    case 'del':            askDelete(id); break;
-    case 'toggleFav':      toggleFav(id); break;
-    case 'copy':           copyIngredients(id); break;
-    case 'copyDetail':     copyIngredients(currentDetailId); break;
+    case 'edit':           openForm(id, workspace); break;
+    case 'del':            askDelete(id, workspace); break;
+    case 'toggleFav':      if(workspace === 'personal') toggleFav(id); break;
+    case 'copy':           copyIngredients(id, workspace); break;
+    case 'likeShared':     likeShared(btn.dataset.id); break;
+    case 'copyDetail':     copyIngredients(currentDetailId, currentDetailWorkspace); break;
     case 'coverCamera':    byId('coverCameraInput').click(); break;
     case 'coverAlbum':     byId('coverAlbumInput').click(); break;
     case 'coverClear':     pendingCover = null; renderCoverPicker(); break;
@@ -3291,11 +3600,11 @@ document.addEventListener('click', async e => {
 byId('recipeGrid').addEventListener('click', e => {
   if(e.target.closest('[data-act]')) return;
   const card = e.target.closest('.recipe-card');
-  if(card) openDetail(card.dataset.id);
+  if(card) openDetail(card.dataset.id, card.dataset.workspace || 'personal');
 });
 /* 键盘 Enter 打开详情（可访问性） */
 byId('recipeGrid').addEventListener('keydown', e => {
-  if(e.key === 'Enter' && e.target.classList.contains('recipe-card')) openDetail(e.target.dataset.id);
+  if(e.key === 'Enter' && e.target.classList.contains('recipe-card')) openDetail(e.target.dataset.id, e.target.dataset.workspace || 'personal');
 });
 
 /* 食材行输入 → 实时成本汇总 */
@@ -3576,15 +3885,25 @@ function init(){
     }
   });
   if(priceAdded > 0){ savePrices(); toast(t('toastPriceSynced', {n: priceAdded})); }
-  // 首次打开（库为空）自动载入内置配方库（含自动带出的参考单价）
+  // 首次打开（个人池为空）自动载入内置配方库到个人工作台（用户私有副本，独立存储）
   if(recipes.length === 0){
     const n = importBuiltin({ silent:true });
     if(n) toast(t('toastBuiltinLoaded', {n}));
   }
-  // 内置库新增内容自动合并（按名称去重）：老用户设备也会同步到新版本补充的配方
+  // 内置库新增内容自动合并到个人池（按名称去重）
   if(recipes.length){
     const n = importBuiltin({ silent:true });
     if(n > 0) toast(t('toastSynced', {n}));
+  }
+  // 首次打开（共享池为空）自动载入内置配方库到共享配方池
+  if(sharedRecipes.length === 0){
+    const n = importSharedBuiltin({ silent:true });
+    if(n) toast(t('toastSharedBuiltinLoaded', {n}));
+  }
+  // 内置库新增内容自动合并到共享池（按名称去重）
+  if(sharedRecipes.length){
+    const n = importSharedBuiltin({ silent:true });
+    if(n > 0) toast(t('toastSharedSynced', {n}));
   }
   // 迁移旧数据：把旧的扁平 ingredients 转为 ingredientGroups
   let migrated = false;
