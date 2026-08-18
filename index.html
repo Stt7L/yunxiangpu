@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -88,8 +88,8 @@ button{font-family:inherit}
 /* ═══════════════════ 顶部导航（毛玻璃） ═══════════════════ */
 .nav{
   position:sticky;top:0;z-index:50;
-  padding-top:env(safe-area-inset-top);
-  background:rgba(251,251,253,.8);
+  padding-top:max(env(safe-area-inset-top), 10px);
+  background:rgba(251,251,253,.86);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   backdrop-filter:saturate(180%) blur(20px);
   border-bottom:1px solid var(--border);
@@ -163,7 +163,7 @@ button{font-family:inherit}
 }
 .btn,.mini-btn,.chip-btn,.icon-btn,.fab,.btn-dashed,.cat-chip,.seg button,.cat-edit{-webkit-user-select:none;-webkit-touch-callout:none;user-select:none}
 .btn:hover{background:var(--accent-hover)}
-.btn:active{transform:scale(.97)}
+.btn:active{transform:scale(.97);opacity:.85}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn:focus-visible,.mini-btn:focus-visible,.chip-btn:focus-visible,.icon-btn:focus-visible,.cat-chip:focus-visible,.fab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn-secondary{background:rgba(0,0,0,.06);color:var(--text)}
@@ -188,7 +188,7 @@ button{font-family:inherit}
   transition:all .18s var(--ease);-webkit-tap-highlight-color:transparent;
 }
 .mini-btn:hover,.chip-btn:hover{background:rgba(120,120,128,.2);color:var(--text)}
-.mini-btn:active,.chip-btn:active{transform:scale(.96)}
+.mini-btn:active,.chip-btn:active{transform:scale(.96);opacity:.82}
 .mini-btn.icon-danger{color:var(--danger)}
 .mini-btn.icon-danger:hover{background:rgba(255,59,48,.1);color:var(--danger)}
 
@@ -208,7 +208,7 @@ button{font-family:inherit}
   color:var(--text2);padding:0;transition:all .18s var(--ease);flex:none;
 }
 .icon-btn:hover{background:rgba(120,120,128,.2);color:var(--text)}
-.icon-btn:active{transform:scale(.93)}
+.icon-btn:active{transform:scale(.93);opacity:.75}
 .icon-danger{color:var(--danger)}
 .icon-danger:hover{background:rgba(255,59,48,.1);color:var(--danger)}
 
@@ -278,7 +278,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .grid-footer{
   text-align:center;padding:16px 0 0;font-size:13px;color:var(--text3);
   letter-spacing:.02em;animation:fadeIn .5s var(--ease) both;
-  margin-top:auto;
+  margin-top:auto;margin-bottom:62px;
 }
 
 /* 卡片右上角操作 */
@@ -677,18 +677,20 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* ═══════════════════ 响应式细节 ═══════════════════ */
 @media (max-width:640px){
-  .nav-inner{gap:6px;padding:10px 16px}
+  .nav-inner{gap:6px;padding:14px 16px 10px}
   .brand p{display:none}
   .brand h1{font-size:16px}
   .nav-tools{gap:2px}
   .search-wrap{order:3;flex-basis:100%;max-width:none;min-width:0}
-  .container{padding:18px 14px calc(64px + env(safe-area-inset-bottom))}
+  .container{padding:18px 14px calc(28px + env(safe-area-inset-bottom))}
   .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
   .cover{height:112px}
   .sheet-head{padding:16px 20px 0}
   .sheet-body{padding:16px 20px 22px}
   .sheet-foot{padding:12px 20px calc(12px + env(safe-area-inset-bottom))}
   .stats-line{font-size:12px}
+  .input,.textarea,select,.search-wrap input,.search-bar input{font-size:16px}
+  .ing-row .input,.pf-form .input{font-size:16px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -721,7 +723,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   -webkit-tap-highlight-color:transparent;
 }
 .cat-chip:hover{color:var(--text)}
-.cat-chip:active{transform:scale(.95)}
+.cat-chip:active{transform:scale(.95);opacity:.8}
 .cat-chip.on{color:#1d1d1f;font-weight:600}
 .cat-chip.on::after{
   content:'';position:absolute;left:2px;right:2px;bottom:2px;height:2px;border-radius:2px;
@@ -809,7 +811,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 </style>
 </head>
-<body>
+<body ontouchstart="">
 
 <!-- ═════════════ 顶部导航 ═════════════ -->
 <header class="nav">
@@ -3119,6 +3121,8 @@ async function copyIngredients(id){
 
 /* 触感反馈（仅在支持的移动设备触发；尊重减弱动态） */
 function haptic(type){
+  // 注：iOS Safari / iOS PWA 目前不支持 Vibration API，因此 iPhone 上无震感；Android 正常。
+  // 这里保留震动调用，同时由 CSS :active 提供视觉按下反馈作为降级。
   if(window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches) return;
   if(!('vibrate' in navigator)) return;
   const ms = type === 'heavy' ? 35 : type === 'medium' ? 20 : 12;
