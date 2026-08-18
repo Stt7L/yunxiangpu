@@ -879,7 +879,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 /* ═════════════ 账号 / 管理员 ═════════════ */
 .nav-user{display:flex;align-items:center;gap:8px}
 .nav-user-name{font-size:13px;font-weight:600;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nav-text-btn{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:4px 6px;border-radius:8px}
+.nav-text-btn{background:#f1f1f4;border:1px solid #e3e3e6;color:#1d1d1f;font-size:13px;font-weight:600;cursor:pointer;padding:5px 11px;border-radius:9px;margin-left:2px}
+.nav-text-btn:hover{background:#e6e6ea}
+.nav-text-btn:active{background:#dadade}
 .nav-text-btn:active{background:rgba(0,0,0,.06)}
 .auth-dialog{max-width:380px}
 .auth-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -2532,14 +2534,14 @@ async function sbSignOut(){
 }
 function updateAuthUI(){
   const loginBtn = byId('navLogin'); const userBox = byId('navUser'); const adminBtn = byId('navAdmin');
-  if(!SB_ENABLED){ if(loginBtn) loginBtn.style.display='none'; if(userBox) userBox.style.display='none'; if(adminBtn) adminBtn.style.display='none'; return; }
+  if(!SB_ENABLED){ if(loginBtn) loginBtn.style.display='none'; if(userBox){ userBox.classList.add('hidden'); userBox.style.display='none'; } if(adminBtn) adminBtn.style.display='none'; return; }
   if(currentUser){
     if(loginBtn) loginBtn.style.display='none';
-    if(userBox){ userBox.style.display=''; byId('navUserName').textContent = currentUser.username || currentUser.email; }
+    if(userBox){ userBox.classList.remove('hidden'); userBox.style.display=''; byId('navUserName').textContent = currentUser.username || currentUser.email; }
     if(adminBtn) adminBtn.style.display = isAdmin ? '' : 'none';
   }else{
     if(loginBtn) loginBtn.style.display='';
-    if(userBox) userBox.style.display='none';
+    if(userBox){ userBox.classList.add('hidden'); userBox.style.display='none'; }
     if(adminBtn) adminBtn.style.display='none';
   }
 }
