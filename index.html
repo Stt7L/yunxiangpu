@@ -3885,15 +3885,15 @@ function init(){
     }
   });
   if(priceAdded > 0){ savePrices(); toast(t('toastPriceSynced', {n: priceAdded})); }
-  // 首次打开（个人池为空）自动载入内置配方库到个人工作台（用户私有副本，独立存储）
-  if(recipes.length === 0){
-    const n = importBuiltin({ silent:true });
-    if(n) toast(t('toastBuiltinLoaded', {n}));
-  }
-  // 内置库新增内容自动合并到个人池（按名称去重）
-  if(recipes.length){
-    const n = importBuiltin({ silent:true });
-    if(n > 0) toast(t('toastSynced', {n}));
+  // v36 起：个人工作台默认空白，内置配方仅存在于共享配方池。
+  // 一次性清空旧版本自动灌入的个人副本（共享池已含全部 60 条，无数据损失）；
+  // 之后用户自行新建/从文件导入，不再自动灌入。仅执行一次。
+  if(localStorage.getItem('yx-personal-reset') !== 'v37'){
+    if(recipes.length){
+      recipes = [];
+      saveRecipes();
+    }
+    localStorage.setItem('yx-personal-reset', 'v37');
   }
   // 首次打开（共享池为空）自动载入内置配方库到共享配方池
   if(sharedRecipes.length === 0){
