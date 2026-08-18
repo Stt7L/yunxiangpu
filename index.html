@@ -876,6 +876,33 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .detail-body{padding:12px 16px 22px}
 }
 
+/* ═════════════ 账号 / 管理员 ═════════════ */
+.nav-user{display:flex;align-items:center;gap:8px}
+.nav-user-name{font-size:13px;font-weight:600;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-text-btn{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:4px 6px;border-radius:8px}
+.nav-text-btn:active{background:rgba(0,0,0,.06)}
+.auth-dialog{max-width:380px}
+.auth-tabs{display:flex;gap:8px;margin-bottom:18px}
+.auth-tab{flex:1;padding:10px;border:none;background:#f1f1f4;border-radius:12px;font-size:15px;font-weight:600;color:#86868b;cursor:pointer}
+.auth-tab.on{background:var(--accent);color:#fff}
+.auth-body{display:flex;flex-direction:column;gap:6px}
+.auth-label{font-size:13px;color:#86868b;margin-top:8px;font-weight:600}
+.auth-hint{color:#ff3b30;font-size:13px;min-height:16px;margin:4px 0 0}
+.admin-dialog{max-width:520px;max-height:82vh;display:flex;flex-direction:column}
+.admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.admin-head h3{font-size:19px;font-weight:700}
+.dialog-x{background:none;border:none;font-size:20px;color:#86868b;cursor:pointer;line-height:1}
+.admin-body{overflow-y:auto;margin-top:14px;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.admin-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f7f7f9;border-radius:12px}
+.admin-row-main{font-size:14px;min-width:0}
+.admin-row-main .muted{font-weight:400}
+.admin-row-actions{display:flex;gap:6px;flex-shrink:0}
+.admin-mini{padding:6px 10px;border:1px solid #e3e3e8;background:#fff;border-radius:9px;font-size:13px;cursor:pointer;color:#1d1d1f}
+.admin-mini:active{background:#f1f1f4}
+.admin-mini.admin-del{color:#ff3b30;border-color:#ffd9d6}
+.muted{color:#86868b}
+
 </style>
 </head>
 <body ontouchstart="">
@@ -904,6 +931,12 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <button class="nav-icon-btn" data-act="openPrices" id="btnPrices" data-i18n-title="navPrices" title="价格库"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22 2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.4"/></svg></button>
       <button class="nav-icon-btn" data-act="fillCosts" id="btnFill" data-i18n-title="navFill" title="补全成本"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 7l3 4 3-4"/><path d="M9 12h6"/><path d="M12 12v6"/></svg></button>
       <button class="nav-icon-btn" data-act="new" id="btnNew" data-i18n-title="navNew" title="新建食谱"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="nav-icon-btn" data-act="openAuth" data-tab="signin" id="navLogin" data-i18n-title="navLogin" title="登录 / 注册"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <div class="nav-user hidden" id="navUser">
+        <span class="nav-user-name" id="navUserName"></span>
+        <button class="nav-text-btn" data-act="sbLogout"><span data-i18n="navLogout">退出</span></button>
+      </div>
+      <button class="nav-icon-btn" data-act="openAdmin" id="navAdmin" data-i18n-title="navAdmin" title="管理后台" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></button>
     </div>
   </div>
 </header>
@@ -943,6 +976,17 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <p data-i18n="emptyNoRecipesDesc">创建你的第一份甜品食谱，边记步骤边自动核算每道甜品的食材成本。</p>
     <div class="empty-actions">
       <button class="btn" data-act="new"><span data-i18n="emptyNoRecipesBtn">创建食谱</span></button>
+    </div>
+  </div>
+
+  <!-- 空状态：共享池需登录 -->
+  <div id="sharedGate" class="empty hidden">
+    <div class="empty-icon"><svg style="width:100%;height:100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></div>
+    <h2 data-i18n="sharedNeedLoginTitle">登录后查看共享配方池</h2>
+    <p data-i18n="sharedNeedLoginDesc">共享配方池是所有人共同维护的配方库，登录账号后即可浏览、点赞与发布你的配方。</p>
+    <div class="empty-actions">
+      <button class="btn" data-act="openAuth" data-tab="signin"><span data-i18n="navLogin">登录</span></button>
+      <button class="btn btn-secondary" data-act="openAuth" data-tab="signup"><span data-i18n="navRegister">注册</span></button>
     </div>
   </div>
 
@@ -1231,12 +1275,69 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 <!-- Toast 反馈 -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+<!-- ═════════════ 账号登录 / 注册弹窗 ═════════════ -->
+<div id="authOverlay" class="overlay hidden">
+  <div class="dialog auth-dialog">
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab on" data-act="authTab" data-tab="signin" id="authTabSignin" data-i18n="navLogin">登录</button>
+      <button type="button" class="auth-tab" data-act="authTab" data-tab="signup" id="authTabSignup" data-i18n="navRegister">注册</button>
+    </div>
+    <div class="auth-body">
+      <label class="auth-label" data-i18n="authEmail">邮箱</label>
+      <input id="authEmail" class="input" type="email" autocomplete="email" placeholder="you@example.com">
+      <div class="auth-field-signup" style="display:none">
+        <label class="auth-label" data-i18n="authUsername">用户名</label>
+        <input id="authUsername" class="input" type="text" maxlength="20" placeholder="昵称 / 署名">
+      </div>
+      <label class="auth-label" data-i18n="authPassword">密码</label>
+      <input id="authPassword" class="input" type="password" autocomplete="current-password" placeholder="至少 6 位">
+      <p class="auth-hint" id="authHint"></p>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" data-act="closeAuth" data-i18n="confirmCancel">取消</button>
+      <button class="btn" id="authSubmit" data-act="authSubmit" data-i18n="navLogin">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ 管理员面板 ═════════════ -->
+<div id="adminOverlay" class="overlay hidden">
+  <div class="dialog admin-dialog">
+    <div class="admin-head">
+      <h3 data-i18n="adminTitle">管理后台</h3>
+      <button type="button" class="dialog-x" data-act="closeAdmin" aria-label="关闭">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab on" data-act="adminTab" data-admintab="recipes" id="adminTabRecipes" data-i18n="adminRecipes">配方管理</button>
+      <button type="button" class="auth-tab" data-act="adminTab" data-admintab="users" id="adminTabUsers" data-i18n="adminUsers">用户管理</button>
+    </div>
+    <div class="admin-body" id="adminBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
 /* ═════════════════════ 常量与配置 ═════════════════════ */
 const STORAGE_KEY = 'dessert-recipes-manager';
 const LANG_KEY    = 'yx-lang';
 const byId = id => document.getElementById(id);
+
+/* ═════════════════════ Supabase 后端配置（共享池 + 账号 + 管理员） ═════════════════════
+ * 未填写时应用自动回退为纯本地模式（与 v37 一致）；填写后启用真实多用户共享池。
+ * 部署后端步骤见 supabase_schema.sql 与 README 末尾说明。
+ */
+const SUPABASE_CONFIG = {
+  url: '',                                   // ← 粘贴 Supabase Project URL
+  anonKey: '',                               // ← 粘贴 anon / public key
+  adminEmails: ['admin@example.com']         // 与数据库 site_config.admin_emails 保持一致；登录后自动提权为管理员
+};
+const SB = (typeof supabase !== 'undefined' && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey)
+  ? supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
+  : null;
+const SB_ENABLED = !!SB;
+let currentUser = null;   // {id,email,username,role,banned}
+let isAdmin = false;
 
 /* ═════════════════════ 多语言（中/日/韩/英/泰） ═════════════════════ */
 const I18N = {
@@ -1337,7 +1438,8 @@ const I18N = {
   createdAt:'创建于', updatedAt:'更新于', detailCostBreakdown:'成本明细', detailIngredient:'食材', detailAmount:'用量', detailCost:'成本', detailNoIngredients:'暂无食材',
   confirmDeleteRecipe:'确定删除「{name}」吗？', confirmDeleteRecipeFallback:'确定删除该食谱吗？',
   ingGroupDefault:'食材清单一', addGroupBtn:'添加分组', ingGroupNamePlaceholder:'分组名称',
-  toastGroupAdded:'已添加新分组', toastOneGroupLeft:'至少保留一个食材分组'
+  toastGroupAdded:'已添加新分组', toastOneGroupLeft:'至少保留一个食材分组',
+  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', toastUpToDate:'已是最新'
 },
 'ja-JP':{
   appName:'雲享譜', appTagline:'レシピ原価 · 簡単管理', pageTitle:'雲享譜 · レシピ原価管理',
@@ -1436,7 +1538,8 @@ const I18N = {
   createdAt:'作成日', updatedAt:'更新日', detailCostBreakdown:'原価内訳', detailIngredient:'食材', detailAmount:'分量', detailCost:'原価', detailNoIngredients:'食材がありません',
   confirmDeleteRecipe:'「{name}」を削除しますか？', confirmDeleteRecipeFallback:'このレシピを削除しますか？',
   ingGroupDefault:'食材リスト1', addGroupBtn:'グループ追加', ingGroupNamePlaceholder:'グループ名',
-  toastGroupAdded:'グループを追加しました', toastOneGroupLeft:'食材グループは1つ以上残してください'
+  toastGroupAdded:'グループを追加しました', toastOneGroupLeft:'食材グループは1つ以上残してください',
+  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', toastUpToDate:'最新です'
 },
 'ko-KR':{
   appName:'운샹푸', appTagline:'레시피 원가 · 쉬운 관리', pageTitle:'운샹푸 · 레시피 원가 관리',
@@ -1535,7 +1638,8 @@ const I18N = {
   createdAt:'생성일', updatedAt:'수정일', detailCostBreakdown:'원가 내역', detailIngredient:'식재료', detailAmount:'수량', detailCost:'원가', detailNoIngredients:'식재료가 없습니다',
   confirmDeleteRecipe:'「{name}」을(를) 삭제하시겠습니까?', confirmDeleteRecipeFallback:'이 레시피를 삭제하시겠습니까?',
   ingGroupDefault:'재료 목록1', addGroupBtn:'그룹 추가', ingGroupNamePlaceholder:'그룹 이름',
-  toastGroupAdded:'그룹이 추가되었습니다', toastOneGroupLeft:'재료 그룹은 최소 1개 남겨주세요'
+  toastGroupAdded:'그룹이 추가되었습니다', toastOneGroupLeft:'재료 그룹은 최소 1개 남겨주세요',
+  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', toastUpToDate:'최신 상태'
 },
 'en-US':{
   appName:'YunXiangPu', appTagline:'Recipe Cost · Made Simple', pageTitle:'YunXiangPu · Recipe Cost Manager',
@@ -1634,7 +1738,8 @@ const I18N = {
   createdAt:'Created', updatedAt:'Updated', detailCostBreakdown:'Cost breakdown', detailIngredient:'Ingredient', detailAmount:'Amount', detailCost:'Cost', detailNoIngredients:'No ingredients',
   confirmDeleteRecipe:'Delete 「{name}」?', confirmDeleteRecipeFallback:'Delete this recipe?',
   ingGroupDefault:'Ingredients 1', addGroupBtn:'Add group', ingGroupNamePlaceholder:'Group name',
-  toastGroupAdded:'Group added', toastOneGroupLeft:'Keep at least one ingredient group'
+  toastGroupAdded:'Group added', toastOneGroupLeft:'Keep at least one ingredient group',
+  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', authEmail:'Email', authUsername:'Username', authPassword:'Password', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', toastUpToDate:'Already up to date'
 },
 'th-TH':{
   appName:'หยุนเซียงผู่', appTagline:'ต้นทุนสูตร · จัดการง่าย', pageTitle:'หยุนเซียงผู่ · จัดการต้นทุนสูตร',
@@ -1733,7 +1838,8 @@ const I18N = {
   fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว',
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
-  sharedOfficialAuthor:'หยุนเซียงผู่'
+  sharedOfficialAuthor:'หยุนเซียงผู่',
+  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', toastUpToDate:'เป็นปัจจุบันแล้ว'
 }
 };
 let currentLang = loadLang();
@@ -2315,6 +2421,195 @@ function saveSharedRecipes(){
   }
 }
 
+/* ═════════════════════ Supabase 集成层（仅在 SB_ENABLED 时生效） ═════════════════════ */
+function normalizeShared(row){
+  return {
+    id: row.id, name: row.name, category: row.category,
+    ingredientGroups: row.ingredient_groups || [], steps: row.steps || [],
+    notes: row.notes || '', sourceUrl: row.source_url || '', cover: row.cover || '',
+    author: row.author_name || '', likes: row.likes || 0,
+    owner_id: row.owner_id || null,
+    createdAt: row.created_at || Date.now(), updatedAt: row.updated_at || Date.now()
+  };
+}
+async function sbRefreshShared(){
+  if(!SB_ENABLED) return;
+  const { data, error } = await SB.from('recipes_shared').select('*').order('likes', { ascending:false });
+  if(error){ toast(t('sbLoadFail') + error.message, 'error'); return; }
+  sharedRecipes = (data || []).map(normalizeShared);
+  saveSharedRecipes();
+  if(currentWorkspace === 'shared') renderShared();
+}
+async function sbUpsertShared(rec){
+  if(!SB_ENABLED) return false;
+  const payload = {
+    name: rec.name, category: rec.category,
+    ingredient_groups: rec.ingredientGroups, steps: rec.steps,
+    notes: rec.notes, source_url: rec.sourceUrl, cover: rec.cover,
+    author_name: rec.author, likes: rec.likes || 0
+  };
+  if(rec._new){ payload.owner_id = currentUser.id; }
+  else { payload.id = rec.id; }
+  const { data, error } = await SB.from('recipes_shared').upsert(payload, { onConflict:'id' }).select().single();
+  if(error){
+    toast((error.message && error.message.includes('recipes_shared_name_key')) ? t('sharedNameExists') : (t('sbSaveFail') + error.message), 'error');
+    return false;
+  }
+  const merged = normalizeShared(data);
+  const idx = sharedRecipes.findIndex(x => x.id === merged.id);
+  if(idx > -1) sharedRecipes[idx] = merged; else sharedRecipes.push(merged);
+  saveSharedRecipes();
+  return true;
+}
+async function sbDeleteShared(id){
+  if(!SB_ENABLED) return false;
+  const { error } = await SB.from('recipes_shared').delete().eq('id', id);
+  if(error){ toast(t('sbDelFail') + error.message, 'error'); return false; }
+  const idx = sharedRecipes.findIndex(x => x.id === id); if(idx > -1) sharedRecipes.splice(idx, 1);
+  saveSharedRecipes(); return true;
+}
+async function sbAdjustLikes(id, delta){
+  if(!SB_ENABLED) return;
+  const { data, error } = await SB.rpc('adjust_likes', { p_id: id, p_delta: delta });
+  if(!error && typeof data === 'number'){ const r = sharedRecipes.find(x => x.id === id); if(r) r.likes = data; }
+}
+async function sbSeedBuiltins(){
+  if(!SB_ENABLED || !isAdmin) return false;
+  let added = 0;
+  for(const b of BUILTIN_RECIPES){
+    const exists = sharedRecipes.some(x => x.name === b.n);
+    if(exists) continue;
+    const rec = {
+      _new: true, name: b.n, category: b.c, author: t('sharedOfficialAuthor') || '云享谱', likes: 0,
+      ingredientGroups: [{ name: t('ingGroupDefault') || '食材清单 一', items: (b.ings||[]).map(([n,a,u]) => ({ name:n, amount:String(a), unit:u||'克(g)', unitPrice:'' })) }],
+      steps: b.steps || [], notes: b.note || '', sourceUrl: b.sourceUrl || '', cover: ''
+    };
+    if(await sbUpsertShared(rec)) added++;
+  }
+  toast(added ? t('toastSharedSynced', {n:added}) : t('toastUpToDate'));
+  renderShared();
+  return true;
+}
+async function sbApplySession(session){
+  currentUser = null; isAdmin = false;
+  if(session && session.user){
+    currentUser = { id: session.user.id, email: session.user.email };
+    const { data } = await SB.from('profiles').select('username,role,banned').eq('id', session.user.id).single();
+    if(data){ currentUser.username = data.username; currentUser.role = data.role; currentUser.banned = data.banned; isAdmin = data.role === 'admin' && !data.banned; }
+    if(SUPABASE_CONFIG.adminEmails.includes(session.user.email)){
+      await SB.rpc('promote_admin_if_listed', { p_email: session.user.email });
+      isAdmin = true; currentUser.role = 'admin';
+    }
+  }
+  updateAuthUI();
+  if(currentWorkspace === 'shared'){ await sbRefreshShared(); renderShared(); }
+}
+async function sbInit(){
+  if(!SB_ENABLED){ updateAuthUI(); return; }
+  const { data:{ session } } = await SB.auth.getSession();
+  await sbApplySession(session);
+  SB.auth.onAuthStateChange((_e, s) => { sbApplySession(s); });
+}
+async function sbSignUp(email, password, username){
+  const { error } = await SB.auth.signUp({ email, password, options:{ data:{ username } } });
+  if(error){ toast(t('sbSignUpFail') + error.message, 'error'); return false; }
+  toast(t('toastVerifyEmail')); return true;
+}
+async function sbSignIn(email, password){
+  const { error } = await SB.auth.signInWithPassword({ email, password });
+  if(error){ toast(t('sbSignInFail') + error.message, 'error'); return false; }
+  toast(t('toastLoggedIn')); return true;
+}
+async function sbSignOut(){ const { error } = await SB.auth.signOut(); if(error){ toast(t('sbSignOutFail')+error.message,'error'); return; } toast(t('toastLoggedOut')); }
+function updateAuthUI(){
+  const loginBtn = byId('navLogin'); const userBox = byId('navUser'); const adminBtn = byId('navAdmin');
+  if(!SB_ENABLED){ if(loginBtn) loginBtn.style.display='none'; if(userBox) userBox.style.display='none'; if(adminBtn) adminBtn.style.display='none'; return; }
+  if(currentUser){
+    if(loginBtn) loginBtn.style.display='none';
+    if(userBox){ userBox.style.display=''; byId('navUserName').textContent = currentUser.username || currentUser.email; }
+    if(adminBtn) adminBtn.style.display = isAdmin ? '' : 'none';
+  }else{
+    if(loginBtn) loginBtn.style.display='';
+    if(userBox) userBox.style.display='none';
+    if(adminBtn) adminBtn.style.display='none';
+  }
+}
+
+/* 账号弹窗交互 */
+function openAuth(tab){
+  if(!SB_ENABLED){ toast(t('sbNotConfigured'), 'error'); return; }
+  tab = tab || 'signin';
+  switchAuthTab(tab);
+  byId('authEmail').value = ''; byId('authUsername').value = ''; byId('authPassword').value = '';
+  byId('authHint').textContent = '';
+  show('authOverlay');
+}
+function closeAuth(){ hide('authOverlay'); }
+function switchAuthTab(tab){
+  byId('authTabSignin').classList.toggle('on', tab === 'signin');
+  byId('authTabSignup').classList.toggle('on', tab === 'signup');
+  byId('authSubmit').textContent = t(tab === 'signin' ? 'navLogin' : 'navRegister');
+  const f = document.querySelector('.auth-field-signup');
+  if(f) f.style.display = (tab === 'signup') ? '' : 'none';
+}
+async function authSubmit(){
+  const tab = byId('authTabSignin').classList.contains('on') ? 'signin' : 'signup';
+  const email = byId('authEmail').value.trim();
+  const password = byId('authPassword').value;
+  const username = byId('authUsername').value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ byId('authHint').textContent = t('authEmailInvalid'); return; }
+  if(password.length < 6){ byId('authHint').textContent = t('authPwdShort'); return; }
+  if(tab === 'signup' && !username){ byId('authHint').textContent = t('fillAuthorFirst'); return; }
+  byId('authHint').textContent = '';
+  if(tab === 'signup'){ if(await sbSignUp(email, password, username)) closeAuth(); }
+  else { if(await sbSignIn(email, password)) closeAuth(); }
+}
+
+/* 管理员面板 */
+function openAdmin(){ if(!isAdmin){ toast(t('adminNoPerm'), 'error'); return; } renderAdmin('recipes'); show('adminOverlay'); }
+function closeAdmin(){ hide('adminOverlay'); }
+async function renderAdmin(tab){
+  tab = tab || 'recipes';
+  byId('adminTabRecipes').classList.toggle('on', tab === 'recipes');
+  byId('adminTabUsers').classList.toggle('on', tab === 'users');
+  const body = byId('adminBody');
+  if(tab === 'recipes'){
+    let html = '<div class="admin-toolbar"><button class="btn btn-secondary" data-act="adminSeed">'+t('adminSeedBuiltins')+'</button><span class="muted">'+t('adminRecipesCount',{n:sharedRecipes.length})+'</span></div>';
+    if(sharedRecipes.length === 0) html += '<p class="muted">'+t('adminNoRecipes')+'</p>';
+    html += sharedRecipes.map(r => `
+      <div class="admin-row">
+        <div class="admin-row-main"><b>${esc(r.name)}</b> <span class="muted">· ${esc(r.author||t('unknownAuthor'))} · ♥${r.likes||0}</span></div>
+        <div class="admin-row-actions">
+          <button class="admin-mini" data-act="adminEditRecipe" data-id="${r.id}">${t('detailEdit')}</button>
+          <button class="admin-mini admin-del" data-act="adminDeleteRecipe" data-id="${r.id}">${t('detailDelete')}</button>
+        </div>
+      </div>`).join('');
+    body.innerHTML = html;
+  }else{
+    body.innerHTML = '<p class="muted">'+t('adminLoadingUsers')+'</p>';
+    if(!SB_ENABLED){ body.innerHTML = '<p class="muted">'+t('sbNotConfigured')+'</p>'; return; }
+    const { data, error } = await SB.functions.invoke('manage-users', { body: { action: 'listUsers' } });
+    if(error || !data || !data.users){ body.innerHTML = '<p class="muted">'+t('adminEdgeMissing')+'</p>'; return; }
+    body.innerHTML = data.users.map(u => `
+      <div class="admin-row">
+        <div class="admin-row-main"><b>${esc(u.username||u.email)}</b> <span class="muted">· ${esc(u.email)} · ${u.role==='admin'?t('adminRoleAdmin'):t('adminRoleUser')}${u.banned?' · '+t('adminBanned'):''}</span></div>
+        <div class="admin-row-actions">
+          ${u.role!=='admin' ? `<button class="admin-mini" data-act="adminSetAdmin" data-id="${u.id}">${t('adminMakeAdmin')}</button>` : `<button class="admin-mini" data-act="adminUnsetAdmin" data-id="${u.id}">${t('adminRevokeAdmin')}</button>`}
+          ${u.banned ? `<button class="admin-mini" data-act="adminUnbanUser" data-id="${u.id}">${t('adminUnban')}</button>` : `<button class="admin-mini" data-act="adminBanUser" data-id="${u.id}">${t('adminBan')}</button>`}
+          <button class="admin-mini admin-del" data-act="adminDeleteUser" data-id="${u.id}">${t('adminDeleteUser')}</button>
+        </div>
+      </div>`).join('');
+  }
+}
+async function adminUserAction(action, id, role){
+  if(!SB_ENABLED) return;
+  const body = { action, userId: id };
+  if(role) body.role = role;
+  const { error } = await SB.functions.invoke('manage-users', { body });
+  if(error){ toast(t('adminActionFail') + error.message, 'error'); return; }
+  toast(t('toastDone')); renderAdmin('users');
+}
+
 /* ═════════════════════ 主渲染 ═════════════════════ */
 function render(){
   // 底部 Tab 高亮
@@ -2390,6 +2685,16 @@ function renderStats(list, workspace){
 }
 
 function renderShared(){
+  // Supabase 模式未登录：显示登录引导，不渲染共享配方
+  if(SB_ENABLED && !currentUser){
+    byId('recipeGrid').innerHTML = '';
+    byId('emptyState').classList.add('hidden');
+    byId('sharedGate').classList.remove('hidden');
+    byId('gridFooter').classList.add('hidden');
+    renderStats([], 'shared');
+    return;
+  }
+  byId('sharedGate').classList.add('hidden');
   const q = searchTerm.trim().toLowerCase();
   const list = sharedRecipes.filter(r =>
     (r.name||'').toLowerCase().includes(q) ||
@@ -2453,22 +2758,22 @@ function setLiked(id, val){
     localStorage.setItem('yx-shared-likes', JSON.stringify(likes));
   }catch(e){}
 }
-function likeShared(id){
+async function likeShared(id){
   const r = sharedRecipes.find(x => x.id === id);
   if(!r) return;
   const liked = isLiked(r);
   if(liked){
-    r.likes = Math.max(0, (r.likes || 0) - 1);
     setLiked(id, false);
+    if(SB_ENABLED) await sbAdjustLikes(id, -1); else r.likes = Math.max(0, (r.likes || 0) - 1);
     toast(t('toastUnlike', {name: r.name}));
   }else{
-    r.likes = (r.likes || 0) + 1;
     setLiked(id, true);
+    if(SB_ENABLED) await sbAdjustLikes(id, +1); else r.likes = (r.likes || 0) + 1;
     toast(t('toastLike', {name: r.name}));
   }
   r.updatedAt = Date.now();
   saveSharedRecipes();
-  render();
+  renderShared();
 }
 
 /* 食谱卡片 HTML */
@@ -2621,7 +2926,7 @@ function collectIngredients(){
   });
   return groups;
 }
-function saveForm(){
+async function saveForm(){
   const name = byId('fName').value.trim();
   if(!name){ toast(t('fillNameFirst')); byId('fName').focus(); return; }
   const steps = byId('fSteps').value
@@ -2646,16 +2951,22 @@ function saveForm(){
   }
 
   if(editingId){
+    data.id = editingId;
     const r = pool.find(x => x.id === editingId);
     if(r){ Object.assign(r, data); }
     toast(t(ws === 'shared' ? 'sharedRecipeUpdated' : 'recipeUpdated'));
   }else{
-    data.id = uid(); data.createdAt = Date.now();
+    data.id = uid(); data.createdAt = Date.now(); data._new = true;
     if(ws === 'shared'){ data.likes = 0; }
     pool.push(data);
     toast(t(ws === 'shared' ? 'sharedRecipeAdded' : 'recipeAdded'));
   }
-  if(ws === 'shared') saveSharedRecipes(); else saveRecipes();
+  if(ws === 'shared'){
+    if(SB_ENABLED){ const ok = await sbUpsertShared(data); if(!ok) return; }
+    else saveSharedRecipes();
+  }else{
+    saveRecipes();
+  }
   render(); hide('formOverlay');
 }
 
@@ -2757,12 +3068,16 @@ function askDelete(id, workspace){
   byId('confirmText').textContent = r ? t('confirmDeleteRecipe', {name: r.name}) : t('confirmDeleteRecipeFallback');
   show('confirmOverlay');
 }
-function doDelete(){
+async function doDelete(){
   const ws = pendingDeleteWorkspace || 'personal';
   const pool = ws === 'shared' ? sharedRecipes : recipes;
-  const saveFn = ws === 'shared' ? saveSharedRecipes : saveRecipes;
   const idx = pool.findIndex(x => x.id === pendingDeleteId);
-  if(idx > -1){ pool.splice(idx, 1); saveFn(); render(); toast(t('toastRecipeDeleted')); }
+  if(idx > -1){
+    if(ws === 'shared' && SB_ENABLED){ const ok = await sbDeleteShared(pendingDeleteId); if(!ok){ hide('confirmOverlay'); pendingDeleteId=null; pendingDeleteWorkspace='personal'; return; } }
+    pool.splice(idx, 1);
+    if(ws === 'shared'){ if(!SB_ENABLED) saveSharedRecipes(); } else { saveRecipes(); }
+    render(); toast(t('toastRecipeDeleted'));
+  }
   hide('confirmOverlay'); pendingDeleteId = null; pendingDeleteWorkspace = 'personal';
 }
 
@@ -3499,6 +3814,22 @@ document.addEventListener('click', async e => {
   const workspace = card ? (card.dataset.workspace || 'personal') : 'personal';
   switch(act){
     case 'new':            openForm(null, currentWorkspace); break;
+    case 'openAuth':       openAuth(btn.dataset.tab || 'signin'); break;
+    case 'closeAuth':      hide('authOverlay'); break;
+    case 'authTab':        switchAuthTab(btn.dataset.tab); break;
+    case 'authSubmit':     authSubmit(); break;
+    case 'sbLogout':       sbSignOut(); break;
+    case 'openAdmin':      openAdmin(); break;
+    case 'closeAdmin':     hide('adminOverlay'); break;
+    case 'adminTab':       renderAdmin(btn.dataset.admintab); break;
+    case 'adminSeed':      sbSeedBuiltins(); break;
+    case 'adminEditRecipe': hide('adminOverlay'); openForm(btn.dataset.id, 'shared'); break;
+    case 'adminDeleteRecipe': hide('adminOverlay'); askDelete(btn.dataset.id, 'shared'); break;
+    case 'adminSetAdmin':  adminUserAction('setRole', btn.dataset.id, 'admin'); break;
+    case 'adminUnsetAdmin':adminUserAction('setRole', btn.dataset.id, 'user'); break;
+    case 'adminBanUser':   adminUserAction('ban', btn.dataset.id); break;
+    case 'adminUnbanUser': adminUserAction('unban', btn.dataset.id); break;
+    case 'adminDeleteUser':hide('adminOverlay'); adminUserAction('deleteUser', btn.dataset.id); break;
     case 'switchWorkspace': {
       const ws = btn.dataset.ws;
       if(ws && ws !== currentWorkspace){
@@ -3895,16 +4226,18 @@ function init(){
     }
     localStorage.setItem('yx-personal-reset', 'v37');
   }
-  // 首次打开（共享池为空）自动载入内置配方库到共享配方池
-  if(sharedRecipes.length === 0){
-    const n = importSharedBuiltin({ silent:true });
-    if(n) toast(t('toastSharedBuiltinLoaded', {n}));
+  // 共享池：本地模式自动载入内置配方；Supabase 模式由 sbInit() 从数据库拉取
+  if(!SB_ENABLED){
+    if(sharedRecipes.length === 0){
+      const n = importSharedBuiltin({ silent:true });
+      if(n) toast(t('toastSharedBuiltinLoaded', {n}));
+    }
+    if(sharedRecipes.length){
+      const n = importSharedBuiltin({ silent:true });
+      if(n > 0) toast(t('toastSharedSynced', {n}));
+    }
   }
-  // 内置库新增内容自动合并到共享池（按名称去重）
-  if(sharedRecipes.length){
-    const n = importSharedBuiltin({ silent:true });
-    if(n > 0) toast(t('toastSharedSynced', {n}));
-  }
+  sbInit();
   // 迁移旧数据：把旧的扁平 ingredients 转为 ingredientGroups
   let migrated = false;
   recipes.forEach(r => {
