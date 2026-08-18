@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v27：分类编辑入口改为「常驻可见铅笔按钮 + 长按/右键」，修复移动端长按被手指微动取消、iOS 原生菜单致整页失灵的问题。
+// v28：修复 promptOverlay 未闭合导致 catDialogOverlay/appConfirmOverlay 被嵌套隐藏（分类编辑弹窗一直打不开的根因）；首页分类去掉铅笔恢复纯选择，编辑入口保留在编辑表单内。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v27';
+const CACHE = 'dessert-v28';
 const SHELL = [
   './',
   './manifest.json',
