@@ -2520,7 +2520,16 @@ async function sbSignIn(email, password){
   if(error){ toast(t('sbSignInFail') + error.message, 'error'); return false; }
   toast(t('toastLoggedIn')); return true;
 }
-async function sbSignOut(){ const { error } = await SB.auth.signOut(); if(error){ toast(t('sbSignOutFail')+error.message,'error'); return; } toast(t('toastLoggedOut')); }
+async function sbSignOut(){
+  const { error } = await SB.auth.signOut();
+  if(error){ toast(t('sbSignOutFail')+error.message,'error'); return; }
+  // 显式重置前端状态并刷新界面（不依赖 onAuthStateChange 隐式回调，避免卡在已登录态）
+  currentUser = null; isAdmin = false;
+  updateAuthUI();
+  if(currentWorkspace === 'shared') renderShared();   // 回到登录门禁
+  else renderPersonal();
+  toast(t('toastLoggedOut'));
+}
 function updateAuthUI(){
   const loginBtn = byId('navLogin'); const userBox = byId('navUser'); const adminBtn = byId('navAdmin');
   if(!SB_ENABLED){ if(loginBtn) loginBtn.style.display='none'; if(userBox) userBox.style.display='none'; if(adminBtn) adminBtn.style.display='none'; return; }
