@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v25：修复分类编辑弹窗（删除按钮缺失 id 导致 openCatDialog 抛错、弹窗不显示）。
+// v26：首页筛选条分类 chip 支持长按/右键/桌面按住编辑；补齐 covers/ 封面图与图标资源。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v25';
+const CACHE = 'dessert-v26';
 const SHELL = [
   './',
   './manifest.json',

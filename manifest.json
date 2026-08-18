@@ -1,0 +1,15 @@
+{
+  "name": "云享谱 · 甜品配方成本管理",
+  "short_name": "云享谱",
+  "description": "甜品烘焙配方与原材料成本管理工具",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f7",
+  "theme_color": "#ff2d55",
+  "icons": [
+    { "src": "./icons/app-icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

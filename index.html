@@ -2148,7 +2148,7 @@ function renderCatFilter(){
     .concat(allCats().map(c => {
       const n = counts[c.name] || 0;
       if(n === 0) return '';
-      return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}">${tCat(c.name)} <span class="cnt">${n}</span></button>`;
+      return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}" data-orig="${esc(c.orig)}" title="${esc(t('editCat')||'编辑')}">${tCat(c.name)} <span class="cnt">${n}</span></button>`;
     }))
     .filter(Boolean);
   chips.push(`<button type="button" class="cat-chip${activeCat === '__fav__' ? ' on' : ''}" data-cat="__fav__">${t('catFavorite')} <span class="cnt">${favCount}</span></button>`);
@@ -3214,8 +3214,44 @@ byId('searchInput').addEventListener('input', e => {
 byId('catFilter').addEventListener('click', e => {
   const chip = e.target.closest('.cat-chip');
   if(!chip) return;
+  if(lpFired){ lpFired = false; return; }   // 长按/右键后抑制一次切换
   activeCat = chip.dataset.cat || '';
   render();
+});
+/* 首页筛选条分类 chip：同样支持 触摸长按 / 桌面按住 / 右键 编辑（仅普通分类） */
+function catChipEditableFrom(e){
+  const b = e.target.closest('button');
+  if(!b || b.dataset.act) return null;
+  const cat = b.dataset.cat;
+  if(cat === undefined || cat === '' || cat === '__fav__') return null;  // 全部/收藏 不可编辑
+  return b;
+}
+byId('catFilter').addEventListener('mousedown', e => {
+  const b = catChipEditableFrom(e);
+  if(!b || e.button !== 0) return;
+  e.preventDefault();
+  lpFired = false;
+  clearTimeout(lpTimer);
+  lpTimer = setTimeout(() => { lpFired = true; openCatDialog('edit', b); }, 500);
+});
+byId('catFilter').addEventListener('mouseup', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('mouseleave', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('touchstart', e => {
+  const b = catChipEditableFrom(e);
+  if(!b) return;
+  lpFired = false;
+  clearTimeout(lpTimer);
+  lpTimer = setTimeout(() => { lpFired = true; openCatDialog('edit', b); }, 550);
+}, { passive:true });
+byId('catFilter').addEventListener('touchend', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('touchcancel', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('touchmove', () => clearTimeout(lpTimer));
+byId('catFilter').addEventListener('contextmenu', e => {
+  const b = catChipEditableFrom(e);
+  if(!b) return;
+  e.preventDefault();
+  lpFired = true;
+  openCatDialog('edit', b);
 });
 function clearSearch(){
   searchTerm = '';
