@@ -903,6 +903,34 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .pwd-toggle .eye-off{display:none}
 .pwd-toggle.on .eye-on{display:none}
 .pwd-toggle.on .eye-off{display:block}
+.fav-dialog{max-width:380px}
+.fav-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;margin-bottom:6px}
+.fav-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;background:#f7f7f9;border:1px solid transparent;border-radius:12px;font-size:14px;cursor:pointer;text-align:left;color:#1d1d1f}
+.fav-row:hover{border-color:#e3e3e8}
+.fav-row .fav-row-name{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.fav-row .fav-row-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fav-row.on{background:var(--accent);color:#fff}
+.fav-row.on .muted{color:rgba(255,255,255,.75)}
+.fav-row-actions{display:flex;gap:6px;flex-shrink:0}
+.fav-mini{padding:5px 9px;border:1px solid #e3e3e8;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#1d1d1f}
+.fav-mini:active{background:#f1f1f4}
+.fav-mini.fav-del{color:#ff3b30;border-color:#ffd9d6}
+.batch-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#eef3ff;border-radius:12px;margin-bottom:10px}
+.batch-count{font-size:14px;font-weight:700;color:var(--accent)}
+.batch-actions{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;gap:6px;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(251,251,253,.96);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid rgba(0,0,0,.06)}
+.batch-act{flex:1;max-width:112px;padding:10px 6px;border:none;border-radius:12px;background:#f1f1f4;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer}
+.batch-act:active{background:#e1e1e5}
+.batch-act.batch-danger{color:#ff3b30;background:#ffefed}
+.recipe-card{position:relative}
+.recipe-card.batch-mode{cursor:pointer}
+.recipe-card.batch-mode .batch-check{position:absolute;top:10px;left:10px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.22)}
+.recipe-card.batch-mode.selected .batch-check{background:var(--accent);border-color:#fff}
+.recipe-card.batch-mode.selected{outline:2px solid var(--accent);outline-offset:-2px}
+.uc-row{display:flex;gap:8px;align-items:center}
+.uc-row .input{flex:1}
+.uc-row .btn{flex-shrink:0}
+.uc-divider{border:none;border-top:1px solid #e8e8ed;margin:16px 0 6px}
+.uc-sec{font-size:15px;font-weight:700;margin:4px 0 2px}
 .admin-dialog{max-width:520px;max-height:82vh;display:flex;flex-direction:column}
 .admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .admin-head h3{font-size:19px;font-weight:700}
@@ -949,7 +977,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <button class="nav-icon-btn" data-act="openAuth" data-tab="signin" id="navLogin" data-i18n-title="navLogin" title="登录 / 注册"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
       <div class="nav-user hidden" id="navUser">
         <span class="nav-user-name" id="navUserName"></span>
-        <button class="nav-text-btn" data-act="sbLogout"><span data-i18n="navLogout">退出</span></button>
+        <button class="nav-text-btn" data-act="openUserCenter"><span data-i18n="navManage">管理</span></button>
       </div>
       <button class="nav-icon-btn" data-act="openAdmin" id="navAdmin" data-i18n-title="navAdmin" title="管理后台" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></button>
     </div>
@@ -960,6 +988,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   <div class="stats-line">
     <span id="statsLine"></span>
     <span class="sync-tools">
+      <button type="button" class="chip-btn chip-btn-ghost" data-act="openBatch" data-i18n-title="batchTitle" title="批量处理（也可长按卡片进入）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> <span data-i18n="batchBtn">批处理</span></button>
+      <button type="button" class="chip-btn chip-btn-ghost" data-act="openFavMgr" data-i18n-title="favMgrTitle" title="收藏夹管理"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> <span data-i18n="favMgrBtn">收藏夹</span></button>
       <button type="button" class="chip-btn chip-btn-ghost" data-act="exportData" data-i18n-title="exportTitle" title="导出全部数据（备份 / 换设备）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg> <span data-i18n="exportBtn">导出</span></button>
       <button type="button" class="chip-btn chip-btn-ghost" data-act="importData" data-i18n-title="importTitle" title="从文件导入数据（按名称合并，不覆盖）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M12 4v9"/><path d="m8 9 4 4 4-4"/></svg> <span data-i18n="importBtn">导入</span></button>
     </span>
@@ -979,6 +1009,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
   <!-- 分类筛选 -->
   <div class="cat-filter" id="catFilter"></div>
+
+  <!-- 批处理顶部栏 -->
+  <div id="batchBar" class="batch-bar hidden">
+    <button type="button" class="chip-btn" data-act="batchSelectAll" data-i18n="batchSelectAll">全选</button>
+    <span class="batch-count" id="batchCount">已选 0</span>
+    <button type="button" class="chip-btn chip-btn-ghost" data-act="batchCancel" data-i18n="batchCancel">取消</button>
+  </div>
 
   <!-- 食谱卡片网格 -->
   <div id="recipeGrid" class="grid"></div>
@@ -1013,6 +1050,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <button class="btn btn-secondary" data-act="clearSearch"><span data-i18n="emptyNoSearchBtn">清除搜索</span></button>
   </div>
 </main>
+
+<!-- 批处理底部操作栏 -->
+<div id="batchActions" class="batch-actions hidden">
+  <button class="batch-act batch-danger" data-act="batchDel" data-i18n="batchDel">删除</button>
+  <button class="batch-act" data-act="batchCopy" data-i18n="batchCopy">复制</button>
+  <button class="batch-act" data-act="batchFav" data-i18n="batchFav">收藏</button>
+  <button class="batch-act" data-act="batchPin" data-i18n="batchPin">置顶</button>
+  <button class="batch-act" data-act="batchExport" data-i18n="batchExport">导出</button>
+  <button class="batch-act" data-act="batchImport" data-i18n="batchImport">导入</button>
+</div>
 
 <!-- 底部双工作台 Tab 导航（小红书风格：个人工作台 / 中央添加 / 共享配方池） -->
 <nav class="bottom-tab" id="bottomTab" aria-label="工作台切换">
@@ -1145,6 +1192,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <h2 data-i18n="detailTitle">食谱详情</h2>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="pin-btn" data-act="togglePin" id="detailPinBtn" data-i18n-title="detailPin" title="置顶/取消置顶" aria-label="置顶"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
+        <button class="pin-btn fav-btn" data-act="favPickFromDetail" id="detailFavBtn" data-i18n-title="favPick" title="加入收藏夹" aria-label="加入收藏夹"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
         <button class="btn btn-ghost" data-act="closeDetail" data-i18n="detailClose">关闭</button>
       </div>
     </div>
@@ -1354,6 +1402,84 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- ═════════════ 选择收藏夹弹窗 ═════════════ -->
+<div id="favPickOverlay" class="overlay hidden">
+  <div class="dialog fav-dialog">
+    <div class="auth-head">
+      <h3 data-i18n="favPickTitle">加入收藏夹</h3>
+      <button type="button" class="dialog-x" data-act="favPickClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="fav-list" id="favPickList"></div>
+    <div class="dialog-actions">
+      <button class="btn" data-act="favPickNew"><span data-i18n="favNew">新建收藏夹</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ 收藏夹管理弹窗 ═════════════ -->
+<div id="favMgrOverlay" class="overlay hidden">
+  <div class="dialog fav-dialog">
+    <div class="auth-head">
+      <h3 data-i18n="favMgrTitle">收藏夹</h3>
+      <button type="button" class="dialog-x" data-act="favMgrClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="fav-list" id="favMgrList"></div>
+    <div class="dialog-actions">
+      <button class="btn" data-act="favMgrNew"><span data-i18n="favNew">新建收藏夹</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ 用户中心弹窗（改用户名/改密码/退出） ═════════════ -->
+<div id="userCenterOverlay" class="overlay hidden">
+  <div class="dialog auth-dialog">
+    <div class="auth-head">
+      <h3 data-i18n="ucTitle">账号管理</h3>
+      <button type="button" class="dialog-x" data-act="ucClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="auth-body">
+      <label class="auth-label" data-i18n="authEmail">邮箱</label>
+      <input id="ucEmail" class="input" type="text" disabled style="background:#f7f7f9;color:#86868b">
+      <label class="auth-label" data-i18n="authUsername">用户名</label>
+      <div class="uc-row">
+        <input id="ucUsername" class="input" type="text" maxlength="20">
+        <button class="btn btn-secondary" data-act="ucSaveUsername" data-i18n="ucSaveUsername">保存用户名</button>
+      </div>
+      <p class="auth-hint" id="ucHint"></p>
+      <hr class="uc-divider">
+      <h4 class="uc-sec" data-i18n="ucPwdSection">修改密码</h4>
+      <label class="auth-label" data-i18n="ucOldPwd">当前密码</label>
+      <div class="pwd-wrap">
+        <input id="ucOldPwd" class="input" type="password" autocomplete="current-password">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucOldPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <label class="auth-label" data-i18n="ucNewPwd">新密码</label>
+      <div class="pwd-wrap">
+        <input id="ucNewPwd" class="input" type="password" autocomplete="new-password" placeholder="至少 6 位">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucNewPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <label class="auth-label" data-i18n="authConfirmPassword">确认密码</label>
+      <div class="pwd-wrap">
+        <input id="ucConfirmPwd" class="input" type="password" autocomplete="new-password" placeholder="确认密码">
+        <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucConfirmPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码">
+          <svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <button class="btn" data-act="ucSavePwd" data-i18n="ucSavePwd" style="width:100%;margin-top:12px">修改密码</button>
+      <div class="dialog-actions" style="margin-top:10px">
+        <button class="btn btn-danger" data-act="ucLogout" data-i18n="ucLogout">退出登录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═════════════ 管理员面板 ═════════════ -->
 <div id="adminOverlay" class="overlay hidden">
   <div class="dialog admin-dialog">
@@ -1493,7 +1619,7 @@ const I18N = {
   confirmDeleteRecipe:'确定删除「{name}」吗？', confirmDeleteRecipeFallback:'确定删除该食谱吗？',
   ingGroupDefault:'食材清单一', addGroupBtn:'添加分组', ingGroupNamePlaceholder:'分组名称',
   toastGroupAdded:'已添加新分组', toastOneGroupLeft:'至少保留一个食材分组',
-  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', authConfirmPassword:'确认密码', authPwdMismatch:'两次输入的密码不一致', showPassword:'显示密码', hidePassword:'隐藏密码', sbRateLimit:'操作太频繁，请等几分钟后再试', sbEmailNotConfirmed:'邮箱尚未验证，请先查收验证邮件', sbAlreadyRegistered:'该邮箱已注册，请直接登录', sbWrongPwd:'邮箱未注册或密码不正确', sbNetworkError:'网络连接失败，请检查网络后重试', sbUserBanned:'该账号已被封禁，请联系管理员', sbUserLocked:'账号已被锁定，请稍后再试', sbPwdTooShort:'密码长度不符合要求', sbSignupNotAllowed:'该邮箱暂不允许注册', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', toastUpToDate:'已是最新'
+  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', favMgrTitle:'收藏夹', favNew:'新建收藏夹', favRenameTitle:'重命名收藏夹', favRename:'重命名', favDelete:'删除', favPickTitle:'加入收藏夹', favPick:'加入收藏夹', favDefault:'默认收藏', favRecipeCount:'{n} 个配方', favSelIn:'已选 {n}', favEmpty:'还没有收藏夹', favNameEmpty:'请输入收藏夹名称', favNameExists:'收藏夹名称已存在', toastFavAdded:'已加入收藏夹', confirmDeleteFolder:'确定删除收藏夹「{name}」？其中收藏的配方不会被删除', favPickNone:'请先选择要收藏的食谱', batchBtn:'批处理', batchTitle:'批量处理（也可长按卡片进入）', batchSelectAll:'全选', batchCancel:'取消', batchCount:'已选 {n}', batchDel:'删除', batchCopy:'复制', batchFav:'收藏', batchPin:'置顶', batchExport:'导出', batchImport:'导入', batchPersonalOnly:'批量处理仅支持个人工作台', batchNone:'请先选择食谱', confirmDeleteBatch:'确定删除选中的 {n} 份食谱？', batchDeleted:'已删除 {n} 份食谱', batchCopied:'已复制 {n} 份食谱', batchPinned:'已置顶 {n} 份食谱', copySuffix:'（副本）', untitled:'未命名', navManage:'管理', ucTitle:'账号管理', ucSaveUsername:'保存用户名', ucUsernameSaved:'用户名已更新', ucPwdSection:'修改密码', ucOldPwd:'当前密码', ucNewPwd:'新密码', ucSavePwd:'修改密码', ucPwdUpdated:'密码已修改，请重新登录', ucOldPwdWrong:'当前密码不正确', ucOldPwdEmpty:'请输入当前密码', ucLogout:'退出登录', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', authConfirmPassword:'确认密码', authPwdMismatch:'两次输入的密码不一致', showPassword:'显示密码', hidePassword:'隐藏密码', sbRateLimit:'操作太频繁，请等几分钟后再试', sbEmailNotConfirmed:'邮箱尚未验证，请先查收验证邮件', sbAlreadyRegistered:'该邮箱已注册，请直接登录', sbWrongPwd:'邮箱未注册或密码不正确', sbNetworkError:'网络连接失败，请检查网络后重试', sbUserBanned:'该账号已被封禁，请联系管理员', sbUserLocked:'账号已被锁定，请稍后再试', sbPwdTooShort:'密码长度不符合要求', sbSignupNotAllowed:'该邮箱暂不允许注册', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', toastUpToDate:'已是最新'
 },
 'ja-JP':{
   appName:'雲享譜', appTagline:'レシピ原価 · 簡単管理', pageTitle:'雲享譜 · レシピ原価管理',
@@ -1593,7 +1719,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」を削除しますか？', confirmDeleteRecipeFallback:'このレシピを削除しますか？',
   ingGroupDefault:'食材リスト1', addGroupBtn:'グループ追加', ingGroupNamePlaceholder:'グループ名',
   toastGroupAdded:'グループを追加しました', toastOneGroupLeft:'食材グループは1つ以上残してください',
-  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', authConfirmPassword:'パスワード（確認）', authPwdMismatch:'パスワードが一致しません', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す', sbRateLimit:'操作が多すぎます。数分後にお試しください', sbEmailNotConfirmed:'メールが未確認です。確認メールをご確認ください', sbAlreadyRegistered:'このメールは登録済みです。ログインしてください', sbWrongPwd:'メール未登録またはパスワードが正しくありません', sbNetworkError:'ネットワーク接続に失敗しました。通信環境をご確認ください', sbUserBanned:'このアカウントは停止されています。管理者にお問い合わせください', sbUserLocked:'アカウントがロックされました。しばらくしてからお試しください', sbPwdTooShort:'パスワードの長さが要件を満たしていません', sbSignupNotAllowed:'このメールでの登録は許可されていません', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', toastUpToDate:'最新です'
+  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', favMgrTitle:'お気に入り', favNew:'新規フォルダ', favRenameTitle:'フォルダ名を変更', favRename:'変更', favDelete:'削除', favPickTitle:'お気に入りに追加', favPick:'お気に入りに追加', favDefault:'デフォルト', favRecipeCount:'{n} 件', favSelIn:'選択中 {n}', favEmpty:'フォルダがありません', favNameEmpty:'フォルダ名を入力してください', favNameExists:'同名のフォルダがあります', toastFavAdded:'お気に入りに追加しました', confirmDeleteFolder:'フォルダ「{name}」を削除しますか？中のレシピは削除されません', favPickNone:'追加するレシピを選択してください', batchBtn:'一括操作', batchTitle:'一括操作（カード長押しでも開始）', batchSelectAll:'すべて選択', batchCancel:'キャンセル', batchCount:'選択中 {n}', batchDel:'削除', batchCopy:'複製', batchFav:'お気に入り', batchPin:'先頭へ', batchExport:'エクスポート', batchImport:'インポート', batchPersonalOnly:'一括操作はマイキッチンのみ対応', batchNone:'レシピを選択してください', confirmDeleteBatch:'選択した {n} 件のレシピを削除しますか？', batchDeleted:'{n} 件のレシピを削除しました', batchCopied:'{n} 件のレシピを複製しました', batchPinned:'{n} 件を先頭に固定しました', copySuffix:'（コピー）', untitled:'無題', navManage:'管理', ucTitle:'アカウント管理', ucSaveUsername:'名前を保存', ucUsernameSaved:'ユーザー名を更新しました', ucPwdSection:'パスワード変更', ucOldPwd:'現在のパスワード', ucNewPwd:'新しいパスワード', ucSavePwd:'パスワードを変更', ucPwdUpdated:'パスワードを変更しました。再ログインしてください', ucOldPwdWrong:'現在のパスワードが正しくありません', ucOldPwdEmpty:'現在のパスワードを入力してください', ucLogout:'ログアウト', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', authConfirmPassword:'パスワード（確認）', authPwdMismatch:'パスワードが一致しません', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す', sbRateLimit:'操作が多すぎます。数分後にお試しください', sbEmailNotConfirmed:'メールが未確認です。確認メールをご確認ください', sbAlreadyRegistered:'このメールは登録済みです。ログインしてください', sbWrongPwd:'メール未登録またはパスワードが正しくありません', sbNetworkError:'ネットワーク接続に失敗しました。通信環境をご確認ください', sbUserBanned:'このアカウントは停止されています。管理者にお問い合わせください', sbUserLocked:'アカウントがロックされました。しばらくしてからお試しください', sbPwdTooShort:'パスワードの長さが要件を満たしていません', sbSignupNotAllowed:'このメールでの登録は許可されていません', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', toastUpToDate:'最新です'
 },
 'ko-KR':{
   appName:'운샹푸', appTagline:'레시피 원가 · 쉬운 관리', pageTitle:'운샹푸 · 레시피 원가 관리',
@@ -1693,7 +1819,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」을(를) 삭제하시겠습니까?', confirmDeleteRecipeFallback:'이 레시피를 삭제하시겠습니까?',
   ingGroupDefault:'재료 목록1', addGroupBtn:'그룹 추가', ingGroupNamePlaceholder:'그룹 이름',
   toastGroupAdded:'그룹이 추가되었습니다', toastOneGroupLeft:'재료 그룹은 최소 1개 남겨주세요',
-  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', authConfirmPassword:'비밀번호 확인', authPwdMismatch:'비밀번호가 일치하지 않습니다', showPassword:'비밀번호 표시', hidePassword:'비밀번호 숨기기', sbRateLimit:'요청이 너무 잦습니다. 잠시 후 다시 시도하세요', sbEmailNotConfirmed:'이메일이 확인되지 않았습니다. 확인 메일을 확인하세요', sbAlreadyRegistered:'이미 가입된 이메일입니다. 로그인하세요', sbWrongPwd:'이메일 미가입 또는 비밀번호가 올바르지 않습니다', sbNetworkError:'네트워크 연결에 실패했습니다. 네트워크를 확인 후 다시 시도하세요', sbUserBanned:'이 계정은 정지되었습니다. 관리자에게 문의하세요', sbUserLocked:'계정이 잠겼습니다. 잠시 후 다시 시도하세요', sbPwdTooShort:'비밀번호 길이가 요구 사항에 맞지 않습니다', sbSignupNotAllowed:'이 이메일로는 가입할 수 없습니다', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', toastUpToDate:'최신 상태'
+  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', favMgrTitle:'즐겨찾기', favNew:'새 폴더', favRenameTitle:'폴더 이름 변경', favRename:'변경', favDelete:'삭제', favPickTitle:'즐겨찾기에 추가', favPick:'즐겨찾기에 추가', favDefault:'기본', favRecipeCount:'{n}개', favSelIn:'선택 {n}', favEmpty:'폴더가 없습니다', favNameEmpty:'폴더 이름을 입력하세요', favNameExists:'같은 이름의 폴더가 있습니다', toastFavAdded:'즐겨찾기에 추가했습니다', confirmDeleteFolder:'폴더 「{name}」을(를) 삭제할까요? 안의 레시피는 삭제되지 않습니다', favPickNone:'추가할 레시피를 선택하세요', batchBtn:'일괄 처리', batchTitle:'일괄 처리（카드 길게 누르기로도 시작）', batchSelectAll:'전체 선택', batchCancel:'취소', batchCount:'선택 {n}', batchDel:'삭제', batchCopy:'복사', batchFav:'즐겨찾기', batchPin:'상단 고정', batchExport:'내보내기', batchImport:'가져오기', batchPersonalOnly:'일괄 처리는 내 키친에서만 가능', batchNone:'레시피를 선택하세요', confirmDeleteBatch:'선택한 {n}개의 레시피를 삭제할까요?', batchDeleted:'{n}개의 레시피를 삭제했습니다', batchCopied:'{n}개의 레시피를 복사했습니다', batchPinned:'{n}개를 상단에 고정했습니다', copySuffix:'（사본）', untitled:'제목 없음', navManage:'관리', ucTitle:'계정 관리', ucSaveUsername:'이름 저장', ucUsernameSaved:'사용자명을 업데이트했습니다', ucPwdSection:'비밀번호 변경', ucOldPwd:'현재 비밀번호', ucNewPwd:'새 비밀번호', ucSavePwd:'비밀번호 변경', ucPwdUpdated:'비밀번호가 변경되었습니다. 다시 로그인하세요', ucOldPwdWrong:'현재 비밀번호가 올바르지 않습니다', ucOldPwdEmpty:'현재 비밀번호를 입력하세요', ucLogout:'로그아웃', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', authConfirmPassword:'비밀번호 확인', authPwdMismatch:'비밀번호가 일치하지 않습니다', showPassword:'비밀번호 표시', hidePassword:'비밀번호 숨기기', sbRateLimit:'요청이 너무 잦습니다. 잠시 후 다시 시도하세요', sbEmailNotConfirmed:'이메일이 확인되지 않았습니다. 확인 메일을 확인하세요', sbAlreadyRegistered:'이미 가입된 이메일입니다. 로그인하세요', sbWrongPwd:'이메일 미가입 또는 비밀번호가 올바르지 않습니다', sbNetworkError:'네트워크 연결에 실패했습니다. 네트워크를 확인 후 다시 시도하세요', sbUserBanned:'이 계정은 정지되었습니다. 관리자에게 문의하세요', sbUserLocked:'계정이 잠겼습니다. 잠시 후 다시 시도하세요', sbPwdTooShort:'비밀번호 길이가 요구 사항에 맞지 않습니다', sbSignupNotAllowed:'이 이메일로는 가입할 수 없습니다', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', toastUpToDate:'최신 상태'
 },
 'en-US':{
   appName:'YunXiangPu', appTagline:'Recipe Cost · Made Simple', pageTitle:'YunXiangPu · Recipe Cost Manager',
@@ -1793,7 +1919,7 @@ const I18N = {
   confirmDeleteRecipe:'Delete 「{name}」?', confirmDeleteRecipeFallback:'Delete this recipe?',
   ingGroupDefault:'Ingredients 1', addGroupBtn:'Add group', ingGroupNamePlaceholder:'Group name',
   toastGroupAdded:'Group added', toastOneGroupLeft:'Keep at least one ingredient group',
-  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', authConfirmPassword:'Confirm password', authPwdMismatch:'Passwords do not match', showPassword:'Show password', hidePassword:'Hide password', sbRateLimit:'Too many attempts. Please try again in a few minutes', sbEmailNotConfirmed:'Email not confirmed yet. Please check your inbox', sbAlreadyRegistered:'This email is already registered. Please sign in', sbWrongPwd:'Email not registered or incorrect password', sbNetworkError:'Network error. Please check your connection and retry', sbUserBanned:'This account has been banned. Please contact the admin', sbUserLocked:'Account locked. Please try again later', sbPwdTooShort:'Password does not meet length requirements', sbSignupNotAllowed:'Signup not allowed for this email', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', toastUpToDate:'Already up to date'
+  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', favMgrTitle:'Favorites', favNew:'New folder', favRenameTitle:'Rename folder', favRename:'Rename', favDelete:'Delete', favPickTitle:'Add to favorites', favPick:'Add to favorites', favDefault:'Default', favRecipeCount:'{n} recipes', favSelIn:'{n} selected', favEmpty:'No folders yet', favNameEmpty:'Please enter a folder name', favNameExists:'A folder with this name already exists', toastFavAdded:'Added to favorites', confirmDeleteFolder:'Delete folder "{name}"? The recipes inside will not be deleted', favPickNone:'Please select recipes to favorite', batchBtn:'Batch', batchTitle:'Batch mode (or long-press a card)', batchSelectAll:'Select all', batchCancel:'Cancel', batchCount:'{n} selected', batchDel:'Delete', batchCopy:'Copy', batchFav:'Favorite', batchPin:'Pin', batchExport:'Export', batchImport:'Import', batchPersonalOnly:'Batch mode works in My Kitchen only', batchNone:'Please select recipes first', confirmDeleteBatch:'Delete the {n} selected recipes?', batchDeleted:'Deleted {n} recipes', batchCopied:'Copied {n} recipes', batchPinned:'Pinned {n} recipes', copySuffix:' (copy)', untitled:'Untitled', navManage:'Manage', ucTitle:'Account', ucSaveUsername:'Save name', ucUsernameSaved:'Username updated', ucPwdSection:'Change password', ucOldPwd:'Current password', ucNewPwd:'New password', ucSavePwd:'Change password', ucPwdUpdated:'Password changed. Please sign in again', ucOldPwdWrong:'Current password is incorrect', ucOldPwdEmpty:'Please enter your current password', ucLogout:'Sign out', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', authConfirmPassword:'Confirm password', authPwdMismatch:'Passwords do not match', showPassword:'Show password', hidePassword:'Hide password', sbRateLimit:'Too many attempts. Please try again in a few minutes', sbEmailNotConfirmed:'Email not confirmed yet. Please check your inbox', sbAlreadyRegistered:'This email is already registered. Please sign in', sbWrongPwd:'Email not registered or incorrect password', sbNetworkError:'Network error. Please check your connection and retry', sbUserBanned:'This account has been banned. Please contact the admin', sbUserLocked:'Account locked. Please try again later', sbPwdTooShort:'Password does not meet length requirements', sbSignupNotAllowed:'Signup not allowed for this email', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', toastUpToDate:'Already up to date'
 },
 'th-TH':{
   appName:'หยุนเซียงผู่', appTagline:'ต้นทุนสูตร · จัดการง่าย', pageTitle:'หยุนเซียงผู่ · จัดการต้นทุนสูตร',
@@ -1893,7 +2019,7 @@ const I18N = {
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
-  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', authConfirmPassword:'ยืนยันรหัสผ่าน', authPwdMismatch:'รหัสผ่านไม่ตรงกัน', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน', sbRateLimit:'พยายามบ่อยเกินไป กรุณาลองใหม่ในอีกไม่กี่นาที', sbEmailNotConfirmed:'ยังไม่ยืนยันอีเมล กรุณาตรวจสอบอีเมลยืนยัน', sbAlreadyRegistered:'อีเมลนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ', sbWrongPwd:'อีเมลยังไม่ได้ลงทะเบียนหรือรหัสผ่านไม่ถูกต้อง', sbNetworkError:'การเชื่อมต่อเครือข่ายล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', sbUserBanned:'บัญชีนี้ถูกระงับ กรุณาติดต่อแอดมิน', sbUserLocked:'บัญชีถูกล็อก กรุณาลองใหม่ในภายหลัง', sbPwdTooShort:'รหัสผ่านไม่เป็นไปตามข้อกำหนด', sbSignupNotAllowed:'อีเมลนี้ไม่อนุญาตให้สมัคร', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', toastUpToDate:'เป็นปัจจุบันแล้ว'
+  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', favMgrTitle:'รายการโปรด', favNew:'โฟลเดอร์ใหม่', favRenameTitle:'เปลี่ยนชื่อโฟลเดอร์', favRename:'เปลี่ยนชื่อ', favDelete:'ลบ', favPickTitle:'เพิ่มในรายการโปรด', favPick:'เพิ่มในรายการโปรด', favDefault:'ค่าเริ่มต้น', favRecipeCount:'{n} สูตร', favSelIn:'เลือก {n}', favEmpty:'ยังไม่มีโฟลเดอร์', favNameEmpty:'กรุณาใส่ชื่อโฟลเดอร์', favNameExists:'มีโฟลเดอร์ชื่อนี้อยู่แล้ว', toastFavAdded:'เพิ่มในรายการโปรดแล้ว', confirmDeleteFolder:'ลบโฟลเดอร์ «{name}» หรือไม่? สูตรข้างในจะไม่ถูกลบ', favPickNone:'กรุณาเลือกสูตรที่จะเพิ่ม', batchBtn:'จัดการหลายรายการ', batchTitle:'จัดการหลายรายการ（กดค้างที่การ์ดได้ด้วย）', batchSelectAll:'เลือกทั้งหมด', batchCancel:'ยกเลิก', batchCount:'เลือก {n}', batchDel:'ลบ', batchCopy:'คัดลอก', batchFav:'โปรด', batchPin:'ปักหมุด', batchExport:'ส่งออก', batchImport:'นำเข้า', batchPersonalOnly:'จัดการหลายรายการใช้ได้เฉพาะคิชชันส่วนตัว', batchNone:'กรุณาเลือกสูตรก่อน', confirmDeleteBatch:'ลบสูตรที่เลือก {n} รายการหรือไม่?', batchDeleted:'ลบสูตร {n} รายการแล้ว', batchCopied:'คัดลอกสูตร {n} รายการแล้ว', batchPinned:'ปักหมุด {n} รายการแล้ว', copySuffix:' (สำเนา)', untitled:'ไม่มีชื่อ', navManage:'จัดการ', ucTitle:'จัดการบัญชี', ucSaveUsername:'บันทึกชื่อ', ucUsernameSaved:'อัปเดตชื่อผู้ใช้แล้ว', ucPwdSection:'เปลี่ยนรหัสผ่าน', ucOldPwd:'รหัสผ่านปัจจุบัน', ucNewPwd:'รหัสผ่านใหม่', ucSavePwd:'เปลี่ยนรหัสผ่าน', ucPwdUpdated:'เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่', ucOldPwdWrong:'รหัสผ่านปัจจุบันไม่ถูกต้อง', ucOldPwdEmpty:'กรุณาใส่รหัสผ่านปัจจุบัน', ucLogout:'ออกจากระบบ', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', authConfirmPassword:'ยืนยันรหัสผ่าน', authPwdMismatch:'รหัสผ่านไม่ตรงกัน', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน', sbRateLimit:'พยายามบ่อยเกินไป กรุณาลองใหม่ในอีกไม่กี่นาที', sbEmailNotConfirmed:'ยังไม่ยืนยันอีเมล กรุณาตรวจสอบอีเมลยืนยัน', sbAlreadyRegistered:'อีเมลนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ', sbWrongPwd:'อีเมลยังไม่ได้ลงทะเบียนหรือรหัสผ่านไม่ถูกต้อง', sbNetworkError:'การเชื่อมต่อเครือข่ายล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', sbUserBanned:'บัญชีนี้ถูกระงับ กรุณาติดต่อแอดมิน', sbUserLocked:'บัญชีถูกล็อก กรุณาลองใหม่ในภายหลัง', sbPwdTooShort:'รหัสผ่านไม่เป็นไปตามข้อกำหนด', sbSignupNotAllowed:'อีเมลนี้ไม่อนุญาตให้สมัคร', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', toastUpToDate:'เป็นปัจจุบันแล้ว'
 }
 };
 let currentLang = loadLang();
@@ -2033,6 +2159,7 @@ let sharedRecipes = loadSharedRecipes(); // 共享配方池：所有人可见的
 let priceLib    = loadPrices();    // 原材料价格库
 let searchTerm  = '';              // 当前搜索关键字
 let activeCat   = '';              // 主页分类筛选（'' = 全部）
+let activeFolder = '';             // 主页收藏夹筛选（'' = 全部，否则为收藏夹 id）
 let cardViewMode = localStorage.getItem('yx-card-view') || 'double'; // 移动端卡片视图：single / double
 let currentWorkspace = localStorage.getItem('yx-workspace') || 'personal'; // 'personal' | 'shared'
 let editingId   = null;            // 正在编辑的食谱 id（null = 新建）
@@ -2056,7 +2183,9 @@ function recipeGroups(r){
   return [];
 }
 function flatIngredients(r){ return recipeGroups(r).reduce((a, g) => a.concat(g.items || []), []); }
-function recipeCost(r){ return flatIngredients(r).reduce((s,i) => s + num(i.amount)*num(i.unitPrice), 0); }
+/* 食材行单价：优先行内 unitPrice，为空时按价格库自动补价（lookupPrice 返回 {unitPrice,...} 对象） */
+function ingPrice(i){ return num(i.unitPrice || (lookupPrice(i.name, i.unit) || {}).unitPrice); }
+function recipeCost(r){ return flatIngredients(r).reduce((s,i) => s + num(i.amount)*ingPrice(i), 0); }
 /* 按序号生成食材分组默认名：食材清单一/二/三…，其余语言用数字后缀 */
 const CN_NUM = ['','一','二','三','四','五','六','七','八','九','十'];
 function defaultGroupName(n){
@@ -2095,7 +2224,7 @@ function toast(msg, type){
 }
 
 /* 弹层显隐（同时锁定/解锁页面滚动） */
-const OVERLAYS = ['formOverlay','detailOverlay','confirmOverlay','priceOverlay','priceFormOverlay','promptOverlay','catDialogOverlay','appConfirmOverlay'];
+const OVERLAYS = ['formOverlay','detailOverlay','confirmOverlay','priceOverlay','priceFormOverlay','promptOverlay','catDialogOverlay','appConfirmOverlay','favPickOverlay','favMgrOverlay','userCenterOverlay'];  // 新弹窗需加入以支持 ESC/点遮罩关闭
 function show(id){ byId(id).classList.remove('hidden'); document.body.classList.add('lock'); }
 function hide(id){
   byId(id).classList.add('hidden');
@@ -2452,6 +2581,223 @@ function lookupPrice(name, rowUnit){
   return convertPrice(cands[0].p, rowUnit);
 }
 
+/* ═════════════════════ 收藏夹（多夹子，localStorage） ═════════════════════ */
+const FAV_KEY = 'yx-favorites';
+const DEFAULT_FAV_ID = 'fav-default';
+let favoriteFolders = loadFavFolders();
+let pendingFavIds = [];   // 待加入收藏夹的食谱 id 列表（卡片/详情/批量收藏共用）
+function loadFavFolders(){
+  try{
+    const raw = localStorage.getItem(FAV_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if(Array.isArray(parsed) && parsed.length) return parsed;
+  }catch(e){}
+  return [{ id: DEFAULT_FAV_ID, name: t('favDefault') || '默认收藏', recipeIds: [] }];
+}
+function saveFavFolders(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify(favoriteFolders)); }catch(e){} }
+function favFolderById(id){ return favoriteFolders.find(f => f.id === id); }
+function isFaved(recipeId){ return favoriteFolders.some(f => (f.recipeIds || []).includes(recipeId)); }
+function genFavId(){ return 'fav-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+/* 旧版星标收藏（r.favorite）迁移到「默认收藏」夹，随后回收星标字段 */
+function migrateLegacyFavorites(){
+  const def = favFolderById(DEFAULT_FAV_ID);
+  let changed = false;
+  recipes.forEach(r => {
+    if(r.favorite && !(r.favFolderIds || []).length && def){ def.recipeIds.push(r.id); changed = true; }
+    if('favorite' in r){ delete r.favorite; changed = true; }
+  });
+  if(changed){ saveFavFolders(); saveRecipes(); }
+}
+/* 打开「加入收藏夹」选择弹窗 */
+function openFavPick(ids){
+  if(!ids || !ids.length){ toast(t('favPickNone'), 'error'); return; }
+  pendingFavIds = ids;
+  const html = favoriteFolders.map(f => {
+    const sel = ids.filter(id => (f.recipeIds || []).includes(id)).length;
+    return `<button type="button" class="fav-row" data-act="favPickSelect" data-id="${f.id}">
+      <span class="fav-row-name"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> <b>${esc(f.name)}</b></span>
+      <span class="muted">${t('favRecipeCount', {n: (f.recipeIds||[]).length})}${sel ? ' · ' + t('favSelIn', {n: sel}) : ''}</span>
+    </button>`;
+  }).join('') || `<p class="muted" style="text-align:center;padding:12px 0">${t('favEmpty')}</p>`;
+  byId('favPickList').innerHTML = html;
+  show('favPickOverlay');
+}
+function closeFavPick(){ hide('favPickOverlay'); pendingFavIds = []; }
+function favPickSelect(folderId){
+  const f = favFolderById(folderId);
+  if(!f || !pendingFavIds.length) return;
+  const ids = new Set(f.recipeIds || []);
+  pendingFavIds.forEach(id => ids.add(id));
+  f.recipeIds = [...ids];
+  saveFavFolders();
+  hide('favPickOverlay'); pendingFavIds = [];
+  render();
+  toast(t('toastFavAdded'));
+}
+async function favCreate(name){
+  name = (name || '').trim();
+  if(!name){ toast(t('favNameEmpty'), 'error'); return; }
+  if(favoriteFolders.some(f => f.name === name)){ toast(t('favNameExists'), 'error'); return; }
+  favoriteFolders.push({ id: genFavId(), name, recipeIds: [] });
+  saveFavFolders();
+}
+async function favPickNew(){
+  await favCreate(await appPrompt(t('favNew')));
+  if(pendingFavIds.length) renderFavPickList();
+}
+/* 收藏夹管理弹窗 */
+function openFavMgr(){
+  renderFavMgrList();
+  show('favMgrOverlay');
+}
+function closeFavMgr(){ hide('favMgrOverlay'); }
+function renderFavMgrList(){
+  const html = favoriteFolders.map(f => {
+    const n = (f.recipeIds || []).length;
+    return `<div class="fav-row${activeFolder === f.id ? ' on' : ''}">
+      <button type="button" class="fav-row-name" data-act="favFolderSelect" data-id="${f.id}">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <b>${esc(f.name)}</b>
+        <span class="muted">${t('favRecipeCount', {n})}</span>
+      </button>
+      <div class="fav-row-actions">
+        <button class="fav-mini" data-act="favFolderRename" data-id="${f.id}">${t('favRename')}</button>
+        <button class="fav-mini fav-del" data-act="favFolderDelete" data-id="${f.id}">${t('favDelete')}</button>
+      </div>
+    </div>`;
+  }).join('') || `<p class="muted" style="text-align:center;padding:12px 0">${t('favEmpty')}</p>`;
+  byId('favMgrList').innerHTML = html;
+}
+async function favFolderCreate(){ await favCreate(await appPrompt(t('favNew'))); renderFavMgrList(); }
+async function favFolderRename(id){
+  const f = favFolderById(id);
+  if(!f) return;
+  const name = await appPrompt(t('favRenameTitle'), f.name);
+  if(!name || !name.trim()) return;
+  if(favoriteFolders.some(x => x !== f && x.name === name.trim())){ toast(t('favNameExists'), 'error'); return; }
+  f.name = name.trim();
+  saveFavFolders(); renderFavMgrList();
+}
+function favFolderDelete(id){
+  const f = favFolderById(id);
+  if(!f) return;
+  pendingDeleteId = id; pendingDeleteKind = 'folder';
+  byId('confirmText').textContent = t('confirmDeleteFolder', {name: f.name});
+  show('confirmOverlay');
+}
+function doDeleteFolder(id){
+  favoriteFolders = favoriteFolders.filter(f => f.id !== id);
+  recipes.forEach(r => { if(r.favFolderIds){ r.favFolderIds = r.favFolderIds.filter(x => x !== id); } });
+  saveFavFolders(); saveRecipes();
+  if(activeFolder === id) activeFolder = '';
+  render();
+}
+function favFolderSelect(id){
+  activeFolder = activeFolder === id ? '' : id;
+  hide('favMgrOverlay');
+  render();
+}
+
+/* ═════════════════════ 批量处理（仅个人工作台） ═════════════════════ */
+let batchMode = false;
+let batchSelected = new Set();
+/* 个人工作台当前过滤列表（与 renderPersonal 同一过滤规则，供渲染/全选共用） */
+function personalFiltered(){
+  const q = searchTerm.trim().toLowerCase();
+  return recipes.filter(r => {
+    const folderMatch = activeFolder === '' ? true : (r.favFolderIds || []).includes(activeFolder);
+    const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
+    return folderMatch && catMatch &&
+      ((r.name||'').toLowerCase().includes(q) ||
+       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+  });
+}
+function openBatch(){
+  if(currentWorkspace !== 'personal'){ toast(t('batchPersonalOnly'), 'error'); return; }
+  batchMode = true; batchSelected.clear();
+  render();
+}
+function exitBatch(){
+  batchMode = false; batchSelected.clear();
+  render();
+}
+function toggleBatchSelect(id){
+  if(batchSelected.has(id)) batchSelected.delete(id); else batchSelected.add(id);
+  render();
+}
+function batchSelectAll(){
+  const list = personalFiltered();
+  if(batchSelected.size === list.length) batchSelected.clear();
+  else list.forEach(r => batchSelected.add(r.id));
+  render();
+}
+function batchSelectedRecipes(){ return recipes.filter(r => batchSelected.has(r.id)); }
+function batchDelete(){
+  const list = batchSelectedRecipes();
+  if(!list.length){ toast(t('batchNone'), 'error'); return; }
+  pendingDeleteKind = 'batch';
+  byId('confirmText').textContent = t('confirmDeleteBatch', {n: list.length});
+  show('confirmOverlay');
+}
+function doBatchDelete(){
+  const n = batchSelected.size;
+  const ids = new Set(batchSelected);
+  recipes = recipes.filter(r => !ids.has(r.id));
+  saveRecipes();
+  exitBatch();
+  toast(t('batchDeleted', {n}));
+}
+function batchDuplicate(){
+  const list = batchSelectedRecipes();
+  if(!list.length){ toast(t('batchNone'), 'error'); return; }
+  list.forEach(r => {
+    const copy = JSON.parse(JSON.stringify(r));
+    copy.id = uid(); copy.name = (r.name || t('untitled')) + t('copySuffix');
+    copy.createdAt = Date.now(); copy.updatedAt = Date.now();
+    copy.favFolderIds = [];
+    recipes.push(copy);
+  });
+  saveRecipes();
+  exitBatch();
+  toast(t('batchCopied', {n: list.length}));
+}
+function batchPin(){
+  const list = batchSelectedRecipes();
+  if(!list.length){ toast(t('batchNone'), 'error'); return; }
+  const allPinned = list.every(r => r.pinned);
+  list.forEach(r => { r.pinned = !allPinned; r.updatedAt = Date.now(); });
+  saveRecipes();
+  exitBatch();
+  toast(t('batchPinned', {n: list.length}));
+}
+async function batchExport(){
+  const list = batchSelectedRecipes();
+  if(!list.length){ toast(t('batchNone'), 'error'); return; }
+  const payload = { app:'yunxiangpu', version:1, exportedAt:Date.now(), recipes:list, priceLib:[] };
+  const json = JSON.stringify(payload, null, 1);
+  const fname = `云享谱选中-${ymd()}.json`;
+  try{
+    const file = new File([json], fname, { type:'application/json' });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:'云享谱选中' });
+      return;
+    }
+  }catch(e){ /* 用户取消或不可用，走下载兜底 */ }
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+  a.download = fname;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast(t('exportShareTip'));
+}
+function updateBatchUI(){
+  const inBatch = batchMode && currentWorkspace === 'personal';
+  byId('batchBar').classList.toggle('hidden', !inBatch);
+  byId('batchActions').classList.toggle('hidden', !inBatch);
+  byId('batchCount').textContent = t('batchCount', {n: batchSelected.size});
+  const fab = document.querySelector('.bottom-tab-center');
+  if(fab) fab.style.visibility = inBatch ? 'hidden' : '';
+}
+
 /* ═════════════════════ 数据层（localStorage 持久化） ═════════════════════ */
 function loadRecipes(){
   try{
@@ -2678,6 +3024,44 @@ async function authSignup(){
   }finally{ authBusy = false; }
 }
 
+/* 用户中心：修改用户名 / 修改密码 / 退出登录 */
+function openUserCenter(){
+  if(!currentUser){ toast(t('sbNotConfigured'), 'error'); return; }
+  byId('ucEmail').value = currentUser.email || '';
+  byId('ucUsername').value = currentUser.username || '';
+  byId('ucOldPwd').value = ''; byId('ucNewPwd').value = ''; byId('ucConfirmPwd').value = '';
+  byId('ucHint').textContent = '';
+  show('userCenterOverlay');
+}
+function closeUserCenter(){ hide('userCenterOverlay'); }
+async function ucSaveUsername(){
+  const name = byId('ucUsername').value.trim();
+  if(!name){ byId('ucHint').textContent = t('fillAuthorFirst'); return; }
+  byId('ucHint').textContent = '';
+  const { error } = await SB.auth.updateUser({ data: { username: name } });
+  if(error){ byId('ucHint').textContent = sbFriendlyError(error.message); return; }
+  currentUser.username = name;
+  updateAuthUI();
+  try{ await SB.from('profiles').update({ username: name }).eq('id', currentUser.id); }catch(e){ /* RLS 未开放时静默，重新登录后回退 auth metadata */ }
+  toast(t('ucUsernameSaved'));
+}
+async function ucSavePwd(){
+  const oldPwd = byId('ucOldPwd').value;
+  const newPwd = byId('ucNewPwd').value;
+  const confirmPwd = byId('ucConfirmPwd').value;
+  if(!oldPwd){ byId('ucHint').textContent = t('ucOldPwdEmpty'); return; }
+  if(newPwd.length < 6){ byId('ucHint').textContent = t('authPwdShort'); return; }
+  if(newPwd !== confirmPwd){ byId('ucHint').textContent = t('authPwdMismatch'); return; }
+  byId('ucHint').textContent = '';
+  const { error: verr } = await SB.auth.signInWithPassword({ email: currentUser.email, password: oldPwd });
+  if(verr){ byId('ucHint').textContent = t('ucOldPwdWrong'); return; }
+  const { error } = await SB.auth.updateUser({ password: newPwd });
+  if(error){ byId('ucHint').textContent = sbFriendlyError(error.message); return; }
+  toast(t('ucPwdUpdated'));
+  closeUserCenter();
+  sbSignOut();   // 修改密码后强制重新登录，避免旧 token 失效导致后续请求异常
+}
+
 /* 管理员面板 */
 function openAdmin(){ if(!isAdmin){ toast(t('adminNoPerm'), 'error'); return; } renderAdmin('recipes'); show('adminOverlay'); }
 function closeAdmin(){ hide('adminOverlay'); }
@@ -2731,32 +3115,27 @@ function render(){
   // 顶部工具栏：个人工作台显示导出/导入/视图切换；共享池隐藏
   byId('viewToggle').style.display = currentWorkspace === 'personal' ? '' : 'none';
   document.querySelector('.sync-tools').style.display = currentWorkspace === 'personal' ? '' : 'none';
-  byId('catFilter').style.display = currentWorkspace === 'personal' ? '' : 'none';
+  // 分类筛选：个人与共享池均显示（共享池按各自数据源计数）
+  byId('catFilter').style.display = '';
+  // 离开个人工作台时退出批处理模式
+  if(currentWorkspace !== 'personal' && batchMode){ batchMode = false; batchSelected.clear(); }
 
   if(currentWorkspace === 'shared') return renderShared();
   renderPersonal();
+  updateBatchUI();
 }
 function renderPersonal(){
-  const q = searchTerm.trim().toLowerCase();
-  // 按分类 + 名称/食材名过滤
-  const list = recipes.filter(r => {
-    const catMatch = activeCat === '' ? true :
-                     activeCat === '__fav__' ? !!r.favorite :
-                     displayCat(r.category) === activeCat;
-    return catMatch &&
-      ((r.name||'').toLowerCase().includes(q) ||
-       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
-  });
+  // 过滤与批量处理共用同一规则
+  const list = personalFiltered();
   const sorted = [...list].sort((a,b) =>
     (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) ||
-    (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) ||
     (b.updatedAt||0) - (a.updatedAt||0)
   );
   byId('recipeGrid').innerHTML = sorted.map((r, i) => cardHTML(r, i)).join('');
   byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
   byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
   document.querySelectorAll('#viewToggle .icon-btn').forEach(b => b.classList.toggle('on', b.dataset.act === 'view' + (cardViewMode === 'single' ? 'Single' : 'Double')));
-  renderCatFilter();
+  renderCatFilter(recipes);
 
   // 切换到个人工作台时务必隐藏共享池的登录门禁（避免两个空状态叠在一起）
   byId('sharedGate').classList.add('hidden');
@@ -2774,12 +3153,13 @@ function renderPersonal(){
   renderStats(sorted, 'personal');
 }
 /* 共享配方池渲染：按点赞数降序，同名检查 */
-function renderCatFilter(){
+/* 分类筛选 chips：按当前工作台数据源计数（个人=recipes，共享=sharedRecipes） */
+function renderCatFilter(pool){
+  pool = pool || (currentWorkspace === 'shared' ? sharedRecipes : recipes);
+  if(activeCat === '__fav__') activeCat = '';   // 旧星标筛选已回收
   const counts = {};
-  recipes.forEach(r => { const c = displayCat(r.category) || '其他'; counts[c] = (counts[c]||0) + 1; });
-  const favCount = recipes.filter(r => r.favorite).length;
-  const chips = [`<button type="button" class="cat-chip${activeCat === '' ? ' on' : ''}" data-cat="">${t('catAll')} <span class="cnt">${recipes.length}</span></button>`];
-  chips.push(`<button type="button" class="cat-chip${activeCat === '__fav__' ? ' on' : ''}" data-cat="__fav__">${t('catFavorite')} <span class="cnt">${favCount}</span></button>`);
+  pool.forEach(r => { const c = displayCat(r.category) || '其他'; counts[c] = (counts[c]||0) + 1; });
+  const chips = [`<button type="button" class="cat-chip${activeCat === '' ? ' on' : ''}" data-cat="">${t('catAll')} <span class="cnt">${pool.length}</span></button>`];
   chips.push(...allCats().map(c => {
     const n = counts[c.name] || 0;
     if(n === 0) return '';
@@ -2812,10 +3192,13 @@ function renderShared(){
   }
   byId('sharedGate').classList.add('hidden');
   const q = searchTerm.trim().toLowerCase();
-  const list = sharedRecipes.filter(r =>
-    (r.name||'').toLowerCase().includes(q) ||
-    flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q))
-  );
+  // 支持按分类筛选（与个人工作台一致：displayCat 映射 + 重命名跟随）
+  const list = sharedRecipes.filter(r => {
+    const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
+    return catMatch &&
+      ((r.name||'').toLowerCase().includes(q) ||
+       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+  });
   const sorted = [...list].sort((a,b) =>
     (b.likes || 0) - (a.likes || 0) ||
     (b.updatedAt || 0) - (a.updatedAt || 0)
@@ -2823,6 +3206,7 @@ function renderShared(){
   byId('recipeGrid').innerHTML = sorted.map((r, i) => sharedCardHTML(r, i)).join('');
   byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
   byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
+  renderCatFilter(sharedRecipes);
 
   // 空状态
   byId('emptyState').classList.toggle('hidden', sharedRecipes.length > 0);
@@ -2905,10 +3289,12 @@ function cardHTML(r, i){
       ? allIngs.map(i => esc(i.name)).join(' · ')
       : t('noIngredients');
   const pinIcon = `<svg class="ic" style="color:var(--accent);vertical-align:-3px;margin-right:3px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M16 10H8l-1 6h10z"/><path d="M12 16v6"/></svg>`;
+  const isSel = batchSelected.has(r.id);
   return `
-  <article class="recipe-card" data-id="${r.id}" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
+  <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
+    ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
-      <button data-act="toggleFav" data-id="${r.id}" class="fav-btn ${r.favorite ? 'favorited' : ''}" aria-label="${r.favorite ? t('cardUnfavorite') : t('cardFavorite')}" title="${r.favorite ? t('cardUnfavorite') : t('cardFavorite')}"><svg class="ic" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+      <button data-act="favPick" data-id="${r.id}" class="fav-btn ${isFaved(r.id) ? 'favorited' : ''}" aria-label="${t('favPick')}" title="${t('favPick')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
       <button data-act="edit" aria-label="${t('detailEdit')}" title="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>
       <button data-act="del" class="act-del" aria-label="${t('detailDelete')}" title="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>
     </div>
@@ -3125,7 +3511,7 @@ function openDetail(id, workspace){
       <tr>
         <td>${esc(i.name)}</td>
         <td>${esc(i.amount || '—')} ${esc(i.unit || '')}</td>
-        <td style="text-align:right;font-weight:600">${fmt(num(i.amount)*num(i.unitPrice))}</td>
+        <td style="text-align:right;font-weight:600">${fmt(num(i.amount)*ingPrice(i))}</td>
       </tr>`).join('');
     return `
       <div class="d-ing-group">
@@ -3140,6 +3526,8 @@ function openDetail(id, workspace){
     || `<p class="muted">${t('detailNoSteps')}</p>`;
   byId('detailPinBtn').classList.toggle('pinned', !!r.pinned);
   byId('detailPinBtn').style.display = workspace === 'personal' ? '' : 'none';
+  byId('detailFavBtn').classList.toggle('favorited', isFaved(r.id));
+  byId('detailFavBtn').style.display = workspace === 'personal' ? '' : 'none';
   const isCustomCover = !!r.cover;
   const heroHTML = cover ? `
     <div class="detail-hero ${isCustomCover ? '' : 'detail-hero-auto'}" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">
@@ -3185,6 +3573,8 @@ function askDelete(id, workspace){
   show('confirmOverlay');
 }
 async function doDelete(){
+  if(pendingDeleteKind === 'folder'){ doDeleteFolder(pendingDeleteId); hide('confirmOverlay'); pendingDeleteId = null; pendingDeleteKind = 'recipe'; return; }
+  if(pendingDeleteKind === 'batch'){ doBatchDelete(); hide('confirmOverlay'); pendingDeleteKind = 'recipe'; return; }
   const ws = pendingDeleteWorkspace || 'personal';
   const pool = ws === 'shared' ? sharedRecipes : recipes;
   const idx = pool.findIndex(x => x.id === pendingDeleteId);
@@ -3194,7 +3584,7 @@ async function doDelete(){
     if(ws === 'shared'){ if(!SB_ENABLED) saveSharedRecipes(); } else { saveRecipes(); }
     render(); toast(t('toastRecipeDeleted'));
   }
-  hide('confirmOverlay'); pendingDeleteId = null; pendingDeleteWorkspace = 'personal';
+  hide('confirmOverlay'); pendingDeleteId = null; pendingDeleteKind = 'recipe'; pendingDeleteWorkspace = 'personal';
 }
 
 /* ═════════════════════ 置顶 / 取消置顶 ═════════════════════ */
@@ -3938,6 +4328,11 @@ document.addEventListener('click', async e => {
     case 'authSignin':     authSignin(); break;
     case 'authSignup':     authSignup(); break;
     case 'togglePwd':      togglePwd(btn.dataset.target); break;
+    case 'openUserCenter': openUserCenter(); break;
+    case 'ucClose':        closeUserCenter(); break;
+    case 'ucSaveUsername': ucSaveUsername(); break;
+    case 'ucSavePwd':      ucSavePwd(); break;
+    case 'ucLogout':       closeUserCenter(); sbSignOut(); break;
     case 'sbLogout':       sbSignOut(); break;
     case 'openAdmin':      openAdmin(); break;
     case 'closeAdmin':     hide('adminOverlay'); break;
@@ -4006,7 +4401,26 @@ document.addEventListener('click', async e => {
     }
     case 'edit':           openForm(id, workspace); break;
     case 'del':            askDelete(id, workspace); break;
-    case 'toggleFav':      if(workspace === 'personal') toggleFav(id); break;
+    case 'favPick':        if(workspace === 'personal') openFavPick([id]); break;
+    case 'favPickFromDetail': if(currentDetailWorkspace === 'personal' && currentDetailId) openFavPick([currentDetailId]); break;
+    case 'favPickSelect':  favPickSelect(btn.dataset.id); break;
+    case 'favPickClose':   closeFavPick(); break;
+    case 'favPickNew':     favPickNew(); break;
+    case 'openFavMgr':     openFavMgr(); break;
+    case 'favMgrClose':    closeFavMgr(); break;
+    case 'favMgrNew':      favFolderCreate(); break;
+    case 'favFolderRename': favFolderRename(btn.dataset.id); break;
+    case 'favFolderDelete': favFolderDelete(btn.dataset.id); break;
+    case 'favFolderSelect': favFolderSelect(btn.dataset.id); break;
+    case 'openBatch':      openBatch(); break;
+    case 'batchSelectAll': batchSelectAll(); break;
+    case 'batchCancel':    exitBatch(); break;
+    case 'batchDel':       batchDelete(); break;
+    case 'batchCopy':      batchDuplicate(); break;
+    case 'batchFav':       openFavPick([...batchSelected]); break;
+    case 'batchPin':       batchPin(); break;
+    case 'batchExport':    batchExport(); break;
+    case 'batchImport':    byId('importFile').click(); break;
     case 'copy':           copyIngredients(id, workspace); break;
     case 'likeShared':     likeShared(btn.dataset.id); break;
     case 'copyDetail':     copyIngredients(currentDetailId, currentDetailWorkspace); break;
@@ -4047,15 +4461,40 @@ document.addEventListener('click', async e => {
   if(hapticType) haptic(hapticType);
 });
 
-/* 点击卡片空白处 → 打开详情 */
+/* 点击卡片空白处 → 打开详情（批处理模式下切换选中） */
 byId('recipeGrid').addEventListener('click', e => {
   if(e.target.closest('[data-act]')) return;
   const card = e.target.closest('.recipe-card');
-  if(card) openDetail(card.dataset.id, card.dataset.workspace || 'personal');
+  if(!card) return;
+  if(batchMode && card.dataset.workspace !== 'shared'){ toggleBatchSelect(card.dataset.id); return; }
+  openDetail(card.dataset.id, card.dataset.workspace || 'personal');
 });
-/* 键盘 Enter 打开详情（可访问性） */
+/* 键盘 Enter 打开详情（可访问性；批处理模式下切换选中） */
 byId('recipeGrid').addEventListener('keydown', e => {
-  if(e.key === 'Enter' && e.target.classList.contains('recipe-card')) openDetail(e.target.dataset.id, e.target.dataset.workspace || 'personal');
+  if(e.key === 'Enter' && e.target.classList.contains('recipe-card')){
+    if(batchMode){ toggleBatchSelect(e.target.dataset.id); return; }
+    openDetail(e.target.dataset.id, e.target.dataset.workspace || 'personal');
+  }
+});
+/* 手机：长按卡片 550ms 进入批处理并选中；桌面：右键进入 */
+let batchPressTimer = null;
+byId('recipeGrid').addEventListener('touchstart', e => {
+  const card = e.target.closest('.recipe-card');
+  if(!card || currentWorkspace !== 'personal' || card.dataset.workspace === 'shared') return;
+  batchPressTimer = setTimeout(() => {
+    if(!batchMode) openBatch();
+    toggleBatchSelect(card.dataset.id);
+    haptic('medium');
+  }, 550);
+}, {passive:true});
+byId('recipeGrid').addEventListener('touchend', () => clearTimeout(batchPressTimer));
+byId('recipeGrid').addEventListener('touchmove', () => clearTimeout(batchPressTimer));
+byId('recipeGrid').addEventListener('contextmenu', e => {
+  const card = e.target.closest('.recipe-card');
+  if(!card || currentWorkspace !== 'personal' || card.dataset.workspace === 'shared') return;
+  e.preventDefault();
+  if(!batchMode) openBatch();
+  toggleBatchSelect(card.dataset.id);
 });
 
 /* 食材行输入 → 实时成本汇总 */
@@ -4358,6 +4797,8 @@ function init(){
     }
   }
   sbInit();
+  // v49 起：旧星标收藏（r.favorite）迁移到「默认收藏」夹并回收星标字段
+  migrateLegacyFavorites();
   // 迁移旧数据：把旧的扁平 ingredients 转为 ingredientGroups
   let migrated = false;
   recipes.forEach(r => {
