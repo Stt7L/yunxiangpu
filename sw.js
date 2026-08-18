@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v41：退出按钮强化为灰底 pill（导航栏最右侧、用户名旁一眼可见）；updateAuthUI 改用 hidden class 管理用户区显隐，更健壮。
+// v42：修复登录弹窗「登录/注册」文字重复 + 个人工作台未隐藏共享池登录门禁的 bug。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v42';
+const CACHE = 'dessert-v43';
 const SHELL = [
   './',
   './manifest.json',
