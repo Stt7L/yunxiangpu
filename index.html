@@ -88,6 +88,7 @@ button{font-family:inherit}
 /* ═══════════════════ 顶部导航（毛玻璃） ═══════════════════ */
 .nav{
   position:sticky;top:0;z-index:50;
+  padding-top:env(safe-area-inset-top);
   background:rgba(251,251,253,.8);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   backdrop-filter:saturate(180%) blur(20px);
@@ -681,7 +682,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .brand h1{font-size:16px}
   .nav-tools{gap:2px}
   .search-wrap{order:3;flex-basis:100%;max-width:none;min-width:0}
-  .container{padding:18px 14px 130px}
+  .container{padding:18px 14px calc(64px + env(safe-area-inset-bottom))}
   .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
   .cover{height:112px}
   .sheet-head{padding:16px 20px 0}
@@ -3116,6 +3117,28 @@ async function copyIngredients(id){
   toast(ok ? t('toastCopied', {name: r.name}) : t('copyFailed'));
 }
 
+/* 触感反馈（仅在支持的移动设备触发；尊重减弱动态） */
+function haptic(type){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  if(!('vibrate' in navigator)) return;
+  const ms = type === 'heavy' ? 35 : type === 'medium' ? 20 : 12;
+  try{ navigator.vibrate([ms]); }catch(e){}
+}
+const HAPTIC_MAP = {
+  new:'light', closeForm:'light', closeEaster:'light', addCat:'light', addFormCat:'light',
+  promptOk:'medium', promptCancel:'light',
+  addIng:'medium', delIng:'medium', addGroup:'medium', delGroup:'heavy',
+  edit:'light', del:'heavy', toggleFav:'light', copy:'light', copyDetail:'light',
+  coverCamera:'light', coverAlbum:'light', coverClear:'medium',
+  exportData:'medium', importData:'light', closeDetail:'light', editFromDetail:'light', delFromDetail:'heavy',
+  cancelDel:'light', confirmDel:'heavy', openPrices:'light', closePrices:'light', addPrice:'medium',
+  editPrice:'light', delPrice:'heavy', cancelPriceForm:'light', savePriceForm:'medium',
+  importBuiltin:'medium', fillCosts:'medium', clearSearch:'light', togglePin:'light',
+  applyBulkPaste:'medium', clearBulkPaste:'medium', saveForm:'medium',
+  catDialogSave:'medium', catDialogCancel:'light', catDialogDelete:'heavy',
+  appConfirmOk:'heavy', appConfirmCancel:'light'
+};
+
 /* 全局事件委托：按钮动作 */
 document.addEventListener('click', async e => {
   const btn = e.target.closest('[data-act]');
@@ -3202,6 +3225,8 @@ document.addEventListener('click', async e => {
     case 'appConfirmOk':   closeAppConfirm(true); break;
     case 'appConfirmCancel': closeAppConfirm(false); break;
   }
+  const hapticType = HAPTIC_MAP[act];
+  if(hapticType) haptic(hapticType);
 });
 
 /* 点击卡片空白处 → 打开详情 */
