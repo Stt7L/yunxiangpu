@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v26：首页筛选条分类 chip 支持长按/右键/桌面按住编辑；补齐 covers/ 封面图与图标资源。
+// v27：分类编辑入口改为「常驻可见铅笔按钮 + 长按/右键」，修复移动端长按被手指微动取消、iOS 原生菜单致整页失灵的问题。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v26';
+const CACHE = 'dessert-v27';
 const SHELL = [
   './',
   './manifest.json',
