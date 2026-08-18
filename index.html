@@ -548,6 +548,15 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .steps-list li::after{content:'';position:absolute;left:10px;top:27px;bottom:4px;width:2px;background:rgba(0,0,0,.06)}
 .steps-list li:last-child::after{display:none}
 .notes{background:#fafafc;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.source-link{
+  display:flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 14px;color:var(--accent);font-size:14px;text-decoration:none;
+  transition:background .15s;
+}
+.source-link:hover{background:var(--accent-soft)}
+.source-link .ic{flex:none;width:16px;height:16px}
+.source-link span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 
 /* ═══════════════════ 价格库 ═══════════════════ */
 .sheet-wide{width:min(860px,100%)}
@@ -995,6 +1004,12 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
         <label data-i18n="notesLabel">备注</label>
         <textarea id="fNotes" class="textarea" rows="3" data-i18n-placeholder="notesPlaceholder" placeholder="口味偏好、保存方法、注意事项…"></textarea>
       </section>
+
+      <!-- ⑥ 灵感/视频来源 -->
+      <section class="card">
+        <label data-i18n="sourceUrlLabel">灵感/视频来源</label>
+        <input id="fSourceUrl" class="input" type="url" data-i18n-placeholder="sourceUrlPlaceholder" placeholder="如：https://www.xiaohongshu.com/...">
+      </section>
     </div>
 
     <!-- 底部：实时成本汇总 + 保存 -->
@@ -1195,6 +1210,7 @@ const I18N = {
   ingTitle:'食材清单', ingCount:'{n} 项', addIngBtn:'添加', calcBtn:'核算', addRowBtn:'添加一行食材', ingNamePlaceholder:'食材名称', ingAmountPlaceholder:'用量',
   stepsLabel:'制作步骤（每行一步）', stepsPlaceholder:'1. 奶油奶酪室温软化，加入细砂糖搅拌顺滑\n2. 分次加入鸡蛋，每次拌匀再加入…',
   notesLabel:'备注', notesPlaceholder:'口味偏好、保存方法、注意事项…',
+  sourceUrlLabel:'灵感/视频来源', sourceUrlPlaceholder:'如：https://www.xiaohongshu.com/...', detailSourceUrl:'灵感/视频来源',
   totalCostLabel:'食材总成本', saveRecipeBtn:'保存食谱',
   detailTitle:'食谱详情', detailPin:'置顶/取消置顶', detailClose:'关闭', detailCopy:'复制食材', detailEdit:'编辑', detailDelete:'删除',
   detailNoSteps:'暂无步骤', detailNoNotes:'暂无备注',
@@ -1284,6 +1300,7 @@ const I18N = {
   ingTitle:'食材リスト', ingCount:'{n} 項目', addIngBtn:'追加', calcBtn:'原価計算', addRowBtn:'食材を1行追加', ingNamePlaceholder:'食材名', ingAmountPlaceholder:'分量',
   stepsLabel:'作り方（1行に1手順）', stepsPlaceholder:'1. クリームチーズを室温に戻し、砂糖を加えて滑らかにする\n2. 卵を数回に分けて加え、都度混ぜる…',
   notesLabel:'メモ', notesPlaceholder:'味の好み、保存方法、注意点…',
+  sourceUrlLabel:'参考動画/インスピレーション元', sourceUrlPlaceholder:'例：https://www.xiaohongshu.com/...', detailSourceUrl:'参考元',
   totalCostLabel:'食材原価合計', saveRecipeBtn:'レシピを保存',
   detailTitle:'レシピ詳細', detailPin:'固定/解除', detailClose:'閉じる', detailCopy:'食材をコピー', detailEdit:'編集', detailDelete:'削除',
   detailNoSteps:'手順がありません', detailNoNotes:'メモがありません',
@@ -1373,6 +1390,7 @@ const I18N = {
   ingTitle:'식재료 목록', ingCount:'{n} 항목', addIngBtn:'추가', calcBtn:'원가 계산', addRowBtn:'식재료 한 줄 추가', ingNamePlaceholder:'식재료명', ingAmountPlaceholder:'수량',
   stepsLabel:'만드는 방법（한 줄에 한 단계）', stepsPlaceholder:'1. 크림치즈를 실온에 두고 설탕을 넣어 부드럽게 섞는다\n2. 계란을 여러 번 나누어 넣고 매번 섞는다…',
   notesLabel:'메모', notesPlaceholder:'맛 취향、보관 방법、주의사항…',
+  sourceUrlLabel:'灵감/영상 출처', sourceUrlPlaceholder:'예：https://www.xiaohongshu.com/...', detailSourceUrl:'灵감/영상 출처',
   totalCostLabel:'식재료 원가 합계', saveRecipeBtn:'레시피 저장',
   detailTitle:'레시피 상세', detailPin:'고정/해제', detailClose:'닫기', detailCopy:'식재료 복사', detailEdit:'수정', detailDelete:'삭제',
   detailNoSteps:'단계가 없습니다', detailNoNotes:'메모가 없습니다',
@@ -1462,6 +1480,7 @@ const I18N = {
   ingTitle:'Ingredients', ingCount:'{n} items', addIngBtn:'Add', calcBtn:'Calc', addRowBtn:'Add ingredient row', ingNamePlaceholder:'Ingredient name', ingAmountPlaceholder:'Amount',
   stepsLabel:'Steps (one per line)', stepsPlaceholder:'1. Soften cream cheese, add sugar and mix until smooth\n2. Add eggs in batches, mixing between each…',
   notesLabel:'Notes', notesPlaceholder:'Taste preference, storage, tips…',
+  sourceUrlLabel:'Inspiration / video source', sourceUrlPlaceholder:'e.g. https://www.xiaohongshu.com/...', detailSourceUrl:'Source',
   totalCostLabel:'Total ingredient cost', saveRecipeBtn:'Save recipe',
   detailTitle:'Recipe details', detailPin:'Pin/Unpin', detailClose:'Close', detailCopy:'Copy ingredients', detailEdit:'Edit', detailDelete:'Delete',
   detailNoSteps:'No steps yet', detailNoNotes:'No notes yet',
@@ -1551,6 +1570,7 @@ const I18N = {
   ingTitle:'รายการวัตถุดิบ', ingCount:'{n} รายการ', addIngBtn:'เพิ่ม', calcBtn:'คำนวณ', addRowBtn:'เพิ่มแถมวัตถุดิบ', ingNamePlaceholder:'ชื่อวัตถุดิบ', ingAmountPlaceholder:'ปริมาณ',
   stepsLabel:'วิธีทำ（แถมละขั้นตอน）', stepsPlaceholder:'1. นำครีมชีสออกจากตู้เย็น ใส่น้ำตาลแล้วคนจนเนียน\n2. ใส่ไข่ทีละน้อย คนให้เข้ากันทุกครั้ง…',
   notesLabel:'บันทึก', notesPlaceholder:'รสนิยม วิธีเก็บรักษา ข้อควรระวัง…',
+  sourceUrlLabel:'แหล่งที่มาแรงบันดาลใจ/วิดีโอ', sourceUrlPlaceholder:'เช่น https://www.xiaohongshu.com/...', detailSourceUrl:'แหล่งที่มา',
   totalCostLabel:'ต้นทุนวัตถุดิบรวม', saveRecipeBtn:'บันทึกสูตร',
   detailTitle:'รายละเอียดสูตร', detailPin:'ปักหมุด/ยกเลิก', detailClose:'ปิด', detailCopy:'คัดลอกวัตถุดิบ', detailEdit:'แก้ไข', detailDelete:'ลบ',
   detailNoSteps:'ยังไม่มีขั้นตอน', detailNoNotes:'ยังไม่มีบันทึก',
@@ -2214,14 +2234,13 @@ function renderCatFilter(){
   const counts = {};
   recipes.forEach(r => { const c = displayCat(r.category) || '其他'; counts[c] = (counts[c]||0) + 1; });
   const favCount = recipes.filter(r => r.favorite).length;
-  const chips = [`<button type="button" class="cat-chip${activeCat === '' ? ' on' : ''}" data-cat="">${t('catAll')} <span class="cnt">${recipes.length}</span></button>`]
-    .concat(allCats().map(c => {
-      const n = counts[c.name] || 0;
-      if(n === 0) return '';
-      return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}">${tCat(c.name)} <span class="cnt">${n}</span></button>`;
-    }))
-    .filter(Boolean);
+  const chips = [`<button type="button" class="cat-chip${activeCat === '' ? ' on' : ''}" data-cat="">${t('catAll')} <span class="cnt">${recipes.length}</span></button>`];
   chips.push(`<button type="button" class="cat-chip${activeCat === '__fav__' ? ' on' : ''}" data-cat="__fav__">${t('catFavorite')} <span class="cnt">${favCount}</span></button>`);
+  chips.push(...allCats().map(c => {
+    const n = counts[c.name] || 0;
+    if(n === 0) return '';
+    return `<button type="button" class="cat-chip${activeCat === c.name ? ' on' : ''}" data-cat="${c.name}">${tCat(c.name)} <span class="cnt">${n}</span></button>`;
+  }).filter(Boolean));
   byId('catFilter').innerHTML = chips.join('');
 }
 function renderStats(list){
@@ -2284,12 +2303,14 @@ function openForm(id){
     renderIngList(recipeGroups(r));
     byId('fSteps').value = (r.steps||[]).join('\n');
     byId('fNotes').value = r.notes || '';
+    byId('fSourceUrl').value = r.sourceUrl || '';
   }else{
     byId('fName').value = '';
     setCat('蛋糕');
     renderIngList([{name: t('ingGroupDefault') || '食材清单 一', items: []}]);
     byId('fSteps').value = '';
     byId('fNotes').value = '';
+    byId('fSourceUrl').value = '';
   }
   // 封面
   pendingCover = (id ? ((recipes.find(x => x.id === id) || {}).cover) : null) || null;
@@ -2378,7 +2399,7 @@ function saveForm(){
     .map(s => s.trim().replace(/^\s*(?:\d+[.、．:：)）]?|[-•·]|步骤\s*\d*\s*[：:.、]?)\s*/, ''))
     .filter(Boolean);
   const category = (document.querySelector('#catSeg button.active')||{}).dataset?.cat || '蛋糕';
-  const data = { name, category, ingredientGroups:collectIngredients(), ingredients:[], steps, notes:byId('fNotes').value.trim(), updatedAt:Date.now(), cover: pendingCover || '' };
+  const data = { name, category, ingredientGroups:collectIngredients(), ingredients:[], steps, notes:byId('fNotes').value.trim(), sourceUrl:byId('fSourceUrl').value.trim(), updatedAt:Date.now(), cover: pendingCover || '' };
 
   if(editingId){
     const r = recipes.find(x => x.id === editingId);
@@ -2465,6 +2486,7 @@ function openDetail(id){
         <ol class="steps-list">${steps}</ol>
       </section>
       ${r.notes ? `<section class="d-sec"><h4>${t('detailNotes')}</h4><div class="notes">${esc(r.notes)}</div></section>` : ''}
+      ${r.sourceUrl ? `<section class="d-sec"><h4>${t('detailSourceUrl')}</h4><a href="${esc(r.sourceUrl)}" class="source-link" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span>${esc(r.sourceUrl)}</span></a></section>` : ''}
     </div>`;
   byId('detailBody').scrollTop = 0;
   show('detailOverlay');
@@ -3132,7 +3154,8 @@ async function copyIngredients(id){
   });
   if(!sections.length){ toast(t('noIngredientsToCopy')); return; }
   // 首行加入成品名称，便于粘贴后辨认
-  const text = [r.name.trim(), '', ...sections].join('\n');
+  let text = [r.name.trim(), '', ...sections].join('\n');
+  if(r.sourceUrl) text += '\n\n' + t('detailSourceUrl') + '：' + r.sourceUrl;
   let ok = false;
   try{
     await navigator.clipboard.writeText(text);
