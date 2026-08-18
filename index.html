@@ -1054,7 +1054,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <h3 id="catDialogTitle" data-i18n="catEditTitle">编辑分类</h3>
     <input id="catDialogInput" class="input" style="margin:14px 0 6px" maxlength="12">
     <div class="dialog-actions">
-      <button class="btn btn-danger" data-act="catDialogDelete" data-i18n="deleteCat">删除</button>
+      <button class="btn btn-danger" data-act="catDialogDelete" id="catDialogDelete" data-i18n="deleteCat">删除</button>
       <button class="btn btn-secondary" data-act="catDialogCancel" data-i18n="confirmCancel">取消</button>
       <button class="btn" data-act="catDialogSave" id="catDialogSave" data-i18n="save">完成</button>
     </div>
@@ -3274,6 +3274,7 @@ function openCatDialog(mode, btn){
   const input = byId('catDialogInput');
   const delBtn = byId('catDialogDelete');
   const saveBtn = byId('catDialogSave');
+  if(!input || !saveBtn){ closeCatDialog(); return; }   // 防御：元素缺失时优雅退出，不崩溃
   if(mode === 'edit'){
     catDlgOrig = btn.dataset.orig;
     catDlgCur = btn.dataset.cat;
