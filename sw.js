@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v59：共享池添加批处理入口（sync-tools 在 shared 显示并隐藏导入/导出按钮）；共享池卡片去重（仅保留右上角导入按钮）；详情 foot 按 workspace 动态显隐（个人=编辑/删除，共享池=导入工作台/点赞）。
+// v60：修复 shared 批处理无法选中卡片（recipeGrid click 委托残留 shared 过滤）；批处理按钮逻辑理清（个人=收藏/复制/置顶/导出/删除，去掉"导入"——外部文件导入走 sync-tools；共享池=导入工作台/复制/导出/点赞，无删除）；共享池点赞+详情头部点赞统一红色（移到详情头部右上）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v59';
+const CACHE = 'dessert-v60';
 const SHELL = [
   './',
   './manifest.json',
