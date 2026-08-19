@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v51：共享池登录后自动加载；删除顶部加号；底部 Dock 改为 5 项液态玻璃导航（工作台/共享/+/收藏/我）；收藏夹管理页重做为相册卡片风格并支持取消收藏；全界面加 iOS 液态玻璃质感与弹性动画。
+// v52：Dock 滑块高亮动画（iOS 26 风格 spring 滑动）+ 拉大 Dock 间距 + 中央+号改纯色；删除顶部收藏夹与登录图标；空状态去白底；详情弹窗 3D 翻转缩放动画（按卡片位置 transform-origin）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v51';
+const CACHE = 'dessert-v52';
 const SHELL = [
   './',
   './manifest.json',
