@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v64：修复批处理胶囊切到「我的」页不自动退出（render() me 分支漏调 updateBatchUI → .shown 未移除）；手机端滑块 66→61px + 左右 pad 5→4（上下左右留白一致 4px）。
+// v65：批处理胶囊跨视图自动退出——任何视图切换（个人↔共享↔收藏↔我的）都退出批处理，不跨页面保留；同视图重复点击不受影响（prevView 判断）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v64';
+const CACHE = 'dessert-v65';
 const SHELL = [
   './',
   './manifest.json',
