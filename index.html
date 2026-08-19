@@ -354,11 +354,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
 /* 底部液态玻璃 Dock（iOS 26/27 风格胶囊 + 滑动高亮滑块） */
-/* v61：Dock 整体加大，padding/bottom 微调（不再顶格） */
+/* v66：Dock padding 四周一致 14px（上下=左右，视觉均衡）；dock 高度不再额外留空 */
 .dock{
   position:fixed;left:50%;bottom:max(20px, env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:80;
   display:flex;align-items:center;gap:6px;
-  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom));
   background:rgba(255,255,255,.58);
   -webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
   border:1px solid rgba(255,255,255,.65);
@@ -419,7 +419,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     width:calc(100vw - 20px);max-width:620px;
     justify-content:space-between;gap:4px;
     bottom:10px;
-    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    padding:14px 14px calc(14px + env(safe-area-inset-bottom));
     border-radius:44px;
   }
   .dock-indicator{top:50%;bottom:auto;height:61px;transform:translateY(-50%);}
@@ -3569,6 +3569,8 @@ function switchView(v){
   render();
 }
 function render(){
+  // v66 兜底：渲染时若 batchMode 但当前视图不支持批处理（me），则强制退出并刷新胶囊——任何遗漏路径都安全
+  if(batchMode && currentView === 'me'){ batchMode = false; batchSelected.clear(); }
   // 底部 Dock 高亮（滑块跟随 active）
   byId('dockPersonal').classList.toggle('active', currentView === 'personal');
   byId('dockShared').classList.toggle('active', currentView === 'shared');
