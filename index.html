@@ -270,11 +270,12 @@ button{font-family:inherit}
 .grid-list .recipe-card .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:none;gap:8px}
 .grid-list .recipe-card .card-foot-left{display:flex;gap:10px;font-size:12px}
 .grid-list .recipe-card .cost{font-size:15px}
-/* v75→v76→v77：列表视图把操作按钮改为行内右侧居中并放大，圆形填充，右侧留白 */
-.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:6px;flex:none;align-self:center;order:99;margin-left:auto;padding:0 12px}
+/* v75→v77：列表视图操作按钮——垂直居中的独立列，右侧留白，不遮挡封面/名字/价格/作者 */
+.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:6px;flex:none;align-self:center;order:99;margin-left:auto;margin-right:16px}
 .grid-list .recipe-card .card-actions button{width:38px;height:38px;border-radius:50%}
 .grid-list .recipe-card .card-actions .ic{width:18px;height:18px}
 .grid-list .recipe-card .card-actions .card-import-cta{border-radius:999px;height:34px;width:auto}
+.grid-list .recipe-card .card-body{padding-right:8px}
 /* v77：共享池「已导入」小标记 */
 .imported-tag{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);flex:none}
 .imported-tag .ic{width:15px;height:15px}
@@ -1253,6 +1254,17 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 /* 收藏视图顶部：收藏夹 chips（复用分类栏位） */
 .fav-filter-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
 .fav-filter-row::-webkit-scrollbar{display:none}
+/* v77：收藏夹「+」快速新建按钮 */
+.fav-add-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:30px;height:30px;padding:0 8px;border:none;border-radius:var(--pill);
+  background:rgba(255,255,255,.62);color:var(--accent);
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,.75),0 1px 3px rgba(0,0,0,.04);
+  cursor:pointer;flex:none;transition:all .22s var(--ease);
+}
+.fav-add-chip:hover{background:var(--accent-soft);color:var(--accent)}
+.fav-add-chip:active{transform:scale(.92)}
+.fav-add-chip .ic{width:14px;height:14px}
 .admin-dialog{max-width:520px;max-height:82vh;display:flex;flex-direction:column}
 .admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .admin-head h3{font-size:19px;font-weight:700}
@@ -3937,11 +3949,14 @@ function renderFavFilter(){
     const n = (f.recipeIds || []).length;
     return `<button type="button" class="cat-chip${activeFolder === f.id ? ' on' : ''}" data-favfolder="${f.id}">${esc(f.name)} <span class="cnt">${n}</span></button>`;
   });
+  // v77：默认收藏夹旁加「+」快速新建收藏夹
+  chips.push(`<button type="button" class="cat-chip fav-add-chip" data-act="favMgrNew" data-i18n-title="favNew" title="新建收藏夹" aria-label="新建收藏夹"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`);
   const cur = favoriteFolders.find(f => f.id === activeFolder);
+  // v77：收藏页批处理/删除按钮统一为「图标 + 文字」样式，靠右排列（与个人/共享一致）
   const tools = `
     <span style="flex:1"></span>
-    ${cur ? `<button type="button" class="chip-btn chip-btn-ghost" data-act="favFolderDeleteCurrent" data-i18n-title="favDelete" title="删除收藏夹" aria-label="删除收藏夹"><svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>` : ''}
-    <button type="button" class="chip-btn" data-act="openBatch" data-i18n-title="batchTitle" title="批量处理（也可长按卡片进入）"><svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>`;
+    ${cur ? `<button type="button" class="chip-btn chip-btn-ghost" data-act="favFolderDeleteCurrent" data-i18n-title="favDelete" title="删除收藏夹"><svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg> <span>${t('favDelete')}</span></button>` : ''}
+    <button type="button" class="chip-btn" data-act="openBatch" data-i18n-title="batchTitle" title="批量处理（也可长按卡片进入）"><svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> <span>${t('batchBtn')}</span></button>`;
   byId('catFilter').innerHTML = `<div class="fav-filter-row">${chips.join('')}${tools}</div>`;
   byId('catFilter').style.display = '';
 }
@@ -4018,7 +4033,7 @@ function renderMePage(){
   }).filter(Boolean);
   const recentShow = meRecentAll ? recentList : recentList.slice(0, 4);
   const recents = recentShow.length
-    ? `<div class="me-cards">${recentShow.join('')}</div>${recentList.length > 4 ? meToggleBtn('meRecentToggle', meRecentAll) : ''}`
+    ? `<div class="me-cards" style="padding-top:14px">${recentShow.join('')}</div>${recentList.length > 4 ? meToggleBtn('meRecentToggle', meRecentAll) : ''}`
     : `<div class="me-empty">${t('meNoRecent')}</div>`;
   // 已点赞（共享池）
   const liked = likedSharedRecipes();
@@ -4060,7 +4075,7 @@ function renderMePage(){
     </div>
     <div class="uc-group">
       <div class="uc-group-label">${t('meRecentTitle')}</div>
-      <div class="uc-list"><div class="me-cards" style="padding-top:14px">${recents}</div></div>
+      <div class="uc-list">${recents}</div>   <!-- v77 修复：recents 已自带 me-cards 容器，不再嵌套 -->
     </div>
     <div class="uc-group">
       <div class="uc-group-label">${t('meLikedTitle')}</div>
@@ -4208,19 +4223,13 @@ function sharedCardHTML(r, i){
   const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
   const likeCount = (r.likes || 0);
   const isSel = batchSelected.has(r.id);
-  // v67/v76/v77：发布者显示「编辑」；「导入到工作台」按「是否已导入个人工作台」判断——
-  // 只要个人工作台还没有这条配方（同名/同源），就显示蓝色导入 CTA，保证入口永远可见
+  // v67/v77：共享池卡片操作区 = 导入按钮（永远可见）+ 发布者编辑/删除
+  // —— 导入到个人工作台与是否发布者无关：只要用户想要，随时可导入自己的/别人的配方
   const isOwner = isSharedOwner(r);
-  const alreadyInPersonal = recipes.some(x => x._fromSharedId === r.id || x.name === r.name);
-  let primaryAct;
-  if(!alreadyInPersonal){
-    primaryAct = `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import card-import-cta" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="imp-text">${t('sharedImport')}</span></button>`;
-  }else if(isOwner){
-    primaryAct = `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`;
-  }else{
-    primaryAct = `<span class="imported-tag" title="${t('sharedImportAlready', {name:r.name})}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>`;
-  }
-  // 发布者额外提供删除按钮
+  const importBtnHTML = `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import card-import-cta" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="imp-text">${t('sharedImport')}</span></button>`;
+  const editBtnHTML = isOwner
+    ? `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`
+    : '';
   const ownerDel = isOwner
     ? `<button data-act="del" data-id="${r.id}" data-workspace="shared" class="card-import act-del" title="${t('detailDelete')}" aria-label="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>`
     : '';
@@ -4228,7 +4237,8 @@ function sharedCardHTML(r, i){
   <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
     ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
-      ${primaryAct}
+      ${importBtnHTML}
+      ${editBtnHTML}
       ${ownerDel}
     </div>
     <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
@@ -4666,9 +4676,8 @@ function openDetail(id, workspace, originCard){
   const likeBtn = byId('detailLikeBtn');
   const publishBtn = byId('detailPublishBtn');
   const isOwner = workspace === 'shared' && isSharedOwner(r);
-  // v77：详情导入按钮按「是否已导入个人工作台」判断（与卡片一致），保证入口永远可见
-  const alreadyInPersonal = workspace === 'shared' ? recipes.some(x => x._fromSharedId === r.id || x.name === r.name) : true;
-  if(importBtn){ importBtn.style.display = (workspace === 'shared' && !alreadyInPersonal) ? '' : 'none'; importBtn.dataset.id = id; }
+  // v77：详情导入按钮——共享池详情始终显示「导入到工作台」（与卡片一致，发布者也可导入）
+  if(importBtn){ importBtn.style.display = workspace === 'shared' ? '' : 'none'; importBtn.dataset.id = id; }
   // v73：个人池详情提供「发布到共享池」
   if(publishBtn){ publishBtn.style.display = workspace === 'personal' ? '' : 'none'; publishBtn.dataset.id = id; }
   if(likeBtn){
