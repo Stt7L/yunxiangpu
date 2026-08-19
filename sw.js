@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v65：批处理胶囊跨视图自动退出——任何视图切换（个人↔共享↔收藏↔我的）都退出批处理，不跨页面保留；同视图重复点击不受影响（prevView 判断）。
+// v66：Dock padding 上下 = 左右 = 14px（上下空隙与左右一致，视觉均衡）；render() 入口兜底：me 视图强制退出批处理（任何遗漏路径都安全）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v65';
+const CACHE = 'dessert-v66';
 const SHELL = [
   './',
   './manifest.json',
