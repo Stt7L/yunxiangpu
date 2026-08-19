@@ -1011,20 +1011,21 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 }
 .batch-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#eef3ff;border-radius:12px;margin-bottom:10px}
 .batch-count{font-size:14px;font-weight:700;color:var(--accent)}
-/* v57：批处理底部操作改为悬浮胶囊栏，置于 Dock 之上（不被覆盖） */
+/* v57 批处理底部操作：v58 改为 Dock 上方悬浮胶囊，风格与 Dock 一致 */
 .batch-actions{
   position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);
   z-index:70;display:flex;gap:4px;align-items:center;
-  padding:7px 10px;border-radius:26px;
-  background:rgba(251,251,253,.85);
-  -webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:0 12px 34px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.8);
+  padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.55);
+  -webkit-backdrop-filter:saturate(180%) blur(26px);backdrop-filter:saturate(180%) blur(26px);
+  border:1px solid rgba(255,255,255,.62);
+  border-radius:36px;
+  box-shadow:0 14px 44px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.45);
 }
-.batch-count-pill{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:4px 11px;white-space:nowrap;margin-right:2px}
+.batch-count-pill{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:5px 12px;white-space:nowrap;margin-right:6px}
 .batch-act{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  min-width:52px;padding:7px 8px;border:none;border-radius:18px;background:transparent;
+  min-width:54px;padding:6px 8px 5px;border:none;border-radius:18px;background:transparent;
   font-size:10px;font-weight:600;color:#1d1d1f;cursor:pointer;transition:background .18s, transform .15s;
   -webkit-tap-highlight-color:transparent;
 }
@@ -1033,7 +1034,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .batch-act.batch-danger{color:#ff3b30}
 .batch-act.batch-danger:active{background:#ffefed}
 .batch-act.batch-primary{color:var(--accent)}
-.batch-sep{width:1px;height:26px;background:rgba(0,0,0,.08);margin:0 3px}
+.batch-act.batch-on{background:rgba(0,113,227,.12);color:var(--accent)}
+.batch-sep{width:1px;height:28px;background:rgba(0,0,0,.10);margin:0 4px}
 .recipe-card{position:relative}
 .recipe-card.batch-mode{cursor:pointer}
 .recipe-card.batch-mode .batch-check{position:absolute;top:10px;left:10px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.22)}
@@ -1158,13 +1160,6 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
   <!-- 分类筛选 -->
   <div class="cat-filter" id="catFilter"></div>
-
-  <!-- 批处理顶部栏 -->
-  <div id="batchBar" class="batch-bar hidden">
-    <button type="button" class="chip-btn" data-act="batchSelectAll" data-i18n="batchSelectAll">全选</button>
-    <span class="batch-count" id="batchCount">已选 0</span>
-    <button type="button" class="chip-btn chip-btn-ghost" data-act="batchCancel" data-i18n="batchCancel">取消</button>
-  </div>
 
   <!-- 食谱卡片网格 -->
   <div id="recipeGrid" class="grid"></div>
@@ -1778,7 +1773,7 @@ const I18N = {
   notesLabel:'备注', notesPlaceholder:'口味偏好、保存方法、注意事项…',
   sourceUrlLabel:'灵感/视频来源', sourceUrlPlaceholder:'如：https://www.xiaohongshu.com/...', detailSourceUrl:'灵感/视频来源',
   authorLabel:'作者名称 *', authorPlaceholder:'你的昵称或署名', authorHint:'共享配方池需要署名，且同一成品名称不能重复',
-  sharedAuthor:'作者', sharedLikes:'{n} 赞', unknownAuthor:'佚名', like:'点赞', liked:'已赞', likeSharedTip:'给这条共享配方点赞',
+  sharedAuthor:'作者', sharedLikes:'{n} 赞', unknownAuthor:'佚名', like:'点赞', liked:'已赞', likeSharedTip:'给这条共享配方点赞', sharedImport:'加入个人工作台', sharedImportDone:'已加入工作台：{name}', sharedImportAlready:'已加入工作台：{name}', sharedImportBatchDone:'已批量加入 {n} 条到工作台', batchLike:'点赞',
   totalCostLabel:'食材总成本', saveRecipeBtn:'保存食谱',
   detailTitle:'食谱详情', detailPin:'置顶/取消置顶', detailClose:'关闭', detailCopy:'复制食材', detailEdit:'编辑', detailDelete:'删除',
   detailNoSteps:'暂无步骤', detailNoNotes:'暂无备注',
@@ -1878,7 +1873,7 @@ const I18N = {
   notesLabel:'メモ', notesPlaceholder:'味の好み、保存方法、注意点…',
   sourceUrlLabel:'参考動画/インスピレーション元', sourceUrlPlaceholder:'例：https://www.xiaohongshu.com/...', detailSourceUrl:'参考元',
   authorLabel:'作者名 *', authorPlaceholder:'ニックネームまたは署名', authorHint:'共有レシピには作者名が必要で、同じ完成品名は重複できません',
-  sharedAuthor:'作者', sharedLikes:'{n} いいね', unknownAuthor:'名無し', like:'いいね', liked:'いいね済', likeSharedTip:'この共有レシピにいいね',
+  sharedAuthor:'作者', sharedLikes:'{n} いいね', unknownAuthor:'名無し', like:'いいね', liked:'いいね済', likeSharedTip:'この共有レシピにいいね', sharedImport:'マイ作業台へ追加', sharedImportDone:'作業台に追加：{name}', sharedImportAlready:'既に追加済み：{name}', sharedImportBatchDone:'{n}件を作業台に追加しました', batchLike:'いいね',
   totalCostLabel:'食材原価合計', saveRecipeBtn:'レシピを保存',
   detailTitle:'レシピ詳細', detailPin:'固定/解除', detailClose:'閉じる', detailCopy:'食材をコピー', detailEdit:'編集', detailDelete:'削除',
   detailNoSteps:'手順がありません', detailNoNotes:'メモがありません',
@@ -1978,7 +1973,7 @@ const I18N = {
   notesLabel:'메모', notesPlaceholder:'맛 취향、보관 방법、주의사항…',
   sourceUrlLabel:'灵감/영상 출처', sourceUrlPlaceholder:'예：https://www.xiaohongshu.com/...', detailSourceUrl:'灵감/영상 출처',
   authorLabel:'작가명 *', authorPlaceholder:'닉네임 또는 서명', authorHint:'공유 레시피 풀은 작가명이 필요하며, 같은 완성품명은 중복 불가',
-  sharedAuthor:'작가', sharedLikes:'{n} 좋아요', unknownAuthor:'익명', like:'좋아요', liked:'좋아요 누름', likeSharedTip:'이 공유 레시피에 좋아요',
+  sharedAuthor:'작가', sharedLikes:'{n} 좋아요', unknownAuthor:'익명', like:'좋아요', liked:'좋아요 누름', likeSharedTip:'이 공유 레시피에 좋아요', sharedImport:'내 작업대에 추가', sharedImportDone:'작업대에 추가됨: {name}', sharedImportAlready:'이미 추가됨: {name}', sharedImportBatchDone:'{n}개를 작업대에 추가했습니다', batchLike:'좋아요',
   totalCostLabel:'식재료 원가 합계', saveRecipeBtn:'레시피 저장',
   detailTitle:'레시피 상세', detailPin:'고정/해제', detailClose:'닫기', detailCopy:'식재료 복사', detailEdit:'수정', detailDelete:'삭제',
   detailNoSteps:'단계가 없습니다', detailNoNotes:'메모가 없습니다',
@@ -2078,7 +2073,7 @@ const I18N = {
   notesLabel:'Notes', notesPlaceholder:'Taste preference, storage, tips…',
   sourceUrlLabel:'Inspiration / video source', sourceUrlPlaceholder:'e.g. https://www.xiaohongshu.com/...', detailSourceUrl:'Source',
   authorLabel:'Author name *', authorPlaceholder:'Your nickname or signature', authorHint:'Shared recipes require an author name, and duplicate finished-product names are not allowed',
-  sharedAuthor:'Author', sharedLikes:'{n} likes', unknownAuthor:'Anonymous', like:'Like', liked:'Liked', likeSharedTip:'Like this shared recipe',
+  sharedAuthor:'Author', sharedLikes:'{n} likes', unknownAuthor:'Anonymous', like:'Like', liked:'Liked', likeSharedTip:'Like this shared recipe', sharedImport:'Add to my workspace', sharedImportDone:'Added to workspace: {name}', sharedImportAlready:'Already added: {name}', sharedImportBatchDone:'Added {n} recipes to your workspace', batchLike:'Like',
   totalCostLabel:'Total ingredient cost', saveRecipeBtn:'Save recipe',
   detailTitle:'Recipe details', detailPin:'Pin/Unpin', detailClose:'Close', detailCopy:'Copy ingredients', detailEdit:'Edit', detailDelete:'Delete',
   detailNoSteps:'No steps yet', detailNoNotes:'No notes yet',
@@ -2241,7 +2236,7 @@ const I18N = {
   statsSharedTotal:'พูลสูตรแชร์ · ทั้งหมด {n} รายการ · ต้นทุนอ้างอิงรวม {cost}',
   formNewShared:'สร้างสูตรแชร์ใหม่',
   authorLabel:'ชื่อผู้แต่ง *', authorPlaceholder:'ชื่อเล่นหรือลายเซ็นของคุณ', authorHint:'พูลสูตรแชร์ต้องระบุชื่อผู้แต่ง และชื่อผลิตภัณฑ์เดียวกันต้องไม่ซ้ำ',
-  sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้',
+  sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้', sharedImport:'เพิ่มเข้าที่ทำงานของฉัน', sharedImportDone:'เพิ่มเข้าที่ทำงาน: {name}', sharedImportAlready:'เพิ่มไปแล้ว: {name}', sharedImportBatchDone:'เพิ่ม {n} สูตรเข้าที่ทำงาน', batchLike:'ไลก์',
   fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว',
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
@@ -3027,8 +3022,9 @@ function personalFiltered(){
   });
 }
 function openBatch(){
-  // v57：批处理支持个人工作台与收藏视图
-  if(currentView !== 'personal' && currentView !== 'favorites'){ toast(t('batchPersonalOnly'), 'error'); return; }
+  // v58：批处理支持个人工作台/收藏视图/共享池
+  if(currentView !== 'personal' && currentView !== 'favorites' && currentView !== 'shared'){ toast(t('batchPersonalOnly'), 'error'); return; }
+  if(currentView === 'shared' && (!currentUser || !SB_ENABLED)){ toast(t('sbNotConfigured'), 'error'); return; }
   batchMode = true; batchSelected.clear();
   render();
 }
@@ -3040,7 +3036,7 @@ function toggleBatchSelect(id){
   if(batchSelected.has(id)) batchSelected.delete(id); else batchSelected.add(id);
   render();
 }
-/* 当前视图的候选列表（个人=过滤后的配方；收藏=当前夹的收藏配方） */
+/* 当前视图的候选列表（个人=过滤后的配方；收藏=当前夹的收藏配方；共享池=当前过滤后的共享配方） */
 function batchFilteredList(){
   if(currentView === 'favorites'){
     const q = searchTerm.trim().toLowerCase();
@@ -3048,6 +3044,13 @@ function batchFilteredList(){
       const ids = r.favFolderIds || [];
       const folderMatch = activeFolder === '' ? ids.length > 0 : ids.includes(activeFolder);
       return folderMatch && ((r.name||'').toLowerCase().includes(q) || flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+    });
+  }
+  if(currentView === 'shared'){
+    const q = searchTerm.trim().toLowerCase();
+    return sharedRecipes.filter(r => {
+      const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
+      return catMatch && ((r.name||'').toLowerCase().includes(q) || flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
     });
   }
   return personalFiltered();
@@ -3058,7 +3061,7 @@ function batchSelectAll(){
   else list.forEach(r => batchSelected.add(r.id));
   render();
 }
-function batchSelectedRecipes(){ return recipes.filter(r => batchSelected.has(r.id)); }
+function batchSelectedRecipes(){ return (currentView === 'shared' ? sharedRecipes : recipes).filter(r => batchSelected.has(r.id)); }
 function batchDelete(){
   const list = batchSelectedRecipes();
   if(!list.length){ toast(t('batchNone'), 'error'); return; }
@@ -3116,25 +3119,54 @@ async function batchExport(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast(t('exportShareTip'));
 }
-/* 批处理底部操作栏按钮：按视图动态生成（个人=删除/复制/收藏/置顶/导出/导入；收藏=取消收藏/删除/复制/置顶/导出） */
+/* v58 批处理底部悬浮胶囊：左侧 [已选 N] [全选] [取消]，右侧按视图的操作按钮集；风格与 Dock 一致 */
 function renderBatchActions(){
   const inFav = currentView === 'favorites';
+  const inShared = currentView === 'shared';
   const ic = (d) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const left = `
+    <span class="batch-count-pill">${t('batchCount', {n: batchSelected.size})}</span>
+    <button class="batch-act" data-act="batchSelectAll" title="${t('batchSelectAll')}">${ic('<path d="M5 12l5 5L20 7"/>')}<span>${t('batchSelectAll')}</span></button>
+    <button class="batch-act" data-act="batchCancel" title="${t('batchCancel')}">${ic('<path d="M6 6 18 18M18 6 6 18"/>')}<span>${t('batchCancel')}</span></button>`;
   const acts = [];
   if(inFav){
     acts.push(`<button class="batch-act batch-primary" data-act="batchFav" title="${t('favRemoveRecipe')}">${ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M10 12h4"/>')}<span>${t('batchUnfav')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchPin" title="${t('batchPin')}">${ic('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>')}<span>${t('batchPin')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
+  }else if(inShared){
+    acts.push(`<button class="batch-act batch-primary" data-act="batchImportShared" title="${t('sharedImport')}">${ic('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>')}<span>${t('sharedImport')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchLike" title="${t('batchLike')}">${ic('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>')}<span>${t('batchLike')}</span></button>`);
+    if(isAdmin) acts.push(`<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>`);
   }else{
+    // 个人工作台
     acts.push(`<button class="batch-act batch-primary" data-act="batchFav" title="${t('batchFav')}">${ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}<span>${t('batchFav')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchPin" title="${t('batchPin')}">${ic('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>')}<span>${t('batchPin')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
+    acts.push(`<button class="batch-act" data-act="batchImport" title="${t('batchImport')}">${ic('<path d="M3 13v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M12 4v9"/><path d="m8 9 4 4 4-4"/>')}<span>${t('batchImport')}</span></button>`);
   }
-  acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
-  acts.push(`<button class="batch-act" data-act="batchPin" title="${t('batchPin')}">${ic('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>')}<span>${t('batchPin')}</span></button>`);
-  acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
-  if(!inFav) acts.push(`<button class="batch-act" data-act="batchImport" title="${t('batchImport')}">${ic('<path d="M3 13v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M12 4v9"/><path d="m8 9 4 4 4-4"/>')}<span>${t('batchImport')}</span></button>`);
-  acts.push(`<span class="batch-sep"></span>`);
-  acts.push(`<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>`);
-  const count = `<span class="batch-count-pill">${t('batchCount', {n: batchSelected.size})}</span>`;
-  byId('batchActions').innerHTML = count + acts.join('');
+  const sep = `<span class="batch-sep"></span>`;
+  const del = (!inShared || isAdmin)
+ ? `<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>` : '';
+  byId('batchActions').innerHTML = left + sep + acts.join('') + (del ? sep + del : '');
 }
+/* 共享池批处理：批量点赞 */
+async function batchLikeSelected(){
+  const sel = [...batchSelected];
+  for(const id of sel){
+    const r = sharedRecipes.find(x => x.id === id);
+    if(!r || isLiked(r)) continue;
+    setLiked(id, true);
+    if(SB_ENABLED){ try{ await sbAdjustLikes(id, +1); }catch(e){} } else { r.likes = (r.likes || 0) + 1; }
+  }
+  saveSharedRecipes();
+  exitBatch();
+  toast(t('toastDone'));
+}
+
 /* 收藏视图批处理：批量取消收藏（从所有夹移除选中的食谱） */
 function batchUnfavSelected(){
   const ids = new Set(batchSelected);
@@ -3146,10 +3178,9 @@ function batchUnfavSelected(){
   toast(t('batchUnfavDone', {n}));
 }
 function updateBatchUI(){
-  const inBatch = batchMode && (currentView === 'personal' || currentView === 'favorites');
-  byId('batchBar').classList.toggle('hidden', !inBatch);
+  const inBatch = batchMode && (currentView === 'personal' || currentView === 'favorites' || currentView === 'shared');
   byId('batchActions').classList.toggle('hidden', !inBatch);
-  if(inBatch){ byId('batchCount').textContent = t('batchCount', {n: batchSelected.size}); renderBatchActions(); }
+  if(inBatch){ renderBatchActions(); }
 }
 
 /* ═════════════════════ 数据层（localStorage 持久化） ═════════════════════ */
@@ -3264,7 +3295,11 @@ async function sbApplySession(session){
     }
   }
   updateAuthUI();
-  if(currentWorkspace === 'shared'){ await sbRefreshShared(); renderShared(); }
+  // v58：登录后无条件拉取共享池，避免切到共享池才加载的延迟/空状态
+  if(SB_ENABLED && currentUser){
+    try{ await sbRefreshShared(); }catch(e){}
+    render();   // 立即刷新当前视图（确保共享池有内容）
+  }
 }
 async function sbInit(){
   if(!SB_ENABLED){ updateAuthUI(); return; }
@@ -3297,7 +3332,7 @@ async function sbSignIn(email, password){
   if(error){ toast(t('sbSignInFail') + sbFriendlyError(error.message), 'error'); return false; }
   // 登录成功后立即获取 session 并应用，避免依赖 onAuthStateChange 延迟/不触发
   const { data:{ session } } = await SB.auth.getSession();
-  await sbApplySession(session);
+  await sbApplySession(session);   // 内含 sbRefreshShared + render（v58）
   toast(t('toastLoggedIn')); return true;
 }
 async function sbSignOut(){
@@ -3489,8 +3524,8 @@ function switchView(v){
     activeFolder = '';   // 收藏夹筛选仅在收藏视图生效，回工作台时复位
   }
   currentView = v;
-  // 离开个人/收藏视图时退出批处理模式
-  if(v !== 'personal' && v !== 'favorites' && batchMode){ batchMode = false; batchSelected.clear(); }
+  // 离开个人/收藏/共享视图时退出批处理模式
+  if(v !== 'personal' && v !== 'favorites' && v !== 'shared' && batchMode){ batchMode = false; batchSelected.clear(); }
   byId('searchInput').value = ''; searchTerm = '';
   render();
 }
@@ -3786,6 +3821,7 @@ function renderShared(){
   byId('gridFooter').classList.toggle('hidden', !(sharedRecipes.length > 0 && sorted.length > 0));
 
   renderStats(sorted, 'shared');
+  updateBatchUI();
 }
 
 /* 共享配方池卡片 HTML */
@@ -3795,8 +3831,14 @@ function sharedCardHTML(r, i){
   const allIngs = flatIngredients(r);
   const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
   const likeCount = (r.likes || 0);
+  const isSel = batchSelected.has(r.id);
+  // v58：shared 卡片也支持批处理；卡片右上角显示 checkbox + 「添加到我工作台」按钮
   return `
-  <article class="recipe-card" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
+  <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
+    ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
+    <div class="card-actions">
+      <button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+    </div>
     <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
     <div class="card-body">
       <div class="card-meta"><span class="badge">${tCat(cat.name)}</span><span class="time">${esc(r.author || t('unknownAuthor'))}</span></div>
@@ -3809,6 +3851,7 @@ function sharedCardHTML(r, i){
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
           <button data-act="likeShared" data-id="${r.id}" class="card-copy ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
+          <button data-act="importSharedToPersonal" data-id="${r.id}" class="card-copy" title="${t('sharedImport')}" style="margin-left:6px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> <span class="copy-text">${t('sharedImport')}</span></button>
         </div>
       </div>
     </div>
@@ -3827,6 +3870,49 @@ function setLiked(id, val){
     localStorage.setItem('yx-shared-likes', JSON.stringify(likes));
   }catch(e){}
 }
+/* 共享食谱 → 个人工作台（v58） */
+function importSharedToPersonal(id){
+  const r = sharedRecipes.find(x => x.id === id);
+  if(!r) return;
+  // 已导入过同源同名则跳过
+  if(recipes.some(x => x._fromSharedId === r.id)){
+    toast(t('sharedImportAlready', {name: r.name})); return;
+  }
+  const copy = JSON.parse(JSON.stringify(r));
+  copy.id = uid();
+  copy._fromSharedId = r.id;
+  copy.createdAt = Date.now();
+  copy.updatedAt = Date.now();
+  copy.favFolderIds = [];
+  copy.pinned = false;
+  delete copy.author; delete copy.likes;   // 个人池不需要
+  recipes.push(copy);
+  saveRecipes();
+  toast(t('sharedImportDone', {name: r.name}));
+  render();
+}
+/* 共享池批处理：批量导入到个人工作台 */
+function batchImportSelectedToPersonal(){
+  const ids = batchSelected;
+  if(!ids.size) return;
+  let n = 0;
+  ids.forEach(id => {
+    const r = sharedRecipes.find(x => x.id === id);
+    if(!r) return;
+    if(recipes.some(x => x._fromSharedId === r.id)) return;
+    const copy = JSON.parse(JSON.stringify(r));
+    copy.id = uid(); copy._fromSharedId = r.id;
+    copy.createdAt = Date.now(); copy.updatedAt = Date.now();
+    copy.favFolderIds = []; copy.pinned = false;
+    delete copy.author; delete copy.likes;
+    recipes.push(copy); n++;
+  });
+  saveRecipes();
+  exitBatch();
+  toast(t('sharedImportBatchDone', {n}));
+  render();
+}
+
 async function likeShared(id){
   const r = sharedRecipes.find(x => x.id === id);
   if(!r) return;
@@ -5018,11 +5104,14 @@ document.addEventListener('click', async e => {
     case 'batchDel':       batchDelete(); break;
     case 'batchCopy':      batchDuplicate(); break;
     case 'batchFav':       if(currentView === 'favorites'){ batchUnfavSelected(); } else { openFavPick([...batchSelected]); } break;
+    case 'batchLike':      batchLikeSelected(); break;
     case 'batchPin':       batchPin(); break;
     case 'batchExport':    batchExport(); break;
     case 'batchImport':    byId('importFile').click(); break;
     case 'copy':           copyIngredients(id, workspace); break;
     case 'likeShared':     likeShared(btn.dataset.id); break;
+    case 'importSharedToPersonal': importSharedToPersonal(btn.dataset.id); break;
+    case 'batchImportShared': batchImportSelectedToPersonal(); break;
     case 'copyDetail':     copyIngredients(currentDetailId, currentDetailWorkspace); break;
     case 'coverCamera':    byId('coverCameraInput').click(); break;
     case 'coverAlbum':     byId('coverAlbumInput').click(); break;
@@ -5075,11 +5164,11 @@ byId('recipeGrid').addEventListener('keydown', e => {
     openDetail(e.target.dataset.id, e.target.dataset.workspace || 'personal', e.target);
   }
 });
-/* 手机：长按卡片 550ms 进入批处理并选中；桌面：右键进入（个人/收藏视图可用） */
+/* 手机：长按卡片 550ms 进入批处理并选中；桌面：右键进入（个人/收藏/共享视图可用） */
 let batchPressTimer = null;
 byId('recipeGrid').addEventListener('touchstart', e => {
   const card = e.target.closest('.recipe-card');
-  if(!card || (currentView !== 'personal' && currentView !== 'favorites') || card.dataset.workspace === 'shared') return;
+  if(!card || (currentView !== 'personal' && currentView !== 'favorites' && currentView !== 'shared')) return;
   batchPressTimer = setTimeout(() => {
     if(!batchMode) openBatch();
     toggleBatchSelect(card.dataset.id);
@@ -5090,7 +5179,7 @@ byId('recipeGrid').addEventListener('touchend', () => clearTimeout(batchPressTim
 byId('recipeGrid').addEventListener('touchmove', () => clearTimeout(batchPressTimer));
 byId('recipeGrid').addEventListener('contextmenu', e => {
   const card = e.target.closest('.recipe-card');
-  if(!card || (currentView !== 'personal' && currentView !== 'favorites') || card.dataset.workspace === 'shared') return;
+  if(!card || (currentView !== 'personal' && currentView !== 'favorites' && currentView !== 'shared')) return;
   e.preventDefault();
   if(!batchMode) openBatch();
   toggleBatchSelect(card.dataset.id);
