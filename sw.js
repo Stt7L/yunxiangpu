@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v67：Dock 重新构架（扁平底座圆角34px/padding一致/手机96vw）+ 滑块 overshoot 回弹（.34,1.56,.64,1）；批处理跨视图退出双保险（switchView 显式移除 .shown，电脑/手机统一）；共享池发布者(owner_id)可编辑/删除自己的食谱，其他用户保持导入/点赞；共享池「最多点赞/最新发布」排序筛选（localStorage 持久化）。
+// v68：电脑端顶部导航左右贴边（.nav-inner padding 22→14px）；手机端批处理胶囊防溢出（图标化、紧凑间距、max-width 限制）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v67';
+const CACHE = 'dessert-v68';
 const SHELL = [
   './',
   './manifest.json',
