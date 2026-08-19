@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v63：修复批处理工具栏真正呼不出（根因：#batchActions HTML 残留 hidden class → display:none!important 永远不可见，已移除）；手机端高亮滑块改垂直居中固定高度 66px（与 item 协调贴合白色 dock）。
+// v64：修复批处理胶囊切到「我的」页不自动退出（render() me 分支漏调 updateBatchUI → .shown 未移除）；手机端滑块 66→61px + 左右 pad 5→4（上下左右留白一致 4px）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v63';
+const CACHE = 'dessert-v64';
 const SHELL = [
   './',
   './manifest.json',
