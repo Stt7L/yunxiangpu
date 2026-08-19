@@ -353,28 +353,27 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .fab .ic{width:22px;height:22px}
 
 /* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
-/* 底部液态玻璃 Dock（iOS 26/27 风格胶囊 + 滑动高亮滑块） */
-/* v66：Dock padding 四周一致 14px（上下=左右，视觉均衡）；dock 高度不再额外留空 */
+/* v67 重构：Dock 统一构架——扁平液态玻璃底座，贴近底部，四周留白一致，滑块与 item 等高留白 4px */
 .dock{
-  position:fixed;left:50%;bottom:max(20px, env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:80;
+  position:fixed;left:50%;bottom:max(10px, env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:80;
   display:flex;align-items:center;gap:6px;
-  padding:14px 16px calc(14px + env(safe-area-inset-bottom));
-  background:rgba(255,255,255,.58);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.60);
   -webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
   border:1px solid rgba(255,255,255,.65);
-  border-radius:42px;
-  box-shadow:0 18px 50px rgba(0,0,0,.16), inset 0 .5px 0 rgba(255,255,255,.5);
+  border-radius:34px;
+  box-shadow:0 12px 36px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.5);
   transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
-/* v61：高亮滑块稍大（贴合 dock-item 高度更饱满，但不超出白色 dock） */
+/* v67：高亮滑块——与 item 等高（四周留白 4px），v67 加 overshoot 回弹过渡 */
 .dock-indicator{
   position:absolute;
-  top:8px;bottom:calc(8px + env(safe-area-inset-bottom));
+  top:6px;bottom:calc(6px + env(safe-area-inset-bottom));
   border-radius:999px;
   background:rgba(0,113,227,.12);
   box-shadow:inset 0 0 0 1px rgba(0,113,227,.20), inset 0 1px 2px rgba(255,255,255,.6);
   pointer-events:none;
-  transition:left .42s var(--ease-spring, cubic-bezier(.32,.72,.34,1.04)), width .42s var(--ease-spring, cubic-bezier(.32,.72,.34,1.04)), opacity .25s;
+  transition:left .55s cubic-bezier(.34,1.56,.64,1), width .55s cubic-bezier(.34,1.56,.64,1), opacity .25s;
   z-index:0;
   opacity:0;
 }
@@ -382,51 +381,52 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .dock-item{
   position:relative;z-index:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;min-width:68px;padding:9px 14px;
-  border:none;border-radius:28px;background:transparent;
-  color:var(--text3);font-size:12px;font-weight:500;
+  gap:3px;min-width:62px;padding:8px 13px;
+  border:none;border-radius:24px;background:transparent;
+  color:var(--text3);font-size:11.5px;font-weight:500;
   cursor:pointer;transition:color .3s var(--ease), transform .18s;
   -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
 }
-.dock-item .ic{width:24px;height:24px;stroke-width:1.8;transition:transform .35s var(--ease)}
+.dock-item .ic{width:23px;height:23px;stroke-width:1.8;transition:transform .35s var(--ease)}
 .dock-item.active{color:var(--accent);font-weight:700}
 .dock-item.active .ic{transform:translateY(-1px) scale(1.08)}
 .dock-item:active{transform:scale(.90)}
 .dock-item::after{
-  content:'';position:absolute;inset:0;border-radius:28px;
+  content:'';position:absolute;inset:0;border-radius:24px;
   background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0));pointer-events:none;opacity:0;transition:opacity .25s
 }
-/* v61：中央 + 号稍大 */
+.dock-item:hover::after{opacity:1}
+/* 中央 + 号：纯色圆角方块 */
 .dock-fab{
   position:relative;z-index:1;
-  width:58px;height:58px;margin:0 8px;border-radius:20px;border:none;
+  width:52px;height:52px;margin:0 6px;border-radius:18px;border:none;
   background:var(--accent);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 10px 26px rgba(0,0,0,.22);
+  box-shadow:0 8px 22px rgba(0,0,0,.20);
   cursor:pointer;transition:transform .2s var(--ease), background .2s;
   -webkit-tap-highlight-color:transparent;
 }
 .dock-fab:hover{background:var(--accent-hover)}
 .dock-fab:active{transform:scale(.88)}
 .dock-fab:active .ic{transform:rotate(90deg)}
-.dock-fab .ic{width:28px;height:28px;transition:transform .25s var(--ease)}
+.dock-fab .ic{width:26px;height:26px;transition:transform .25s var(--ease)}
 @supports (bottom:env(safe-area-inset-bottom)){
   .dock{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 }
-/* v62 手机端 Dock：几乎占据整个底部画面（不出格），间距/滑块加大 */
+/* v67 手机端 Dock：横向几乎占满底部（不出格），item 等高留白一致 */
 @media (max-width:640px){
   .dock{
     width:calc(100vw - 20px);max-width:620px;
     justify-content:space-between;gap:4px;
     bottom:10px;
-    padding:14px 14px calc(14px + env(safe-area-inset-bottom));
-    border-radius:44px;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    border-radius:36px;
   }
-  .dock-indicator{top:50%;bottom:auto;height:61px;transform:translateY(-50%);}
-  .dock-item{min-width:0;flex:1;padding:12px 6px;gap:4px;font-size:12px;border-radius:30px}
-  .dock-item .ic{width:26px;height:26px}
-  .dock-fab{width:64px;height:64px;margin:0 6px;border-radius:22px;flex:none}
-  .dock-fab .ic{width:30px;height:30px}
+  .dock-indicator{top:8px;bottom:calc(8px + env(safe-area-inset-bottom));}
+  .dock-item{min-width:0;flex:1;padding:9px 6px;gap:3px;font-size:11.5px;border-radius:26px}
+  .dock-item .ic{width:24px;height:24px}
+  .dock-fab{width:56px;height:56px;margin:0 4px;border-radius:19px;flex:none}
+  .dock-fab .ic{width:28px;height:28px}
 }
 
 /* 回到顶部按钮（在底部 Tab 上方，下滑显示，到顶淡出） */
@@ -1030,6 +1030,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 }
 .batch-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#eef3ff;border-radius:12px;margin-bottom:10px}
 .batch-count{font-size:14px;font-weight:700;color:var(--accent)}
+/* v67：共享池排序行 */
+.sort-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sort-label{font-size:12px;font-weight:600;color:var(--text3);margin-right:2px;flex:none}
 /* v62 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（bottom 130px 避开加大后的 Dock） */
 .batch-actions{
   position:fixed;left:50%;bottom:calc(134px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
@@ -1181,6 +1184,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
   <!-- 分类筛选 -->
   <div class="cat-filter" id="catFilter"></div>
+  <!-- 共享池排序（v67：最多点赞 / 最新发布） -->
+  <div class="sort-row hidden" id="sharedSortRow"></div>
 
   <!-- 食谱卡片网格 -->
   <div id="recipeGrid" class="grid"></div>
@@ -1851,7 +1856,7 @@ const I18N = {
   ingContains:'含食材 {name}', noIngredients:'暂无食材', viewRecipe:'查看食谱 {name}',
   copyIngredientsTip:'一键复制食材文本',
   fillNameFirst:'请先填写食谱名称', fillAuthorFirst:'请填写作者名称', recipeUpdated:'食谱已更新', recipeAdded:'食谱已保存',
-  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方',
+  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方', sharedSortLabel:'排序', sharedSortLikes:'最多点赞', sharedSortNew:'最新发布',
   pasteRecipeFirst:'请先粘贴食谱文案', parseNoContent:'未解析出有效内容，请检查文案格式',
   importedRecipes:'已导入 {n} 条配方（单价未填，可在编辑中补充）', builtinUpToDate:'配方库已是最新，无需重复导入',
   fillPriceName:'请填写材料名称', fillValidPrice:'请填写有效单价',
@@ -1951,7 +1956,7 @@ const I18N = {
   ingContains:'食材含む {name}', noIngredients:'食材がありません', viewRecipe:'レシピを見る {name}',
   copyIngredientsTip:'食材テキストをコピー',
   fillNameFirst:'レシピ名を入力してください', fillAuthorFirst:'作者名を入力してください', recipeUpdated:'レシピを更新しました', recipeAdded:'レシピを保存しました',
-  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します',
+  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します', sharedSortLabel:'並び替え', sharedSortLikes:'いいね順', sharedSortNew:'最新順',
   pasteRecipeFirst:'レシピ本文を貼り付けてください', parseNoContent:'有効な内容が解析できませんでした。本文の形式を確認してください',
   importedRecipes:'{n} 件のレシピをインポートしました（単価未入力は編集で補完）', builtinUpToDate:'レシピライブラリは最新です',
   fillPriceName:'材料名を入力してください', fillValidPrice:'有効な単価を入力してください',
@@ -2051,7 +2056,7 @@ const I18N = {
   ingContains:'식재료 포함 {name}', noIngredients:'식재료가 없습니다', viewRecipe:'레시피 보기 {name}',
   copyIngredientsTip:'식재료 텍스트 복사',
   fillNameFirst:'레시피명을 입력하세요', fillAuthorFirst:'작가명을 입력하세요', recipeUpdated:'레시피를 업데이트했습니다', recipeAdded:'레시피를 저장했습니다',
-  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다',
+  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다', sharedSortLabel:'정렬', sharedSortLikes:'좋아요 순', sharedSortNew:'최신 순',
   pasteRecipeFirst:'레시피 본문을 붙여넣으세요', parseNoContent:'유효한 내용을 분석하지 못했습니다. 본문 형식을 확인하세요',
   importedRecipes:'{n} 개 레시피를 가져왔습니다（단가 미입력은 수정에서 보완）', builtinUpToDate:'레시피 라이브러리가 최신 상태입니다',
   fillPriceName:'재료명을 입력하세요', fillValidPrice:'유효한 단가를 입력하세요',
@@ -2151,7 +2156,7 @@ const I18N = {
   ingContains:'Contains {name}', noIngredients:'No ingredients', viewRecipe:'View recipe {name}',
   copyIngredientsTip:'Copy ingredient text',
   fillNameFirst:'Please enter a recipe name', fillAuthorFirst:'Please enter an author name', recipeUpdated:'Recipe updated', recipeAdded:'Recipe saved',
-  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists',
+  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists', sharedSortLabel:'Sort', sharedSortLikes:'Most liked', sharedSortNew:'Newest',
   pasteRecipeFirst:'Please paste recipe text first', parseNoContent:'No valid content parsed. Please check the text format',
   importedRecipes:'Imported {n} recipes (fill unit prices in edit if missing)', builtinUpToDate:'Recipe library is already up to date',
   fillPriceName:'Please enter ingredient name', fillValidPrice:'Please enter a valid price',
@@ -2262,7 +2267,7 @@ const I18N = {
   formNewShared:'สร้างสูตรแชร์ใหม่',
   authorLabel:'ชื่อผู้แต่ง *', authorPlaceholder:'ชื่อเล่นหรือลายเซ็นของคุณ', authorHint:'พูลสูตรแชร์ต้องระบุชื่อผู้แต่ง และชื่อผลิตภัณฑ์เดียวกันต้องไม่ซ้ำ',
   sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้', sharedImport:'เพิ่มเข้าที่ทำงานของฉัน', sharedImportDone:'เพิ่มเข้าที่ทำงาน: {name}', sharedImportAlready:'เพิ่มไปแล้ว: {name}', sharedImportBatchDone:'เพิ่ม {n} สูตรเข้าที่ทำงาน', batchLike:'ไลก์',
-  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว',
+  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว', sharedSortLabel:'จัดเรียง', sharedSortLikes:'ไลก์มากสุด', sharedSortNew:'ใหม่ล่าสุด',
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
@@ -2418,6 +2423,7 @@ let pendingDeleteWorkspace = 'personal'; // 待删除对象所属工作台
 let currentDetailId = null;        // 详情面板中的食谱 id
 let currentDetailWorkspace = 'personal'; // 详情面板中的食谱所属工作台
 let pendingCover = null;           // 编辑表单中待保存的自定义封面（dataURL）
+let sharedSort = localStorage.getItem('yx-shared-sort') === 'new' ? 'new' : 'likes';  // v67：共享池排序（likes / new）
 let formCat = '蛋糕';               // 表单中当前选中的分类（有效名称）
 
 /* ═════════════════════ 工具函数 ═════════════════════ */
@@ -3221,6 +3227,24 @@ function updateBatchUI(){
   else { el.classList.remove('shown'); }
 }
 
+/* v67：共享池排序按钮（最多点赞 / 最新发布） */
+function renderSharedSort(){
+  const row = byId('sharedSortRow');
+  if(!row) return;
+  const show = currentView === 'shared';
+  row.classList.toggle('hidden', !show);
+  if(!show) return;
+  const chip = (sort, key) => `<button type="button" class="chip-btn${sharedSort === sort ? ' on' : ''}" data-act="sharedSort" data-sort="${sort}">${t(key)}</button>`;
+  row.innerHTML = `<span class="sort-label">${t('sharedSortLabel')}</span>` + chip('likes', 'sharedSortLikes') + chip('new', 'sharedSortNew');
+}
+/* 切换共享池排序 */
+function setSharedSort(sort){
+  if(sharedSort === sort) return;
+  sharedSort = sort;
+  try{ localStorage.setItem('yx-shared-sort', sort); }catch(e){}
+  renderShared();
+}
+
 /* ═════════════════════ 数据层（localStorage 持久化） ═════════════════════ */
 function loadRecipes(){
   try{
@@ -3563,8 +3587,12 @@ function switchView(v){
     activeFolder = '';   // 收藏夹筛选仅在收藏视图生效，回工作台时复位
   }
   currentView = v;
-  // v65：跨视图切换即退出批处理（批处理不跨页面保留；同视图重复点击不影响）
-  if(v !== prevView && batchMode){ batchMode = false; batchSelected.clear(); }
+  // v65/v67：跨视图切换即退出批处理（批处理不跨页面保留；同视图重复点击不影响）
+  if(v !== prevView && batchMode){
+    batchMode = false; batchSelected.clear();
+    // v67 双保险：显式移除胶囊 .shown（不依赖 render 链路，电脑端/手机端统一生效）
+    const _ba = byId('batchActions'); if(_ba) _ba.classList.remove('shown');
+  }
   byId('searchInput').value = ''; searchTerm = '';
   render();
 }
@@ -3851,13 +3879,15 @@ function renderShared(){
        flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
   });
   const sorted = [...list].sort((a,b) =>
-    (b.likes || 0) - (a.likes || 0) ||
-    (b.updatedAt || 0) - (a.updatedAt || 0)
+    sharedSort === 'new'
+      ? ((b.createdAt||0) - (a.createdAt||0)) || ((b.updatedAt||0) - (a.updatedAt||0)) || ((b.likes||0) - (a.likes||0))
+      : ((b.likes || 0) - (a.likes || 0)) || ((b.updatedAt || 0) - (a.updatedAt || 0))
   );
   byId('recipeGrid').innerHTML = sorted.map((r, i) => sharedCardHTML(r, i)).join('');
   byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
   byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
   renderCatFilter(sharedRecipes);
+  renderSharedSort();   // v67：最多点赞 / 最新发布 筛选按钮
 
   // 空状态
   byId('emptyState').classList.toggle('hidden', sharedRecipes.length > 0);
@@ -3871,6 +3901,11 @@ function renderShared(){
   updateBatchUI();
 }
 
+/* 判断当前登录用户是否为共享食谱发布者（v67：发布者可编辑/删除自己发布的食谱） */
+function isSharedOwner(r){
+  return !!(SB_ENABLED && currentUser && r && r.owner_id && r.owner_id === currentUser.id);
+}
+
 /* 共享配方池卡片 HTML */
 function sharedCardHTML(r, i){
   const cat = findCat(displayCat(r.category));
@@ -3879,12 +3914,21 @@ function sharedCardHTML(r, i){
   const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
   const likeCount = (r.likes || 0);
   const isSel = batchSelected.has(r.id);
-  // v58：shared 卡片也支持批处理；卡片右上角显示 checkbox + 「添加到我工作台」按钮
+  // v67：发布者（owner）显示「编辑」；其他用户显示「导入到工作台」
+  const isOwner = isSharedOwner(r);
+  const primaryAct = isOwner
+    ? `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`
+    : `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>`;
+  // 发布者额外提供删除按钮
+  const ownerDel = isOwner
+    ? `<button data-act="del" data-id="${r.id}" data-workspace="shared" class="card-import act-del" title="${t('detailDelete')}" aria-label="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>`
+    : '';
   return `
   <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
     ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
-      <button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+      ${primaryAct}
+      ${ownerDel}
     </div>
     <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
     <div class="card-body">
@@ -4248,12 +4292,13 @@ function openDetail(id, workspace, originCard){
   byId('detailPinBtn').style.display = workspace === 'personal' ? '' : 'none';
   byId('detailFavBtn').classList.toggle('favorited', isFaved(r.id));
   byId('detailFavBtn').style.display = workspace === 'personal' ? '' : 'none';
-  // 共享池专属：详情头部点赞按钮（v60 移到头部右上）；导入到工作台仍在底部
+  // v67：共享池作者可编辑/删除自己的食谱；其他用户显示导入工作台；个人池保持编辑/删除
   const importBtn = byId('detailImportBtn');
   const editBtn = byId('detailEditBtn');
   const delBtn = byId('detailDelBtn');
   const likeBtn = byId('detailLikeBtn');
-  if(importBtn){ importBtn.style.display = workspace === 'shared' ? '' : 'none'; importBtn.dataset.id = id; }
+  const isOwner = workspace === 'shared' && isSharedOwner(r);
+  if(importBtn){ importBtn.style.display = (workspace === 'shared' && !isOwner) ? '' : 'none'; importBtn.dataset.id = id; }
   if(likeBtn){
     likeBtn.style.display = workspace === 'shared' ? '' : 'none';
     likeBtn.dataset.id = id;
@@ -4261,8 +4306,8 @@ function openDetail(id, workspace, originCard){
     const ic = byId('detailLikeIcon');
     if(ic) ic.setAttribute('fill', isLiked(r) ? '#ff3b30' : 'none');
   }
-  if(editBtn) editBtn.style.display = workspace === 'personal' ? '' : 'none';
-  if(delBtn) delBtn.style.display = workspace === 'personal' ? '' : 'none';
+  if(editBtn){ editBtn.style.display = (workspace === 'personal' || isOwner) ? '' : 'none'; editBtn.dataset.id = id; editBtn.dataset.workspace = workspace; }
+  if(delBtn){ delBtn.style.display = (workspace === 'personal' || isOwner) ? '' : 'none'; delBtn.dataset.id = id; delBtn.dataset.workspace = workspace; }
   const isCustomCover = !!r.cover;
   const heroHTML = cover ? `
     <div class="detail-hero ${isCustomCover ? '' : 'detail-hero-auto'}" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">
@@ -5177,6 +5222,7 @@ document.addEventListener('click', async e => {
     case 'batchExport':    batchExport(); break;
     case 'batchImport':    byId('importFile').click(); break;
     case 'copy':           copyIngredients(id, workspace); break;
+    case 'sharedSort':     setSharedSort(btn.dataset.sort || 'likes'); break;
     case 'likeShared':     likeShared(btn.dataset.id); break;
     case 'importSharedToPersonal': importSharedToPersonal(btn.dataset.id); break;
     case 'batchImportShared': batchImportSelectedToPersonal(); break;
@@ -5186,8 +5232,8 @@ document.addEventListener('click', async e => {
     case 'coverClear':     pendingCover = null; renderCoverPicker(); break;
     case 'exportData':     exportData(); break;
     case 'importData':     byId('importFile').click(); break;
-    case 'closeDetail':    closeDetail(); break;    case 'editFromDetail': hide('detailOverlay'); openForm(currentDetailId); break;
-    case 'delFromDetail':  hide('detailOverlay'); askDelete(currentDetailId); break;
+    case 'closeDetail':    closeDetail(); break;    case 'editFromDetail': hide('detailOverlay'); openForm(currentDetailId, currentDetailWorkspace || 'personal'); break;
+    case 'delFromDetail':  hide('detailOverlay'); askDelete(currentDetailId, currentDetailWorkspace || 'personal'); break;
     case 'cancelDel':      hide('confirmOverlay'); break;
     case 'confirmDel':     pendingDeleteKind === 'price' ? doDeletePrice() : doDelete(); break;
     case 'openPrices':     openPrices(); break;
