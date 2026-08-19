@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v58：批处理整合（删除顶部 batchBar，全选/取消合并进底部胶囊，胶囊风格同步 Dock 36px 圆角）；共享池支持批处理（点赞/导入/复制/导出/删除-admin）+ 共享池卡片加「添加到个人工作台」按钮（单卡片+批量）；登录后无条件 sbRefreshShared + render，确保切到共享池立即有内容。
+// v59：共享池添加批处理入口（sync-tools 在 shared 显示并隐藏导入/导出按钮）；共享池卡片去重（仅保留右上角导入按钮）；详情 foot 按 workspace 动态显隐（个人=编辑/删除，共享池=导入工作台/点赞）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v58';
+const CACHE = 'dessert-v59';
 const SHELL = [
   './',
   './manifest.json',
