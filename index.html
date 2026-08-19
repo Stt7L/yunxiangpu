@@ -2398,6 +2398,7 @@ let pendingDeleteWorkspace = 'personal'; // 待删除对象所属工作台
 let currentDetailId = null;        // 详情面板中的食谱 id
 let currentDetailWorkspace = 'personal'; // 详情面板中的食谱所属工作台
 let lastFlippedCard = null;        // 详情打开时翻转隐藏的原卡片（关闭详情后恢复显示）
+let lastCardAnim = null;           // 卡片→详情联动动画（WAAPI），关闭详情时倒放
 let pendingCover = null;           // 编辑表单中待保存的自定义封面（dataURL）
 let formCat = '蛋糕';               // 表单中当前选中的分类（有效名称）
 
@@ -2469,9 +2470,7 @@ function hide(id){
         sheet.removeEventListener('animationend', finish);
         sheet.classList.remove('closing');
         ov.classList.add('hidden');
-        // 恢复详情打开时隐藏的原卡片（若仍在 DOM）
-        if(lastFlippedCard && lastFlippedCard.isConnected){ lastFlippedCard.classList.remove('card-gone'); }
-        lastFlippedCard = null;
+        // 卡片恢复统一由 closeDetail → reverseCardAnim 倒放处理；若经 ESC/遮罩关闭同样调用 closeDetail
         if(!OVERLAYS.some(o => !byId(o).classList.contains('hidden'))) document.body.classList.remove('lock');
       };
       sheet.addEventListener('animationend', finish);
@@ -3480,6 +3479,8 @@ function render(){
   byId('mePage').classList.add('hidden');
   // 「我也是有底线的」：仅在卡片列表存在时显示，位于列表底部（me 视图隐藏）
   byId('gridFooter').classList.add('hidden');
+  // 「我的」页面不展示卡片网格：清空残留的上一个视图卡片（登录后切到我的页会残留食谱卡片的 bug）
+  if(currentView === 'me'){ byId('recipeGrid').innerHTML = ''; }
 
   if(currentView === 'shared') return renderShared();
   if(currentView === 'favorites') return renderFavorites();
@@ -3516,15 +3517,14 @@ function renderFavorites(){
   // 底线文案：有卡片才显示，位于列表底部
   byId('gridFooter').classList.toggle('hidden', !(hasAnyFav && list.length > 0));
 }
-/* 收藏视图顶部：收藏夹 chips（全部 + 各收藏夹） */
+/* 收藏视图顶部：仅渲染各收藏夹 chips（v55 移除「全部收藏」，只有一个夹时不显示 chips 行） */
 function renderFavFilter(){
-  const chips = [`<button type="button" class="cat-chip${activeFolder === '' ? ' on' : ''}" data-favfolder="">${t('favAll')} <span class="cnt">${recipes.filter(r => (r.favFolderIds||[]).length > 0).length}</span></button>`];
-  chips.push(...favoriteFolders.map(f => {
+  const chips = favoriteFolders.map(f => {
     const n = (f.recipeIds || []).length;
     return `<button type="button" class="cat-chip${activeFolder === f.id ? ' on' : ''}" data-favfolder="${f.id}">${esc(f.name)} <span class="cnt">${n}</span></button>`;
-  }));
-  byId('catFilter').innerHTML = `<div class="fav-filter-row">${chips.join('')}</div>`;
-  byId('catFilter').style.display = '';
+  });
+  byId('catFilter').innerHTML = chips.length > 1 ? `<div class="fav-filter-row">${chips.join('')}</div>` : '';
+  byId('catFilter').style.display = chips.length > 1 ? '' : 'none';
 }
 
 /* ─────────── 「我的」页面视图：用户中心 + 最近浏览 + 已点赞 ─────────── */
@@ -4094,17 +4094,15 @@ function openDetail(id, workspace, originCard){
       ${r.sourceUrl ? `<section class="d-sec"><h4>${t('detailSourceUrl')}</h4><a href="${esc(r.sourceUrl)}" class="source-link" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span>${esc(r.sourceUrl)}</span></a></section>` : ''}
     </div>`;
   byId('detailBody').scrollTop = 0;
-  // 动态十足的开场：原卡片先从小放大 + 720° 翻转（两次 360°），完成后卡片隐藏消失、详情 3D 翻转呈现
-  let flipCard = null;
-  if(originCard && originCard.classList && originCard.classList.contains('recipe-card')){
-    flipCard = originCard;
-    lastFlippedCard = originCard;
-    originCard.classList.add('card-flip');
-    originCard.classList.remove('card-gone');
+  // ── 动态开场：小卡片一边缩放 + 720° 旋转（两圈）一边移动到屏幕中心（与详情同尺寸），
+  //    动画完成 → 小卡片消失、详情 3D 呈现；关闭详情时动画倒放，卡片飞回原位（2D→3D 自然衔接）──
+  lastCardAnim = null;
+  const flipCard = (originCard && originCard.classList && originCard.classList.contains('recipe-card')) ? originCard : null;
+  if(flipCard){
+    flipCard.classList.remove('card-gone');
+    flipCard.style.transform = ''; flipCard.style.opacity = ''; flipCard.style.filter = '';
   }
-  setTimeout(() => {
-    if(flipCard && flipCard.isConnected) flipCard.classList.add('card-gone');
-    if(flipCard) flipCard.classList.remove('card-flip');
+  const showDetailSheet = () => {
     show('detailOverlay');
     // 重置 + 触发 sheet 的 3D 翻转入场（强制 reflow 以重新触发动画）
     const sheetEl = document.querySelector('#detailOverlay .sheet');
@@ -4113,7 +4111,66 @@ function openDetail(id, workspace, originCard){
       void sheetEl.offsetWidth; // reflow
       sheetEl.style.animation = '';
     }
-  }, 620);
+  };
+  if(flipCard && typeof flipCard.animate === 'function' && window.innerWidth > 0){
+    // 计算卡片当前位置 → 屏幕中心目标（详情 sheet 居中位置）
+    const cRect = flipCard.getBoundingClientRect();
+    const sheetW = Math.min(680, window.innerWidth * 0.92);
+    const sheetH = Math.min(window.innerHeight * 0.92, cRect.height * (sheetW / cRect.width));
+    const cx = cRect.left + cRect.width / 2;
+    const cy = cRect.top + cRect.height / 2;
+    const tx = window.innerWidth / 2 - cx;
+    const ty = window.innerHeight / 2 - cy;
+    const s = Math.max(1.02, sheetW / cRect.width);
+    flipCard.style.zIndex = 60;
+    try{
+      const anim = flipCard.animate([
+        { transform: 'none', opacity: 1, filter: 'brightness(1)' },
+        { transform: `perspective(1100px) translate(${tx*0.55}px, ${ty*0.55}px) scale(${1+(s-1)*0.55}) rotateY(360deg)`, opacity: 1, filter: 'brightness(1.12)', offset: 0.5 },
+        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(720deg)`, opacity: 1, filter: 'brightness(1.18)', offset: 0.82 },
+        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(720deg)`, opacity: 0, filter: 'brightness(1.25)' }
+      ], { duration: 720, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' });
+      lastCardAnim = { el: flipCard, anim };
+      anim.onfinish = () => {
+        if(flipCard.isConnected){ flipCard.classList.add('card-gone'); flipCard.style.zIndex = ''; }
+        showDetailSheet();
+      };
+      return;
+    }catch(e){ /* 个别环境 animate 异常 → 走降级 */ }
+  }
+  // 降级（jsdom/旧浏览器）：卡片直接隐藏，详情直接出现
+  if(flipCard){ flipCard.classList.add('card-gone'); }
+  showDetailSheet();
+}
+/* 详情关闭（v55 补定义：v52 事件委托改为调用 closeDetail 但函数缺失，导致点关闭抛 ReferenceError 无反应） */
+function closeDetail(){
+  reverseCardAnim();   // 详情收起时倒放卡片入场动画，让原卡片从中心飞回原位
+  hide('detailOverlay');
+}
+/* 倒放卡片→详情的联动动画（关闭详情时调用；动画已结束则从结束态 reverse 回原位） */
+function reverseCardAnim(){
+  if(!lastCardAnim) return;
+  const { el, anim } = lastCardAnim;
+  lastCardAnim = null;
+  try{
+    if(el && el.isConnected && anim && typeof anim.reverse === 'function'){
+      anim.onfinish = () => {
+        if(el.isConnected){
+          el.classList.remove('card-gone');
+          el.style.transform = ''; el.style.opacity = ''; el.style.filter = ''; el.style.zIndex = '';
+        }
+      };
+      anim.reverse();
+      // 兜底：若动画无法倒放（已 cancel），立即恢复卡片
+      setTimeout(() => {
+        if(el && el.isConnected && el.classList.contains('card-gone')){ el.classList.remove('card-gone'); el.style.transform=''; el.style.opacity=''; el.style.filter=''; el.style.zIndex=''; }
+      }, 850);
+    } else if(el && el.isConnected){
+      el.classList.remove('card-gone');
+    }
+  }catch(e){
+    if(el && el.isConnected){ el.classList.remove('card-gone'); el.style.transform=''; el.style.opacity=''; el.style.filter=''; el.style.zIndex=''; }
+  }
 }
 
 /* ═════════════════════ 删除确认 ═════════════════════ */
@@ -4989,8 +5046,7 @@ document.addEventListener('click', async e => {
     case 'coverClear':     pendingCover = null; renderCoverPicker(); break;
     case 'exportData':     exportData(); break;
     case 'importData':     byId('importFile').click(); break;
-    case 'closeDetail':    closeDetail(); break;
-    case 'editFromDetail': hide('detailOverlay'); openForm(currentDetailId); break;
+    case 'closeDetail':    closeDetail(); break;    case 'editFromDetail': hide('detailOverlay'); openForm(currentDetailId); break;
     case 'delFromDetail':  hide('detailOverlay'); askDelete(currentDetailId); break;
     case 'cancelDel':      hide('confirmOverlay'); break;
     case 'confirmDel':     pendingDeleteKind === 'price' ? doDeletePrice() : doDelete(); break;
@@ -5258,7 +5314,7 @@ document.addEventListener('keydown', e => {
     if(!byId('promptOverlay').classList.contains('hidden')){ closePrompt(null); return; }
     if(!byId('appConfirmOverlay').classList.contains('hidden')){ closeAppConfirm(false); return; }
     if(!byId('catDialogOverlay').classList.contains('hidden')){ closeCatDialog(); return; }
-    hide('formOverlay'); hide('detailOverlay'); hide('confirmOverlay'); hide('priceOverlay'); hide('priceFormOverlay');
+    hide('formOverlay'); closeDetail(); hide('confirmOverlay'); hide('priceOverlay'); hide('priceFormOverlay');
   }
 });
 /* prompt 输入框回车直接确认 */
