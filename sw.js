@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v61：Dock 加大（padding/border-radius/+号 58px，滑块稍大但不超出）+ 我的页面 padding-bottom 160px 退出按钮不被遮挡；批处理按钮 toggle（再点退出）+ 胶囊 translateY 滑入滑出动画 + 详情 sheet 改下→上滑入动画（缓出缓入 cubic-bezier(.16,1,.3,1)）。
+// v62：修复批处理工具栏呼不出（胶囊 bottom 96→134px 避开加大后的 Dock 遮挡）；修复批处理点卡片整页闪烁（toggleBatchSelect 轻量更新目标卡片，不再整页 render）；手机端 Dock 几乎占满底部（96vw，不出格）+ 滑块 pad 3→5 更大 + item flex:1 间距更宽 + 号 64px。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v61';
+const CACHE = 'dessert-v62';
 const SHELL = [
   './',
   './manifest.json',
