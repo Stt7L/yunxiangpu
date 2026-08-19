@@ -413,6 +413,21 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 @supports (bottom:env(safe-area-inset-bottom)){
   .dock{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 }
+/* v62 手机端 Dock：几乎占据整个底部画面（不出格），间距/滑块加大 */
+@media (max-width:640px){
+  .dock{
+    width:calc(100vw - 20px);max-width:620px;
+    justify-content:space-between;gap:4px;
+    bottom:10px;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    border-radius:44px;
+  }
+  .dock-indicator{top:10px;bottom:calc(10px + env(safe-area-inset-bottom));}
+  .dock-item{min-width:0;flex:1;padding:12px 6px;gap:4px;font-size:12px;border-radius:30px}
+  .dock-item .ic{width:26px;height:26px}
+  .dock-fab{width:64px;height:64px;margin:0 6px;border-radius:22px;flex:none}
+  .dock-fab .ic{width:30px;height:30px}
+}
 
 /* 回到顶部按钮（在底部 Tab 上方，下滑显示，到顶淡出） */
 .back-to-top{
@@ -1015,9 +1030,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 }
 .batch-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#eef3ff;border-radius:12px;margin-bottom:10px}
 .batch-count{font-size:14px;font-weight:700;color:var(--accent)}
-/* v61 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（替代 hidden toggle） */
+/* v62 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（bottom 130px 避开加大后的 Dock） */
 .batch-actions{
-  position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
+  position:fixed;left:50%;bottom:calc(134px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
   z-index:70;display:flex;gap:4px;align-items:center;
   padding:8px 14px calc(8px + env(safe-area-inset-bottom));
   background:rgba(255,255,255,.55);
@@ -3047,8 +3062,16 @@ function exitBatch(){
   render();
 }
 function toggleBatchSelect(id){
+  // v62：轻量更新——只切换目标卡片的选中态 + 更新计数，不整页 render（避免闪烁）
   if(batchSelected.has(id)) batchSelected.delete(id); else batchSelected.add(id);
-  render();
+  const card = document.querySelector(`.recipe-card[data-id="${id}"]`);
+  if(card){
+    const isSel = batchSelected.has(id);
+    card.classList.toggle('selected', isSel);
+    const check = card.querySelector('.batch-check');
+    if(check) check.textContent = isSel ? '✓' : '';
+  }
+  updateBatchUI();   // 刷新计数 pill（胶囊动画保持）
 }
 /* 当前视图的候选列表（个人=过滤后的配方；收藏=当前夹的收藏配方；共享池=当前过滤后的共享配方） */
 function batchFilteredList(){
@@ -3736,8 +3759,8 @@ function updateDockIndicator(){
   if(!active){ ind.classList.remove('show'); return; }
   const dRect = dock.getBoundingClientRect();
   const aRect = active.getBoundingClientRect();
-  // 滑块比 item 大一圈（左右各扩 3px），并 clamp 在 Dock 范围内，视觉更贴合
-  const pad = 3;
+  // 滑块比 item 大一圈（左右各扩 5px，v62 更大），并 clamp 在 Dock 范围内，视觉更贴合
+  const pad = 5;
   const left = Math.max(2, aRect.left - dRect.left - pad);
   const right = Math.min(Math.max(0, dRect.width - 2), aRect.right - dRect.left + pad);
   ind.style.left = left + 'px';
