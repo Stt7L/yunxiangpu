@@ -259,15 +259,20 @@ button{font-family:inherit}
 .grid-triple .card-foot-left{display:none}
 .grid-triple .copy-text{display:none}
 .grid-list{grid-template-columns:1fr;gap:10px}
-.grid-list .recipe-card{display:flex;flex-direction:row;align-items:center;border-radius:14px}
-.grid-list .recipe-card .cover{width:92px;height:76px;flex:none;border-radius:12px;margin:8px}
-.grid-list .recipe-card .card-body{flex:1;min-width:0;padding:10px 12px}
+.grid-list .recipe-card{display:flex;flex-direction:row;align-items:stretch;border-radius:14px}
+.grid-list .recipe-card .cover{width:92px;height:76px;flex:none;border-radius:12px;margin:8px;display:flex;align-items:center;justify-content:center}
+.grid-list .recipe-card .cover .cover-mono{font-size:24px}
+.grid-list .recipe-card .cover-img{border-radius:10px}
+.grid-list .recipe-card .card-body{flex:1;min-width:0;padding:10px 12px;display:flex;flex-direction:column;justify-content:center}
 .grid-list .recipe-card .card-meta{margin-bottom:3px}
 .grid-list .recipe-card h3{font-size:15px;margin-bottom:2px}
 .grid-list .recipe-card .ing-summary{display:none}
-.grid-list .recipe-card .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:none}
+.grid-list .recipe-card .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:none;gap:8px}
 .grid-list .recipe-card .card-foot-left{display:flex;gap:10px;font-size:12px}
 .grid-list .recipe-card .cost{font-size:15px}
+/* v75：列表视图把操作按钮改为行内右侧，始终可见，不再 absolute 遮挡作者名 */
+.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:4px;flex:none;align-self:center;margin-left:6px;padding-right:6px}
+.grid-list .recipe-card .card-actions button{width:30px;height:30px}
 .grid-double .card-copy{padding:5px}
 .grid-double .card-copy .copy-text{display:none}
 .recipe-card{
@@ -335,6 +340,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .card-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity .2s;z-index:2}
 .recipe-card:hover .card-actions{opacity:1}
 @media (hover:none){.card-actions{opacity:1}}
+/* v75：共享池卡片操作按钮始终可见，确保「导入到工作台」入口可被发现 */
+.recipe-card[data-workspace="shared"] .card-actions{opacity:1;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(180%) blur(8px);backdrop-filter:saturate(180%) blur(8px);border-radius:999px;padding:2px 4px}
+.recipe-card[data-workspace="shared"]:hover .card-actions{background:rgba(255,255,255,.92)}
 .card-actions button{
   width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
   background:rgba(255,255,255,.72);box-shadow:0 1px 6px rgba(0,0,0,.14);
@@ -867,6 +875,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .grid-triple .recipe-card h3{font-size:12.5px}
   .grid-triple .card-meta .time{display:none}
   .grid-list .recipe-card .cover{width:72px;height:64px;margin:6px}
+  .grid-list .recipe-card .cover .cover-mono{font-size:20px}
   .grid-list .recipe-card .card-foot-left{gap:8px;font-size:11px}
   .cover{height:112px}
   .sheet-head{padding:16px 20px 0}
@@ -1961,7 +1970,7 @@ const I18N = {
   ingContains:'含食材 {name}', noIngredients:'暂无食材', viewRecipe:'查看食谱 {name}',
   copyIngredientsTip:'一键复制食材文本',
   fillNameFirst:'请先填写食谱名称', fillAuthorFirst:'请填写作者名称', recipeUpdated:'食谱已更新', recipeAdded:'食谱已保存',
-  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方', sharedSortLabel:'排序', sharedSortLikes:'最多点赞', sharedSortNew:'最新发布', publishToShared:'发布到共享池', batchPublish:'发布', sortName:'名称', sortCat:'种类', sortLikes:'最多点赞', sortOpened:'上次打开', sortCreatedAsc:'创建日期正序', sortCreatedDesc:'创建日期倒序', viewTriple:'三卡片视图', viewList:'列表视图',
+  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方', sharedSortLabel:'排序', sharedSortLikes:'最多点赞', sharedSortNew:'最新发布', publishToShared:'发布到共享池', batchPublish:'发布', sortName:'名称', sortCat:'种类', sortLikes:'最多点赞', sortOpened:'上次打开', sortCreatedAsc:'创建日期正序', sortCreatedDesc:'创建日期倒序', sortPriceAsc:'价格正序', sortPriceDesc:'价格倒序', viewTriple:'三卡片视图', viewList:'列表视图',
   pasteRecipeFirst:'请先粘贴食谱文案', parseNoContent:'未解析出有效内容，请检查文案格式',
   importedRecipes:'已导入 {n} 条配方（单价未填，可在编辑中补充）', builtinUpToDate:'配方库已是最新，无需重复导入',
   fillPriceName:'请填写材料名称', fillValidPrice:'请填写有效单价',
@@ -2061,7 +2070,7 @@ const I18N = {
   ingContains:'食材含む {name}', noIngredients:'食材がありません', viewRecipe:'レシピを見る {name}',
   copyIngredientsTip:'食材テキストをコピー',
   fillNameFirst:'レシピ名を入力してください', fillAuthorFirst:'作者名を入力してください', recipeUpdated:'レシピを更新しました', recipeAdded:'レシピを保存しました',
-  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します', sharedSortLabel:'並び替え', sharedSortLikes:'いいね順', sharedSortNew:'最新順', publishToShared:'共有プールに公開', batchPublish:'公開', sortName:'名前', sortCat:'種類', sortLikes:'いいね最多', sortOpened:'最後に開いた', sortCreatedAsc:'作成日昇順', sortCreatedDesc:'作成日降順', viewTriple:'3カード表示', viewList:'リスト表示',
+  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します', sharedSortLabel:'並び替え', sharedSortLikes:'いいね順', sharedSortNew:'最新順', publishToShared:'共有プールに公開', batchPublish:'公開', sortName:'名前', sortCat:'種類', sortLikes:'いいね最多', sortOpened:'最後に開いた', sortCreatedAsc:'作成日昇順', sortCreatedDesc:'作成日降順', sortPriceAsc:'価格昇順', sortPriceDesc:'価格降順', viewTriple:'3カード表示', viewList:'リスト表示',
   pasteRecipeFirst:'レシピ本文を貼り付けてください', parseNoContent:'有効な内容が解析できませんでした。本文の形式を確認してください',
   importedRecipes:'{n} 件のレシピをインポートしました（単価未入力は編集で補完）', builtinUpToDate:'レシピライブラリは最新です',
   fillPriceName:'材料名を入力してください', fillValidPrice:'有効な単価を入力してください',
@@ -2161,7 +2170,7 @@ const I18N = {
   ingContains:'식재료 포함 {name}', noIngredients:'식재료가 없습니다', viewRecipe:'레시피 보기 {name}',
   copyIngredientsTip:'식재료 텍스트 복사',
   fillNameFirst:'레시피명을 입력하세요', fillAuthorFirst:'작가명을 입력하세요', recipeUpdated:'레시피를 업데이트했습니다', recipeAdded:'레시피를 저장했습니다',
-  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다', sharedSortLabel:'정렬', sharedSortLikes:'좋아요 순', sharedSortNew:'최신 순', publishToShared:'공유 풀에 게시', batchPublish:'게시', sortName:'이름', sortCat:'종류', sortLikes:'좋아요 많은 순', sortOpened:'최근 연 순', sortCreatedAsc:'만든 날짜 오름차순', sortCreatedDesc:'만든 날짜 내림차순', viewTriple:'카드 3개 보기', viewList:'목록 보기',
+  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다', sharedSortLabel:'정렬', sharedSortLikes:'좋아요 순', sharedSortNew:'최신 순', publishToShared:'공유 풀에 게시', batchPublish:'게시', sortName:'이름', sortCat:'종류', sortLikes:'좋아요 많은 순', sortOpened:'최근 연 순', sortCreatedAsc:'만든 날짜 오름차순', sortCreatedDesc:'만든 날짜 내림차순', sortPriceAsc:'가격 오름차순', sortPriceDesc:'가격 내림차순', viewTriple:'카드 3개 보기', viewList:'목록 보기',
   pasteRecipeFirst:'레시피 본문을 붙여넣으세요', parseNoContent:'유효한 내용을 분석하지 못했습니다. 본문 형식을 확인하세요',
   importedRecipes:'{n} 개 레시피를 가져왔습니다（단가 미입력은 수정에서 보완）', builtinUpToDate:'레시피 라이브러리가 최신 상태입니다',
   fillPriceName:'재료명을 입력하세요', fillValidPrice:'유효한 단가를 입력하세요',
@@ -2261,7 +2270,7 @@ const I18N = {
   ingContains:'Contains {name}', noIngredients:'No ingredients', viewRecipe:'View recipe {name}',
   copyIngredientsTip:'Copy ingredient text',
   fillNameFirst:'Please enter a recipe name', fillAuthorFirst:'Please enter an author name', recipeUpdated:'Recipe updated', recipeAdded:'Recipe saved',
-  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists', sharedSortLabel:'Sort', sharedSortLikes:'Most liked', sharedSortNew:'Newest', publishToShared:'Publish to shared pool', batchPublish:'Publish', sortName:'Name', sortCat:'Category', sortLikes:'Most liked', sortOpened:'Recently opened', sortCreatedAsc:'Created (oldest)', sortCreatedDesc:'Created (newest)', viewTriple:'Triple card view', viewList:'List view',
+  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists', sharedSortLabel:'Sort', sharedSortLikes:'Most liked', sharedSortNew:'Newest', publishToShared:'Publish to shared pool', batchPublish:'Publish', sortName:'Name', sortCat:'Category', sortLikes:'Most liked', sortOpened:'Recently opened', sortCreatedAsc:'Created (oldest)', sortCreatedDesc:'Created (newest)', sortPriceAsc:'Price (low to high)', sortPriceDesc:'Price (high to low)', viewTriple:'Triple card view', viewList:'List view',
   pasteRecipeFirst:'Please paste recipe text first', parseNoContent:'No valid content parsed. Please check the text format',
   importedRecipes:'Imported {n} recipes (fill unit prices in edit if missing)', builtinUpToDate:'Recipe library is already up to date',
   fillPriceName:'Please enter ingredient name', fillValidPrice:'Please enter a valid price',
@@ -2372,7 +2381,7 @@ const I18N = {
   formNewShared:'สร้างสูตรแชร์ใหม่',
   authorLabel:'ชื่อผู้แต่ง *', authorPlaceholder:'ชื่อเล่นหรือลายเซ็นของคุณ', authorHint:'พูลสูตรแชร์ต้องระบุชื่อผู้แต่ง และชื่อผลิตภัณฑ์เดียวกันต้องไม่ซ้ำ',
   sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้', sharedImport:'เพิ่มเข้าที่ทำงานของฉัน', sharedImportDone:'เพิ่มเข้าที่ทำงาน: {name}', sharedImportAlready:'เพิ่มไปแล้ว: {name}', sharedImportBatchDone:'เพิ่ม {n} สูตรเข้าที่ทำงาน', batchLike:'ไลก์',
-  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว', sharedSortLabel:'จัดเรียง', sharedSortLikes:'ไลก์มากสุด', sharedSortNew:'ใหม่ล่าสุด', publishToShared:'เผยแพร่สู่พูลสูตรแชร์', batchPublish:'เผยแพร่', sortName:'ชื่อ', sortCat:'ประเภท', sortLikes:'ไลก์มากสุด', sortOpened:'เปิดล่าสุด', sortCreatedAsc:'วันที่สร้าง (เก่า→ใหม่)', sortCreatedDesc:'วันที่สร้าง (ใหม่→เก่า)', viewTriple:'มุมมอง 3 การ์ด', viewList:'มุมมองรายการ',
+  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว', sharedSortLabel:'จัดเรียง', sharedSortLikes:'ไลก์มากสุด', sharedSortNew:'ใหม่ล่าสุด', publishToShared:'เผยแพร่สู่พูลสูตรแชร์', batchPublish:'เผยแพร่', sortName:'ชื่อ', sortCat:'ประเภท', sortLikes:'ไลก์มากสุด', sortOpened:'เปิดล่าสุด', sortCreatedAsc:'วันที่สร้าง (เก่า→ใหม่)', sortCreatedDesc:'วันที่สร้าง (ใหม่→เก่า)', sortPriceAsc:'ราคา (น้อย→มาก)', sortPriceDesc:'ราคา (มาก→น้อย)', viewTriple:'มุมมอง 3 การ์ด', viewList:'มุมมองรายการ',
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
@@ -3362,6 +3371,12 @@ function sortRecipes(list, key){
     case 'createdAsc':
       arr.sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
       break;
+    case 'priceAsc':
+      arr.sort((a,b) => recipeCost(a) - recipeCost(b));
+      break;
+    case 'priceDesc':
+      arr.sort((a,b) => recipeCost(b) - recipeCost(a));
+      break;
     case 'createdDesc':
     default:
       arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
@@ -3380,11 +3395,20 @@ function renderSortRow(){
   const show = currentView === 'personal' || currentView === 'shared';
   row.classList.toggle('hidden', !show);
   if(!show) return;
-  const cur = currentView === 'shared' ? sharedSort : personalSort;
-  const opts = [
-    ['name','sortName'], ['cat','sortCat'], ['likes','sortLikes'],
-    ['opened','sortOpened'], ['createdAsc','sortCreatedAsc'], ['createdDesc','sortCreatedDesc']
+  const inShared = currentView === 'shared';
+  const cur = inShared ? sharedSort : personalSort;
+  // v75：个人工作台没有点赞 → 去掉「最多点赞」；新增价格正/倒序
+  const personalOpts = [
+    ['name','sortName'], ['cat','sortCat'], ['opened','sortOpened'],
+    ['createdAsc','sortCreatedAsc'], ['createdDesc','sortCreatedDesc'],
+    ['priceAsc','sortPriceAsc'], ['priceDesc','sortPriceDesc']
   ];
+  const sharedOpts = [
+    ['name','sortName'], ['cat','sortCat'], ['likes','sortLikes'], ['opened','sortOpened'],
+    ['createdAsc','sortCreatedAsc'], ['createdDesc','sortCreatedDesc'],
+    ['priceAsc','sortPriceAsc'], ['priceDesc','sortPriceDesc']
+  ];
+  const opts = inShared ? sharedOpts : personalOpts;
   row.innerHTML = `<span class="sort-label">${t('sharedSortLabel')}</span>` +
     opts.map(([k,key]) => `<button type="button" class="chip-btn${cur === k ? ' on' : ''}" data-act="setSort" data-sort="${k}">${t(key)}</button>`).join('');
 }
