@@ -298,6 +298,10 @@ button{font-family:inherit}
 }
 .card-foot .card-copy:hover{background:rgba(255,255,255,.85);color:var(--text);transform:translateY(-1px)}
 .card-foot .card-copy:active{transform:scale(.96)}
+/* v60：共享池点赞按钮统一红色（已赞/未赞都用心形红） */
+.card-foot .card-copy.like-btn{color:#ff3b30}
+.card-foot .card-copy.like-btn .ic{fill:#ff3b30;stroke:#ff3b30}
+.card-foot .card-copy.like-btn:not(.liked) .ic{fill:none}
 mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 /* 网格底部：到底提示 */
@@ -1353,6 +1357,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <div style="display:flex;gap:8px;align-items:center">
         <button class="pin-btn" data-act="togglePin" id="detailPinBtn" data-i18n-title="detailPin" title="置顶/取消置顶" aria-label="置顶"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
         <button class="pin-btn fav-btn" data-act="favPickFromDetail" id="detailFavBtn" data-i18n-title="favPick" title="加入收藏夹" aria-label="加入收藏夹"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        <button class="pin-btn like-btn" data-act="likeShared" id="detailLikeBtn" style="display:none" data-i18n-title="likeSharedTip" title="点赞" aria-label="点赞"><svg class="ic" id="detailLikeIcon" viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
         <button class="detail-x" data-act="closeDetail" data-i18n-aria="detailClose" aria-label="关闭"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
       </div>
     </div>
@@ -1364,7 +1369,6 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
         <button class="btn btn-outline" data-act="importSharedToPersonal" id="detailImportBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> <span data-i18n="sharedImport">导入到工作台</span></button>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn btn-outline" data-act="likeShared" id="detailLikeBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span id="detailLikeText">点赞</span></button>
         <button class="btn btn-danger" data-act="delFromDetail" id="detailDelBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg> <span data-i18n="detailDelete">删除</span></button>
       </div>
     </div>
@@ -3143,17 +3147,16 @@ function renderBatchActions(){
     acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchLike" title="${t('batchLike')}">${ic('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>')}<span>${t('batchLike')}</span></button>`);
-    if(isAdmin) acts.push(`<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>`);
   }else{
-    // 个人工作台
+    // 个人工作台（v60：去掉「导入」按钮——导入是 sync-tools 顶部的外部文件导入，不属于批处理）
     acts.push(`<button class="batch-act batch-primary" data-act="batchFav" title="${t('batchFav')}">${ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}<span>${t('batchFav')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchPin" title="${t('batchPin')}">${ic('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>')}<span>${t('batchPin')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
-    acts.push(`<button class="batch-act" data-act="batchImport" title="${t('batchImport')}">${ic('<path d="M3 13v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M12 4v9"/><path d="m8 9 4 4 4-4"/>')}<span>${t('batchImport')}</span></button>`);
   }
   const sep = `<span class="batch-sep"></span>`;
-  const del = (!inShared || isAdmin)
+  // v60：删除仅个人工作台支持（共享池无意义）
+  const del = !inShared
  ? `<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>` : '';
   byId('batchActions').innerHTML = left + sep + acts.join('') + (del ? sep + del : '');
 }
@@ -3856,11 +3859,11 @@ function sharedCardHTML(r, i){
       <p class="ing-summary">${ingLine}</p>
       <div class="card-foot">
         <div class="card-foot-left">
-          <span class="shared-likes"><svg class="ic" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${likeCount}</span>
+          <span class="shared-likes" style="color:#ff3b30"><svg class="ic" viewBox="0 0 24 24" fill="#ff3b30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${likeCount}</span>
         </div>
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
-          <button data-act="likeShared" data-id="${r.id}" class="card-copy ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
+          <button data-act="likeShared" data-id="${r.id}" class="card-copy like-btn ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? '#ff3b30' : 'none'}" stroke="#ff3b30" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
         </div>
       </div>
     </div>
@@ -3937,6 +3940,13 @@ async function likeShared(id){
   }
   r.updatedAt = Date.now();
   saveSharedRecipes();
+  // v60：详情头部点赞按钮同步已赞态
+  if(!byId('detailOverlay').classList.contains('hidden') && currentDetailId === id){
+    const btn = byId('detailLikeBtn');
+    const ic = byId('detailLikeIcon');
+    if(btn) btn.classList.toggle('liked', !liked);
+    if(ic) ic.setAttribute('fill', !liked ? '#ff3b30' : 'none');
+  }
   renderShared();
 }
 
@@ -4204,17 +4214,18 @@ function openDetail(id, workspace, originCard){
   byId('detailPinBtn').style.display = workspace === 'personal' ? '' : 'none';
   byId('detailFavBtn').classList.toggle('favorited', isFaved(r.id));
   byId('detailFavBtn').style.display = workspace === 'personal' ? '' : 'none';
-  // 共享池专属：导入到工作台 + 点赞（个人池隐藏）；编辑/删除仅个人
+  // 共享池专属：详情头部点赞按钮（v60 移到头部右上）；导入到工作台仍在底部
   const importBtn = byId('detailImportBtn');
-  const likeBtn = byId('detailLikeBtn');
   const editBtn = byId('detailEditBtn');
   const delBtn = byId('detailDelBtn');
+  const likeBtn = byId('detailLikeBtn');
   if(importBtn){ importBtn.style.display = workspace === 'shared' ? '' : 'none'; importBtn.dataset.id = id; }
   if(likeBtn){
     likeBtn.style.display = workspace === 'shared' ? '' : 'none';
     likeBtn.dataset.id = id;
-    byId('detailLikeText').textContent = isLiked(r) ? t('liked') : t('like');
     likeBtn.classList.toggle('liked', isLiked(r));
+    const ic = byId('detailLikeIcon');
+    if(ic) ic.setAttribute('fill', isLiked(r) ? '#ff3b30' : 'none');
   }
   if(editBtn) editBtn.style.display = workspace === 'personal' ? '' : 'none';
   if(delBtn) delBtn.style.display = workspace === 'personal' ? '' : 'none';
@@ -5172,12 +5183,12 @@ document.addEventListener('click', async e => {
   if(hapticType) haptic(hapticType);
 });
 
-/* 点击卡片空白处 → 打开详情（批处理模式下切换选中） */
+/* 点击卡片空白处 → 打开详情（批处理模式下切换选中；v60 移除 shared 过滤，三视图均可批处理） */
 byId('recipeGrid').addEventListener('click', e => {
   if(e.target.closest('[data-act]')) return;
   const card = e.target.closest('.recipe-card');
   if(!card) return;
-  if(batchMode && card.dataset.workspace !== 'shared'){ toggleBatchSelect(card.dataset.id); return; }
+  if(batchMode){ toggleBatchSelect(card.dataset.id); return; }
   openDetail(card.dataset.id, card.dataset.workspace || 'personal', card);
 });
 /* 键盘 Enter 打开详情（可访问性；批处理模式下切换选中） */
