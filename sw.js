@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v52：Dock 滑块高亮动画（iOS 26 风格 spring 滑动）+ 拉大 Dock 间距 + 中央+号改纯色；删除顶部收藏夹与登录图标；空状态去白底；详情弹窗 3D 翻转缩放动画（按卡片位置 transform-origin）。
+// v53：收藏夹与用户中心改为页面视图（Dock 导航驱动，非弹窗）；Dock「我」可选中且 label 恒为「我」；滑块高光加大贴合；收藏加入双向同步；我的页含最近浏览/已点赞；详情关闭 480ms 兜底 + 卡片按下联动；按钮外阴影去蓝。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v52';
+const CACHE = 'dessert-v53';
 const SHELL = [
   './',
   './manifest.json',
