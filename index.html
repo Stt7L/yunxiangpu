@@ -263,8 +263,19 @@ button{font-family:inherit}
 @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 .recipe-card:hover{transform:translateY(-5px) scale(1.005);box-shadow:var(--shadow),inset 0 .5px 0 rgba(255,255,255,.9)}
 .recipe-card:active{transform:scale(.985) translateY(-2px)}
-/* 点击卡片打开详情时的"按下"联动反馈 */
-.recipe-card.card-press{transform:scale(.94) translateY(1px);opacity:.88;box-shadow:var(--shadow-sm)}
+/* 点击卡片：从小放大 + 720° 翻转的入场动画（两次 360°） */
+.recipe-card.card-flip{
+  animation:cardFlip .62s cubic-bezier(.34,1.35,.44,1) both;
+  z-index:6;
+}
+@keyframes cardFlip{
+  0%  {transform:perspective(900px) scale(.45) rotateY(0deg);  opacity:.4; filter:brightness(1.5)}
+  35% {transform:perspective(900px) scale(1.06) rotateY(240deg); opacity:1; filter:brightness(1.25)}
+  60% {transform:perspective(900px) scale(1.16) rotateY(480deg); opacity:1}
+  100%{transform:perspective(900px) scale(1) rotateY(720deg);  opacity:1; filter:brightness(1)}
+}
+/* 详情显示后：原卡片隐藏消失 */
+.recipe-card.card-gone{opacity:0;transform:scale(.92);pointer-events:none;transition:opacity .35s var(--ease), transform .35s var(--ease)}
 @media (hover:none){.recipe-card:hover{transform:none;box-shadow:var(--shadow-sm),inset 0 .5px 0 rgba(255,255,255,.8)}}
 .cover{height:132px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .cover .cover-img{width:100%;height:100%;object-fit:cover;display:block}
@@ -363,11 +374,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   box-shadow:0 14px 44px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.45);
   transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
-/* 高亮滑块：定位在 active item 下方，自动滑动（比 item 略大一圈，与 Dock 圆角贴合） */
+/* 高亮滑块：定位在 active item 下方，自动滑动（全圆角胶囊，与 Dock 白底贴合） */
 .dock-indicator{
   position:absolute;
   top:7px;bottom:calc(7px + env(safe-area-inset-bottom));
-  border-radius:20px;
+  border-radius:999px;
   background:rgba(0,113,227,.12);
   box-shadow:inset 0 0 0 1px rgba(0,113,227,.20), inset 0 1px 2px rgba(255,255,255,.6);
   pointer-events:none;
@@ -907,6 +918,17 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .pin-btn.pinned{color:var(--accent);background:var(--accent-soft)}
 .pin-btn.pinned:hover{background:rgba(0,113,227,.14)}
 .pin-btn .ic{width:18px;height:18px}
+/* 详情关闭：圆形填充 + ✕ */
+.detail-x{
+  width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.07);color:var(--text);
+  transition:background .2s var(--ease), transform .15s var(--ease);
+  -webkit-tap-highlight-color:transparent;flex-shrink:0;
+}
+.detail-x:hover{background:rgba(0,0,0,.13)}
+.detail-x:active{transform:scale(.88)}
+.detail-x .ic{width:16px;height:16px;stroke-width:2.2}
 
 /* 封面悬停微缩放（苹果式） */
 .cover .cover-img{transition:transform .6s var(--ease)}
@@ -1336,7 +1358,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
       <div style="display:flex;gap:8px;align-items:center">
         <button class="pin-btn" data-act="togglePin" id="detailPinBtn" data-i18n-title="detailPin" title="置顶/取消置顶" aria-label="置顶"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
         <button class="pin-btn fav-btn" data-act="favPickFromDetail" id="detailFavBtn" data-i18n-title="favPick" title="加入收藏夹" aria-label="加入收藏夹"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-        <button class="btn btn-ghost" data-act="closeDetail" data-i18n="detailClose">关闭</button>
+        <button class="detail-x" data-act="closeDetail" data-i18n-aria="detailClose" aria-label="关闭"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
       </div>
     </div>
     <div class="sheet-body" id="detailBody" style="padding-top:14px"></div>
@@ -1575,6 +1597,36 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- ═════════════ 修改密码弹窗（「我的」页按钮触发） ═════════════ -->
+<div id="ucPwdOverlay" class="overlay hidden">
+  <div class="dialog auth-dialog" style="max-width:380px;text-align:left">
+    <div class="auth-head">
+      <h3 data-i18n="ucPwdDialogTitle">修改密码</h3>
+      <button type="button" class="dialog-x" data-act="ucPwdClose" aria-label="关闭">✕</button>
+    </div>
+    <label class="auth-label" data-i18n="ucOldPwd">当前密码</label>
+    <div class="pwd-wrap">
+      <input id="ucPwdOld" class="input" type="password" autocomplete="current-password">
+      <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucPwdOld" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+    </div>
+    <label class="auth-label" data-i18n="ucNewPwd">新密码</label>
+    <div class="pwd-wrap">
+      <input id="ucPwdNew" class="input" type="password" autocomplete="new-password">
+      <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucPwdNew" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+    </div>
+    <label class="auth-label" data-i18n="authConfirmPassword">确认密码</label>
+    <div class="pwd-wrap">
+      <input id="ucPwdConfirm" class="input" type="password" autocomplete="new-password">
+      <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucPwdConfirm" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+    </div>
+    <p class="auth-hint" id="ucPwdHint"></p>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" data-act="ucPwdClose" data-i18n="ucCancel">取消</button>
+      <button class="btn" data-act="ucPwdSubmit" data-i18n="ucSavePwd">确认修改</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═════════════ 用户中心弹窗（改用户名/改密码/退出） ═════════════ -->
 <div id="userCenterOverlay" class="overlay hidden">
   <div class="dialog uc-dialog">
@@ -1794,7 +1846,7 @@ const I18N = {
   confirmDeleteRecipe:'确定删除「{name}」吗？', confirmDeleteRecipeFallback:'确定删除该食谱吗？',
   ingGroupDefault:'食材清单一', addGroupBtn:'添加分组', ingGroupNamePlaceholder:'分组名称',
   toastGroupAdded:'已添加新分组', toastOneGroupLeft:'至少保留一个食材分组',
-  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', favMgrTitle:'收藏夹', favMgrBtn:'收藏夹', favNew:'新建收藏夹', favRenameTitle:'重命名收藏夹', favRename:'重命名', favDelete:'删除', favPickTitle:'加入收藏夹', favPick:'加入收藏夹', favDefault:'默认收藏', favRecipeCount:'{n} 个配方', favView:'查看', favRemoveRecipe:'取消收藏', favAlbumEmpty:'这个收藏夹还没有配方', favSelIn:'已选 {n}', favEmpty:'还没有收藏夹', favNameEmpty:'请输入收藏夹名称', favNameExists:'收藏夹名称已存在', toastFavAdded:'已加入收藏夹', confirmDeleteFolder:'确定删除收藏夹「{name}」？其中收藏的配方不会被删除', favPickNone:'请先选择要收藏的食谱', favAll:'全部收藏', meNeedLoginTitle:'登录后使用完整功能', meNeedLoginDesc:'登录后可以管理账号、查看最近浏览与已点赞的食谱。', meRecentTitle:'最近浏览', meNoRecent:'暂无浏览记录', meLikedTitle:'已点赞的食谱', meNoLiked:'还没有点赞过共享配方', favEmptyTitle:'还没有收藏', favEmptyDesc:'在食谱卡片或详情页点收藏按钮，把喜欢的配方收进收藏夹。', batchBtn:'批处理', batchTitle:'批量处理（也可长按卡片进入）', batchSelectAll:'全选', batchCancel:'取消', batchCount:'已选 {n}', batchDel:'删除', batchCopy:'复制', batchFav:'收藏', batchPin:'置顶', batchExport:'导出', batchImport:'导入', batchPersonalOnly:'批量处理仅支持个人工作台', batchNone:'请先选择食谱', confirmDeleteBatch:'确定删除选中的 {n} 份食谱？', batchDeleted:'已删除 {n} 份食谱', batchCopied:'已复制 {n} 份食谱', batchPinned:'已置顶 {n} 份食谱', copySuffix:'（副本）', untitled:'未命名', navManage:'管理', ucTitle:'账号管理', ucAccountInfo:'账号信息', ucSecurity:'账号安全', ucSaveUsername:'保存用户名', ucUsernameSaved:'用户名已更新', ucPwdSection:'修改密码', ucOldPwd:'当前密码', ucNewPwd:'新密码', ucSavePwd:'修改密码', ucPwdUpdated:'密码已修改，请重新登录', ucOldPwdWrong:'当前密码不正确', ucOldPwdEmpty:'请输入当前密码', ucLogout:'退出登录', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', authConfirmPassword:'确认密码', authPwdMismatch:'两次输入的密码不一致', showPassword:'显示密码', hidePassword:'隐藏密码', sbRateLimit:'操作太频繁，请等几分钟后再试', sbEmailNotConfirmed:'邮箱尚未验证，请先查收验证邮件', sbAlreadyRegistered:'该邮箱已注册，请直接登录', sbWrongPwd:'邮箱未注册或密码不正确', sbNetworkError:'网络连接失败，请检查网络后重试', sbUserBanned:'该账号已被封禁，请联系管理员', sbUserLocked:'账号已被锁定，请稍后再试', sbPwdTooShort:'密码长度不符合要求', sbSignupNotAllowed:'该邮箱暂不允许注册', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', confirmOk:'确定', navAdmin:'管理后台', viewSingle:'单列视图', viewDouble:'双列视图', toastUpToDate:'已是最新'
+  sbLoadFail:'共享池加载失败：', sbSaveFail:'保存失败：', sbDelFail:'删除失败：', sbSignUpFail:'注册失败：', sbSignInFail:'登录失败：', sbSignOutFail:'退出失败：', sbNotConfigured:'后端未配置，请联系管理员', toastVerifyEmail:'注册成功，请查收验证邮件后登录', toastLoggedIn:'登录成功', toastLoggedOut:'已退出登录', sharedNeedLoginTitle:'登录后查看共享配方池', sharedNeedLoginDesc:'共享配方池是所有人共同维护的配方库，登录后即可浏览、点赞与发布你的配方。', navLogin:'登录', navRegister:'注册', navLogout:'退出', favMgrTitle:'收藏夹', favMgrBtn:'收藏夹', favNew:'新建收藏夹', favRenameTitle:'重命名收藏夹', favRename:'重命名', favDelete:'删除', favPickTitle:'加入收藏夹', favPick:'加入收藏夹', favDefault:'默认收藏', favRecipeCount:'{n} 个配方', favView:'查看', favRemoveRecipe:'取消收藏', favAlbumEmpty:'这个收藏夹还没有配方', favSelIn:'已选 {n}', favEmpty:'还没有收藏夹', favNameEmpty:'请输入收藏夹名称', favNameExists:'收藏夹名称已存在', toastFavAdded:'已加入收藏夹', confirmDeleteFolder:'确定删除收藏夹「{name}」？其中收藏的配方不会被删除', favPickNone:'请先选择要收藏的食谱', favAll:'全部收藏', meNeedLoginTitle:'登录后使用完整功能', meNeedLoginDesc:'登录后可以管理账号、查看最近浏览与已点赞的食谱。', meRecentTitle:'最近浏览', meNoRecent:'暂无浏览记录', meLikedTitle:'已点赞的食谱', meNoLiked:'还没有点赞过共享配方', favEmptyTitle:'还没有收藏', favEmptyDesc:'在食谱卡片或详情页点收藏按钮，把喜欢的配方收进收藏夹。', batchBtn:'批处理', batchTitle:'批量处理（也可长按卡片进入）', batchSelectAll:'全选', batchCancel:'取消', batchCount:'已选 {n}', batchDel:'删除', batchCopy:'复制', batchFav:'收藏', batchPin:'置顶', batchExport:'导出', batchImport:'导入', batchPersonalOnly:'批量处理仅支持个人工作台', batchNone:'请先选择食谱', confirmDeleteBatch:'确定删除选中的 {n} 份食谱？', batchDeleted:'已删除 {n} 份食谱', batchCopied:'已复制 {n} 份食谱', batchPinned:'已置顶 {n} 份食谱', copySuffix:'（副本）', untitled:'未命名', navManage:'管理', ucTitle:'账号管理', ucAccountInfo:'账号信息', ucSecurity:'账号安全', ucSaveUsername:'保存用户名', ucUsernameSaved:'用户名已更新', ucPwdSection:'修改密码', ucOldPwd:'当前密码', ucNewPwd:'新密码', ucSavePwd:'修改密码', ucPwdUpdated:'密码已修改，请重新登录', ucOldPwdWrong:'当前密码不正确', ucOldPwdEmpty:'请输入当前密码', ucLogout:'退出登录', ucEdit:'修改', ucCancel:'取消', ucPwdDialogTitle:'修改密码', authContinue:'继续', authEmail:'邮箱', authUsername:'用户名', authPassword:'密码', authTitle:'账号', authEmailInvalid:'请输入有效的邮箱地址', authPwdShort:'密码至少 6 位', authToRegister:'还没有账号？去注册', authToLogin:'已有账号？去登录', authConfirmPassword:'确认密码', authPwdMismatch:'两次输入的密码不一致', showPassword:'显示密码', hidePassword:'隐藏密码', sbRateLimit:'操作太频繁，请等几分钟后再试', sbEmailNotConfirmed:'邮箱尚未验证，请先查收验证邮件', sbAlreadyRegistered:'该邮箱已注册，请直接登录', sbWrongPwd:'邮箱未注册或密码不正确', sbNetworkError:'网络连接失败，请检查网络后重试', sbUserBanned:'该账号已被封禁，请联系管理员', sbUserLocked:'账号已被锁定，请稍后再试', sbPwdTooShort:'密码长度不符合要求', sbSignupNotAllowed:'该邮箱暂不允许注册', adminTitle:'管理后台', adminRecipes:'配方管理', adminUsers:'用户管理', adminSeedBuiltins:'补全内置配方', adminRecipesCount:'共 {n} 条', adminNoRecipes:'共享池暂无配方', adminLoadingUsers:'加载用户列表中…', adminEdgeMissing:'用户管理接口未部署（请部署 manage-users Edge Function）', adminNoPerm:'无管理员权限', adminRoleAdmin:'管理员', adminRoleUser:'用户', adminBanned:'已封禁', adminMakeAdmin:'设为管理员', adminRevokeAdmin:'取消管理员', adminBan:'封禁', adminUnban:'解封', adminDeleteUser:'删除用户', adminActionFail:'操作失败：', toastDone:'操作成功', confirmOk:'确定', navAdmin:'管理后台', viewSingle:'单列视图', viewDouble:'双列视图', toastUpToDate:'已是最新'
 },
 'ja-JP':{
   appName:'雲享譜', appTagline:'レシピ原価 · 簡単管理', pageTitle:'雲享譜 · レシピ原価管理',
@@ -1894,7 +1946,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」を削除しますか？', confirmDeleteRecipeFallback:'このレシピを削除しますか？',
   ingGroupDefault:'食材リスト1', addGroupBtn:'グループ追加', ingGroupNamePlaceholder:'グループ名',
   toastGroupAdded:'グループを追加しました', toastOneGroupLeft:'食材グループは1つ以上残してください',
-  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', favMgrTitle:'お気に入り', favMgrBtn:'お気に入り', favNew:'新規フォルダ', favRenameTitle:'フォルダ名を変更', favRename:'変更', favDelete:'削除', favPickTitle:'お気に入りに追加', favPick:'お気に入りに追加', favDefault:'デフォルト', favRecipeCount:'{n} 件', favView:'表示', favRemoveRecipe:'お気に入り解除', favAlbumEmpty:'このフォルダは空です', favSelIn:'選択中 {n}', favEmpty:'フォルダがありません', favNameEmpty:'フォルダ名を入力してください', favNameExists:'同名のフォルダがあります', toastFavAdded:'お気に入りに追加しました', confirmDeleteFolder:'フォルダ「{name}」を削除しますか？中のレシピは削除されません', favPickNone:'追加するレシピを選択してください', favAll:'すべてのお気に入り', meNeedLoginTitle:'ログインして全機能を利用', meNeedLoginDesc:'ログインするとアカウント管理・最近見た・いいねしたレシピが利用できます。', meRecentTitle:'最近見た', meNoRecent:'閲覧履歴はありません', meLikedTitle:'いいねしたレシピ', meNoLiked:'共有レシピにいいねしていません', favEmptyTitle:'お気に入りはまだありません', favEmptyDesc:'カードや詳細からお気に入りボタンを押して追加できます。', batchBtn:'一括操作', batchTitle:'一括操作（カード長押しでも開始）', batchSelectAll:'すべて選択', batchCancel:'キャンセル', batchCount:'選択中 {n}', batchDel:'削除', batchCopy:'複製', batchFav:'お気に入り', batchPin:'先頭へ', batchExport:'エクスポート', batchImport:'インポート', batchPersonalOnly:'一括操作はマイキッチンのみ対応', batchNone:'レシピを選択してください', confirmDeleteBatch:'選択した {n} 件のレシピを削除しますか？', batchDeleted:'{n} 件のレシピを削除しました', batchCopied:'{n} 件のレシピを複製しました', batchPinned:'{n} 件を先頭に固定しました', copySuffix:'（コピー）', untitled:'無題', navManage:'管理', ucTitle:'アカウント管理', ucAccountInfo:'アカウント情報', ucSecurity:'セキュリティ', ucSaveUsername:'名前を保存', ucUsernameSaved:'ユーザー名を更新しました', ucPwdSection:'パスワード変更', ucOldPwd:'現在のパスワード', ucNewPwd:'新しいパスワード', ucSavePwd:'パスワードを変更', ucPwdUpdated:'パスワードを変更しました。再ログインしてください', ucOldPwdWrong:'現在のパスワードが正しくありません', ucOldPwdEmpty:'現在のパスワードを入力してください', ucLogout:'ログアウト', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', authConfirmPassword:'パスワード（確認）', authPwdMismatch:'パスワードが一致しません', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す', sbRateLimit:'操作が多すぎます。数分後にお試しください', sbEmailNotConfirmed:'メールが未確認です。確認メールをご確認ください', sbAlreadyRegistered:'このメールは登録済みです。ログインしてください', sbWrongPwd:'メール未登録またはパスワードが正しくありません', sbNetworkError:'ネットワーク接続に失敗しました。通信環境をご確認ください', sbUserBanned:'このアカウントは停止されています。管理者にお問い合わせください', sbUserLocked:'アカウントがロックされました。しばらくしてからお試しください', sbPwdTooShort:'パスワードの長さが要件を満たしていません', sbSignupNotAllowed:'このメールでの登録は許可されていません', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', confirmOk:'OK', navAdmin:'管理画面', viewSingle:'1列表示', viewDouble:'2列表示', toastUpToDate:'最新です'
+  sbLoadFail:'共有プールの読み込み失敗：', sbSaveFail:'保存失敗：', sbDelFail:'削除失敗：', sbSignUpFail:'登録失敗：', sbSignInFail:'ログイン失敗：', sbSignOutFail:'ログアウト失敗：', sbNotConfigured:'バックエンド未設定、管理者に連絡', toastVerifyEmail:'登録完了。確認メールを確認してログイン', toastLoggedIn:'ログインしました', toastLoggedOut:'ログアウトしました', sharedNeedLoginTitle:'ログインして共有プールを表示', sharedNeedLoginDesc:'共有プールはみんなで維持するレシピライブラリです。ログインすると閲覧・いいね・公開できます。', navLogin:'ログイン', navRegister:'登録', navLogout:'ログアウト', favMgrTitle:'お気に入り', favMgrBtn:'お気に入り', favNew:'新規フォルダ', favRenameTitle:'フォルダ名を変更', favRename:'変更', favDelete:'削除', favPickTitle:'お気に入りに追加', favPick:'お気に入りに追加', favDefault:'デフォルト', favRecipeCount:'{n} 件', favView:'表示', favRemoveRecipe:'お気に入り解除', favAlbumEmpty:'このフォルダは空です', favSelIn:'選択中 {n}', favEmpty:'フォルダがありません', favNameEmpty:'フォルダ名を入力してください', favNameExists:'同名のフォルダがあります', toastFavAdded:'お気に入りに追加しました', confirmDeleteFolder:'フォルダ「{name}」を削除しますか？中のレシピは削除されません', favPickNone:'追加するレシピを選択してください', favAll:'すべてのお気に入り', meNeedLoginTitle:'ログインして全機能を利用', meNeedLoginDesc:'ログインするとアカウント管理・最近見た・いいねしたレシピが利用できます。', meRecentTitle:'最近見た', meNoRecent:'閲覧履歴はありません', meLikedTitle:'いいねしたレシピ', meNoLiked:'共有レシピにいいねしていません', favEmptyTitle:'お気に入りはまだありません', favEmptyDesc:'カードや詳細からお気に入りボタンを押して追加できます。', batchBtn:'一括操作', batchTitle:'一括操作（カード長押しでも開始）', batchSelectAll:'すべて選択', batchCancel:'キャンセル', batchCount:'選択中 {n}', batchDel:'削除', batchCopy:'複製', batchFav:'お気に入り', batchPin:'先頭へ', batchExport:'エクスポート', batchImport:'インポート', batchPersonalOnly:'一括操作はマイキッチンのみ対応', batchNone:'レシピを選択してください', confirmDeleteBatch:'選択した {n} 件のレシピを削除しますか？', batchDeleted:'{n} 件のレシピを削除しました', batchCopied:'{n} 件のレシピを複製しました', batchPinned:'{n} 件を先頭に固定しました', copySuffix:'（コピー）', untitled:'無題', navManage:'管理', ucTitle:'アカウント管理', ucAccountInfo:'アカウント情報', ucSecurity:'セキュリティ', ucSaveUsername:'名前を保存', ucUsernameSaved:'ユーザー名を更新しました', ucPwdSection:'パスワード変更', ucOldPwd:'現在のパスワード', ucNewPwd:'新しいパスワード', ucSavePwd:'パスワードを変更', ucPwdUpdated:'パスワードを変更しました。再ログインしてください', ucOldPwdWrong:'現在のパスワードが正しくありません', ucOldPwdEmpty:'現在のパスワードを入力してください', ucLogout:'ログアウト', ucEdit:'変更', ucCancel:'キャンセル', ucPwdDialogTitle:'パスワード変更', authContinue:'次へ', authEmail:'メール', authUsername:'ユーザー名', authPassword:'パスワード', authTitle:'アカウント', authEmailInvalid:'有効なメールを入力', authPwdShort:'パスワードは6文字以上', authToRegister:'アカウントをお持ちでない方はこちらで登録', authToLogin:'アカウントをお持ちの方はこちらでログイン', authConfirmPassword:'パスワード（確認）', authPwdMismatch:'パスワードが一致しません', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す', sbRateLimit:'操作が多すぎます。数分後にお試しください', sbEmailNotConfirmed:'メールが未確認です。確認メールをご確認ください', sbAlreadyRegistered:'このメールは登録済みです。ログインしてください', sbWrongPwd:'メール未登録またはパスワードが正しくありません', sbNetworkError:'ネットワーク接続に失敗しました。通信環境をご確認ください', sbUserBanned:'このアカウントは停止されています。管理者にお問い合わせください', sbUserLocked:'アカウントがロックされました。しばらくしてからお試しください', sbPwdTooShort:'パスワードの長さが要件を満たしていません', sbSignupNotAllowed:'このメールでの登録は許可されていません', adminTitle:'管理コンソール', adminRecipes:'レシピ管理', adminUsers:'ユーザー管理', adminSeedBuiltins:'内蔵レシピを追加', adminRecipesCount:'合計 {n} 件', adminNoRecipes:'共有プールは空', adminLoadingUsers:'ユーザー読み込み中…', adminEdgeMissing:'ユーザー管理API未配備（manage-users Edge Functionを配備）', adminNoPerm:'管理者権限なし', adminRoleAdmin:'管理者', adminRoleUser:'ユーザー', adminBanned:'停止中', adminMakeAdmin:'管理者に設定', adminRevokeAdmin:'管理者解除', adminBan:'停止', adminUnban:'解除', adminDeleteUser:'ユーザー削除', adminActionFail:'操作失敗：', toastDone:'完了', confirmOk:'OK', navAdmin:'管理画面', viewSingle:'1列表示', viewDouble:'2列表示', toastUpToDate:'最新です'
 },
 'ko-KR':{
   appName:'운샹푸', appTagline:'레시피 원가 · 쉬운 관리', pageTitle:'운샹푸 · 레시피 원가 관리',
@@ -1994,7 +2046,7 @@ const I18N = {
   confirmDeleteRecipe:'「{name}」을(를) 삭제하시겠습니까?', confirmDeleteRecipeFallback:'이 레시피를 삭제하시겠습니까?',
   ingGroupDefault:'재료 목록1', addGroupBtn:'그룹 추가', ingGroupNamePlaceholder:'그룹 이름',
   toastGroupAdded:'그룹이 추가되었습니다', toastOneGroupLeft:'재료 그룹은 최소 1개 남겨주세요',
-  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', favMgrTitle:'즐겨찾기', favMgrBtn:'즐겨찾기', favNew:'새 폴더', favRenameTitle:'폴더 이름 변경', favRename:'변경', favDelete:'삭제', favPickTitle:'즐겨찾기에 추가', favPick:'즐겨찾기에 추가', favDefault:'기본', favRecipeCount:'{n}개', favView:'보기', favRemoveRecipe:'즐겨찾기 해제', favAlbumEmpty:'이 폴���는 비어 있습니다', favSelIn:'선택 {n}', favEmpty:'폴더가 없습니다', favNameEmpty:'폴더 이름을 입력하세요', favNameExists:'같은 이름의 폴더가 있습니다', toastFavAdded:'즐겨찾기에 추가했습니다', confirmDeleteFolder:'폴더 「{name}」을(를) 삭제할까요? 안의 레시피는 삭제되지 않습니다', favPickNone:'추가할 레시피를 선택하세요', favAll:'전체 즐겨찾기', meNeedLoginTitle:'로그인 후 전체 기능 사용', meNeedLoginDesc:'로그인하면 계정 관리, 최근 본 레시피, 좋아요한 레시피를 사용할 수 있습니다.', meRecentTitle:'최근 본', meNoRecent:'기록이 없습니다', meLikedTitle:'좋아요한 레시피', meNoLiked:'공유 레시피에 좋아요가 없습니다', favEmptyTitle:'즐겨찾기가 없습니다', favEmptyDesc:'카드나 상세에서 즐겨찾기 버튼을 눌러 추가하세요.', batchBtn:'일괄 처리', batchTitle:'일괄 처리（카드 길게 누르기로도 시작）', batchSelectAll:'전체 선택', batchCancel:'취소', batchCount:'선택 {n}', batchDel:'삭제', batchCopy:'복사', batchFav:'즐겨찾기', batchPin:'상단 고정', batchExport:'내보내기', batchImport:'가져오기', batchPersonalOnly:'일괄 처리는 내 키친에서만 가능', batchNone:'레시피를 선택하세요', confirmDeleteBatch:'선택한 {n}개의 레시피를 삭제할까요?', batchDeleted:'{n}개의 레시피를 삭제했습니다', batchCopied:'{n}개의 레시피를 복사했습니다', batchPinned:'{n}개를 상단에 고정했습니다', copySuffix:'（사본）', untitled:'제목 없음', navManage:'관리', ucTitle:'계정 관리', ucAccountInfo:'계정 정보', ucSecurity:'보안', ucSaveUsername:'이름 저장', ucUsernameSaved:'사용자명을 업데이트했습니다', ucPwdSection:'비밀번호 변경', ucOldPwd:'현재 비밀번호', ucNewPwd:'새 비밀번호', ucSavePwd:'비밀번호 변경', ucPwdUpdated:'비밀번호가 변경되었습니다. 다시 로그인하세요', ucOldPwdWrong:'현재 비밀번호가 올바르지 않습니다', ucOldPwdEmpty:'현재 비밀번호를 입력하세요', ucLogout:'로그아웃', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', authConfirmPassword:'비밀번호 확인', authPwdMismatch:'비밀번호가 일치하지 않습니다', showPassword:'비밀번호 표시', hidePassword:'비밀번호 숨기기', sbRateLimit:'요청이 너무 잦습니다. 잠시 후 다시 시도하세요', sbEmailNotConfirmed:'이메일이 확인되지 않았습니다. 확인 메일을 확인하세요', sbAlreadyRegistered:'이미 가입된 이메일입니다. 로그인하세요', sbWrongPwd:'이메일 미가입 또는 비밀번호가 올바르지 않습니다', sbNetworkError:'네트워크 연결에 실패했습니다. 네트워크를 확인 후 다시 시도하세요', sbUserBanned:'이 계정은 정지되었습니다. 관리자에게 문의하세요', sbUserLocked:'계정이 잠겼습니다. 잠시 후 다시 시도하세요', sbPwdTooShort:'비밀번호 길이가 요구 사항에 맞지 않습니다', sbSignupNotAllowed:'이 이메일로는 가입할 수 없습니다', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', confirmOk:'확인', navAdmin:'관리자 페이지', viewSingle:'1열 보기', viewDouble:'2열 보기', toastUpToDate:'최신 상태'
+  sbLoadFail:'공유 풀 로드 실패: ', sbSaveFail:'저장 실패: ', sbDelFail:'삭제 실패: ', sbSignUpFail:'가입 실패: ', sbSignInFail:'로그인 실패: ', sbSignOutFail:'로그아웃 실패: ', sbNotConfigured:'백엔드 미설정, 관리자에게 문의', toastVerifyEmail:'가입 완료. 확인 메일을 확인 후 로그인하세요', toastLoggedIn:'로그인됨', toastLoggedOut:'로그아웃됨', sharedNeedLoginTitle:'로그인 후 공유 풀 보기', sharedNeedLoginDesc:'공유 풀은 모두가 함께 관리하는 레시피 라이브러리입니다. 로그인하면 열람·좋아요·게시가 가능합니다.', navLogin:'로그인', navRegister:'가입', navLogout:'로그아웃', favMgrTitle:'즐겨찾기', favMgrBtn:'즐겨찾기', favNew:'새 폴더', favRenameTitle:'폴더 이름 변경', favRename:'변경', favDelete:'삭제', favPickTitle:'즐겨찾기에 추가', favPick:'즐겨찾기에 추가', favDefault:'기본', favRecipeCount:'{n}개', favView:'보기', favRemoveRecipe:'즐겨찾기 해제', favAlbumEmpty:'이 폴���는 비어 있습니다', favSelIn:'선택 {n}', favEmpty:'폴더가 없습니다', favNameEmpty:'폴더 이름을 입력하세요', favNameExists:'같은 이름의 폴더가 있습니다', toastFavAdded:'즐겨찾기에 추가했습니다', confirmDeleteFolder:'폴더 「{name}」을(를) 삭제할까요? 안의 레시피는 삭제되지 않습니다', favPickNone:'추가할 레시피를 선택하세요', favAll:'전체 즐겨찾기', meNeedLoginTitle:'로그인 후 전체 기능 사용', meNeedLoginDesc:'로그인하면 계정 관리, 최근 본 레시피, 좋아요한 레시피를 사용할 수 있습니다.', meRecentTitle:'최근 본', meNoRecent:'기록이 없습니다', meLikedTitle:'좋아요한 레시피', meNoLiked:'공유 레시피에 좋아요가 없습니다', favEmptyTitle:'즐겨찾기가 없습니다', favEmptyDesc:'카드나 상세에서 즐겨찾기 버튼을 눌러 추가하세요.', batchBtn:'일괄 처리', batchTitle:'일괄 처리（카드 길게 누르기로도 시작）', batchSelectAll:'전체 선택', batchCancel:'취소', batchCount:'선택 {n}', batchDel:'삭제', batchCopy:'복사', batchFav:'즐겨찾기', batchPin:'상단 고정', batchExport:'내보내기', batchImport:'가져오기', batchPersonalOnly:'일괄 처리는 내 키친에서만 가능', batchNone:'레시피를 선택하세요', confirmDeleteBatch:'선택한 {n}개의 레시피를 삭제할까요?', batchDeleted:'{n}개의 레시피를 삭제했습니다', batchCopied:'{n}개의 레시피를 복사했습니다', batchPinned:'{n}개를 상단에 고정했습니다', copySuffix:'（사본）', untitled:'제목 없음', navManage:'관리', ucTitle:'계정 관리', ucAccountInfo:'계정 정보', ucSecurity:'보안', ucSaveUsername:'이름 저장', ucUsernameSaved:'사용자명을 업데이트했습니다', ucPwdSection:'비밀번호 변경', ucOldPwd:'현재 비밀번호', ucNewPwd:'새 비밀번호', ucSavePwd:'비밀번호 변경', ucPwdUpdated:'비밀번호가 변경되었습니다. 다시 로그인하세요', ucOldPwdWrong:'현재 비밀번호가 올바르지 않습니다', ucOldPwdEmpty:'현재 비밀번호를 입력하세요', ucLogout:'로그아웃', ucEdit:'수정', ucCancel:'취소', ucPwdDialogTitle:'비밀번호 변경', authContinue:'계속', authEmail:'이메일', authUsername:'사용자명', authPassword:'비밀번호', authTitle:'계정', authEmailInvalid:'유효한 이메일을 입력하세요', authPwdShort:'비밀번호는 6자 이상', authToRegister:'계정이 없으신가요? 가입하기', authToLogin:'이미 계정이 있으신가요? 로그인', authConfirmPassword:'비밀번호 확인', authPwdMismatch:'비밀번호가 일치하지 않습니다', showPassword:'비밀번호 표시', hidePassword:'비밀번호 숨기기', sbRateLimit:'요청이 너무 잦습니다. 잠시 후 다시 시도하세요', sbEmailNotConfirmed:'이메일이 확인되지 않았습니다. 확인 메일을 확인하세요', sbAlreadyRegistered:'이미 가입된 이메일입니다. 로그인하세요', sbWrongPwd:'이메일 미가입 또는 비밀번호가 올바르지 않습니다', sbNetworkError:'네트워크 연결에 실패했습니다. 네트워크를 확인 후 다시 시도하세요', sbUserBanned:'이 계정은 정지되었습니다. 관리자에게 문의하세요', sbUserLocked:'계정이 잠겼습니다. 잠시 후 다시 시도하세요', sbPwdTooShort:'비밀번호 길이가 요구 사항에 맞지 않습니다', sbSignupNotAllowed:'이 이메일로는 가입할 수 없습니다', adminTitle:'관리 콘솔', adminRecipes:'레시피 관리', adminUsers:'사용자 관리', adminSeedBuiltins:'내장 레시피 추가', adminRecipesCount:'총 {n}개', adminNoRecipes:'공유 풀이 비어 있음', adminLoadingUsers:'사용자 로드 중…', adminEdgeMissing:'사용자 관리 API 미배포(manage-users Edge Function 배포)', adminNoPerm:'관리자 권한 없음', adminRoleAdmin:'관리자', adminRoleUser:'사용자', adminBanned:'정지됨', adminMakeAdmin:'관리자 지정', adminRevokeAdmin:'관리자 해제', adminBan:'정지', adminUnban:'해제', adminDeleteUser:'사용자 삭제', adminActionFail:'작업 실패: ', toastDone:'완료', confirmOk:'확인', navAdmin:'관리자 페이지', viewSingle:'1열 보기', viewDouble:'2열 보기', toastUpToDate:'최신 상태'
 },
 'en-US':{
   appName:'YunXiangPu', appTagline:'Recipe Cost · Made Simple', pageTitle:'YunXiangPu · Recipe Cost Manager',
@@ -2094,7 +2146,7 @@ const I18N = {
   confirmDeleteRecipe:'Delete 「{name}」?', confirmDeleteRecipeFallback:'Delete this recipe?',
   ingGroupDefault:'Ingredients 1', addGroupBtn:'Add group', ingGroupNamePlaceholder:'Group name',
   toastGroupAdded:'Group added', toastOneGroupLeft:'Keep at least one ingredient group',
-  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', favMgrTitle:'Favorites', favMgrBtn:'Favorites', favNew:'New folder', favRenameTitle:'Rename folder', favRename:'Rename', favDelete:'Delete', favPickTitle:'Add to favorites', favPick:'Add to favorites', favDefault:'Default', favRecipeCount:'{n} recipes', favView:'View', favRemoveRecipe:'Remove', favAlbumEmpty:'No recipes in this folder', favSelIn:'{n} selected', favEmpty:'No folders yet', favNameEmpty:'Please enter a folder name', favNameExists:'A folder with this name already exists', toastFavAdded:'Added to favorites', confirmDeleteFolder:'Delete folder "{name}"? The recipes inside will not be deleted', favPickNone:'Please select recipes to favorite', favAll:'All favorites', meNeedLoginTitle:'Sign in to unlock full features', meNeedLoginDesc:'Sign in to manage your account and view recently viewed & liked recipes.', meRecentTitle:'Recently viewed', meNoRecent:'No browsing history', meLikedTitle:'Liked recipes', meNoLiked:'You have not liked any shared recipes', favEmptyTitle:'No favorites yet', favEmptyDesc:'Tap the favorite button on a card or detail page to add recipes here.', batchBtn:'Batch', batchTitle:'Batch mode (or long-press a card)', batchSelectAll:'Select all', batchCancel:'Cancel', batchCount:'{n} selected', batchDel:'Delete', batchCopy:'Copy', batchFav:'Favorite', batchPin:'Pin', batchExport:'Export', batchImport:'Import', batchPersonalOnly:'Batch mode works in My Kitchen only', batchNone:'Please select recipes first', confirmDeleteBatch:'Delete the {n} selected recipes?', batchDeleted:'Deleted {n} recipes', batchCopied:'Copied {n} recipes', batchPinned:'Pinned {n} recipes', copySuffix:' (copy)', untitled:'Untitled', navManage:'Manage', ucTitle:'Account', ucAccountInfo:'Account info', ucSecurity:'Security', ucSaveUsername:'Save name', ucUsernameSaved:'Username updated', ucPwdSection:'Change password', ucOldPwd:'Current password', ucNewPwd:'New password', ucSavePwd:'Change password', ucPwdUpdated:'Password changed. Please sign in again', ucOldPwdWrong:'Current password is incorrect', ucOldPwdEmpty:'Please enter your current password', ucLogout:'Sign out', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', authConfirmPassword:'Confirm password', authPwdMismatch:'Passwords do not match', showPassword:'Show password', hidePassword:'Hide password', sbRateLimit:'Too many attempts. Please try again in a few minutes', sbEmailNotConfirmed:'Email not confirmed yet. Please check your inbox', sbAlreadyRegistered:'This email is already registered. Please sign in', sbWrongPwd:'Email not registered or incorrect password', sbNetworkError:'Network error. Please check your connection and retry', sbUserBanned:'This account has been banned. Please contact the admin', sbUserLocked:'Account locked. Please try again later', sbPwdTooShort:'Password does not meet length requirements', sbSignupNotAllowed:'Signup not allowed for this email', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', confirmOk:'OK', navAdmin:'Admin', viewSingle:'Single column', viewDouble:'Two columns', toastUpToDate:'Already up to date'
+  sbLoadFail:'Shared pool load failed: ', sbSaveFail:'Save failed: ', sbDelFail:'Delete failed: ', sbSignUpFail:'Sign up failed: ', sbSignInFail:'Sign in failed: ', sbSignOutFail:'Sign out failed: ', sbNotConfigured:'Backend not configured, please contact admin', toastVerifyEmail:'Signed up. Please verify your email then sign in', toastLoggedIn:'Signed in', toastLoggedOut:'Signed out', sharedNeedLoginTitle:'Sign in to view the shared pool', sharedNeedLoginDesc:'The shared pool is a recipe library maintained by everyone. Sign in to browse, like and publish your recipes.', navLogin:'Sign in', navRegister:'Sign up', navLogout:'Sign out', favMgrTitle:'Favorites', favMgrBtn:'Favorites', favNew:'New folder', favRenameTitle:'Rename folder', favRename:'Rename', favDelete:'Delete', favPickTitle:'Add to favorites', favPick:'Add to favorites', favDefault:'Default', favRecipeCount:'{n} recipes', favView:'View', favRemoveRecipe:'Remove', favAlbumEmpty:'No recipes in this folder', favSelIn:'{n} selected', favEmpty:'No folders yet', favNameEmpty:'Please enter a folder name', favNameExists:'A folder with this name already exists', toastFavAdded:'Added to favorites', confirmDeleteFolder:'Delete folder "{name}"? The recipes inside will not be deleted', favPickNone:'Please select recipes to favorite', favAll:'All favorites', meNeedLoginTitle:'Sign in to unlock full features', meNeedLoginDesc:'Sign in to manage your account and view recently viewed & liked recipes.', meRecentTitle:'Recently viewed', meNoRecent:'No browsing history', meLikedTitle:'Liked recipes', meNoLiked:'You have not liked any shared recipes', favEmptyTitle:'No favorites yet', favEmptyDesc:'Tap the favorite button on a card or detail page to add recipes here.', batchBtn:'Batch', batchTitle:'Batch mode (or long-press a card)', batchSelectAll:'Select all', batchCancel:'Cancel', batchCount:'{n} selected', batchDel:'Delete', batchCopy:'Copy', batchFav:'Favorite', batchPin:'Pin', batchExport:'Export', batchImport:'Import', batchPersonalOnly:'Batch mode works in My Kitchen only', batchNone:'Please select recipes first', confirmDeleteBatch:'Delete the {n} selected recipes?', batchDeleted:'Deleted {n} recipes', batchCopied:'Copied {n} recipes', batchPinned:'Pinned {n} recipes', copySuffix:' (copy)', untitled:'Untitled', navManage:'Manage', ucTitle:'Account', ucAccountInfo:'Account info', ucSecurity:'Security', ucSaveUsername:'Save name', ucUsernameSaved:'Username updated', ucPwdSection:'Change password', ucOldPwd:'Current password', ucNewPwd:'New password', ucSavePwd:'Change password', ucPwdUpdated:'Password changed. Please sign in again', ucOldPwdWrong:'Current password is incorrect', ucOldPwdEmpty:'Please enter your current password', ucLogout:'Sign out', ucEdit:'Edit', ucCancel:'Cancel', ucPwdDialogTitle:'Change password', authContinue:'Continue', authEmail:'Email', authUsername:'Username', authPassword:'Password', authTitle:'Account', authEmailInvalid:'Please enter a valid email', authPwdShort:'Password must be at least 6 characters', authToRegister:'No account yet? Sign up', authToLogin:'Already have an account? Sign in', authConfirmPassword:'Confirm password', authPwdMismatch:'Passwords do not match', showPassword:'Show password', hidePassword:'Hide password', sbRateLimit:'Too many attempts. Please try again in a few minutes', sbEmailNotConfirmed:'Email not confirmed yet. Please check your inbox', sbAlreadyRegistered:'This email is already registered. Please sign in', sbWrongPwd:'Email not registered or incorrect password', sbNetworkError:'Network error. Please check your connection and retry', sbUserBanned:'This account has been banned. Please contact the admin', sbUserLocked:'Account locked. Please try again later', sbPwdTooShort:'Password does not meet length requirements', sbSignupNotAllowed:'Signup not allowed for this email', adminTitle:'Admin Console', adminRecipes:'Recipe Management', adminUsers:'User Management', adminSeedBuiltins:'Add built-in recipes', adminRecipesCount:'{n} total', adminNoRecipes:'Shared pool is empty', adminLoadingUsers:'Loading users…', adminEdgeMissing:'User management API not deployed (deploy the manage-users Edge Function)', adminNoPerm:'No admin permission', adminRoleAdmin:'Admin', adminRoleUser:'User', adminBanned:'Banned', adminMakeAdmin:'Make admin', adminRevokeAdmin:'Revoke admin', adminBan:'Ban', adminUnban:'Unban', adminDeleteUser:'Delete user', adminActionFail:'Action failed: ', toastDone:'Done', confirmOk:'OK', navAdmin:'Admin', viewSingle:'Single column', viewDouble:'Two columns', toastUpToDate:'Already up to date'
 },
 'th-TH':{
   appName:'หยุนเซียงผู่', appTagline:'ต้นทุนสูตร · จัดการง่าย', pageTitle:'หยุนเซียงผู่ · จัดการต้นทุนสูตร',
@@ -2194,7 +2246,7 @@ const I18N = {
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
-  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', favMgrTitle:'รายการโปรด', favMgrBtn:'รายการโปรด', favNew:'โฟลเดอร์ใหม่', favRenameTitle:'เปลี่ยนชื่อโฟลเดอร์', favRename:'เปลี่ยนชื่อ', favDelete:'ลบ', favPickTitle:'เพิ่มในรายการโปรด', favPick:'เพิ่มในรายการโปรด', favDefault:'ค่าเริ่มต้น', favRecipeCount:'{n} สูตร', favView:'ดู', favRemoveRecipe:'นำออก', favAlbumEmpty:'โฟลเดอร์นี้ว่างเปล่า', favSelIn:'เลือก {n}', favEmpty:'ยังไม่มีโฟลเดอร์', favNameEmpty:'กรุณาใส่ชื่อโฟลเดอร์', favNameExists:'มีโฟลเดอร์ชื่อนี้อยู่แล้ว', toastFavAdded:'เพิ่มในรายการโปรดแล้ว', confirmDeleteFolder:'ลบโฟลเดอร์ «{name}» หรือไม่? สูตรข้างในจะไม่ถูกลบ', favPickNone:'กรุณาเลือกสูตรที่จะเพิ่ม', favAll:'รายการโปรดทั้งหมด', meNeedLoginTitle:'เข้าสู่ระบบเพื่อใช้ฟีเจอร์เต็มรูปแบบ', meNeedLoginDesc:'เข้าสู่ระบบเพื่อจัดการบัญชีและดูสูตรที่เพิ่งดู/กดไลก์', meRecentTitle:'เพิ่งดู', meNoRecent:'ไม่มีประวัติการดู', meLikedTitle:'สูตรที่กดไลก์', meNoLiked:'ยังไม่เคยกดไลก์สูตรแชร์', favEmptyTitle:'ยังไม่มีรายการโปรด', favEmptyDesc:'กดปุ่มรายการโปรดบนการ์ดหรือหน้ารายละเอียดเพื่อเพิ่มสูตร', batchBtn:'จัดการหลายรายการ', batchTitle:'จัดการหลายรายการ（กดค้างที่การ์ดได้ด้วย）', batchSelectAll:'เลือกทั้งหมด', batchCancel:'ยกเลิก', batchCount:'เลือก {n}', batchDel:'ลบ', batchCopy:'คัดลอก', batchFav:'โปรด', batchPin:'ปักหมุด', batchExport:'ส่งออก', batchImport:'นำเข้า', batchPersonalOnly:'จัดการหลายรายการใช้ได้เฉพาะคิชชันส่วนตัว', batchNone:'กรุณาเลือกสูตรก่อน', confirmDeleteBatch:'ลบสูตรที่เลือก {n} รายการหรือไม่?', batchDeleted:'ลบสูตร {n} รายการแล้ว', batchCopied:'คัดลอกสูตร {n} รายการแล้ว', batchPinned:'ปักหมุด {n} รายการแล้ว', copySuffix:' (สำเนา)', untitled:'ไม่มีชื่อ', navManage:'จัดการ', ucTitle:'จัดการบัญชี', ucAccountInfo:'ข้อมูลบัญชี', ucSecurity:'ความปลอดภัย', ucSaveUsername:'บันทึกชื่อ', ucUsernameSaved:'อัปเดตชื่อผู้ใช้แล้ว', ucPwdSection:'เปลี่ยนรหัสผ่าน', ucOldPwd:'รหัสผ่านปัจจุบัน', ucNewPwd:'รหัสผ่านใหม่', ucSavePwd:'เปลี่ยนรหัสผ่าน', ucPwdUpdated:'เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่', ucOldPwdWrong:'รหัสผ่านปัจจุบันไม่ถูกต้อง', ucOldPwdEmpty:'กรุณาใส่รหัสผ่านปัจจุบัน', ucLogout:'ออกจากระบบ', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', authConfirmPassword:'ยืนยันรหัสผ่าน', authPwdMismatch:'รหัสผ่านไม่ตรงกัน', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน', sbRateLimit:'พยายามบ่อยเกินไป กรุณาลองใหม่ในอีกไม่กี่นาที', sbEmailNotConfirmed:'ยังไม่ยืนยันอีเมล กรุณาตรวจสอบอีเมลยืนยัน', sbAlreadyRegistered:'อีเมลนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ', sbWrongPwd:'อีเมลยังไม่ได้ลงทะเบียนหรือรหัสผ่านไม่ถูกต้อง', sbNetworkError:'การเชื่อมต่อเครือข่ายล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', sbUserBanned:'บัญชีนี้ถูกระงับ กรุณาติดต่อแอดมิน', sbUserLocked:'บัญชีถูกล็อก กรุณาลองใหม่ในภายหลัง', sbPwdTooShort:'รหัสผ่านไม่เป็นไปตามข้อกำหนด', sbSignupNotAllowed:'อีเมลนี้ไม่อนุญาตให้สมัคร', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', confirmOk:'ตกลง', navAdmin:'แผงผู้ดูแล', viewSingle:'หนึ่งคอลัมน์', viewDouble:'สองคอลัมน์', toastUpToDate:'เป็นปัจจุบันแล้ว'
+  sbLoadFail:'โหลดพูลแชร์ล้มเหลว: ', sbSaveFail:'บันทึกล้มเหลว: ', sbDelFail:'ลบล้มเหลว: ', sbSignUpFail:'สมัครล้มเหลว: ', sbSignInFail:'เข้าสู่ระบบล้มเหลว: ', sbSignOutFail:'ออกจากระบบล้มเหลว: ', sbNotConfigured:'ยังไม่ได้ตั้งค่าแบ็กเอนด์ กรุณาติดต่อแอดมิน', toastVerifyEmail:'สมัครสำเร็จ โปรดตรวจสอบอีเมลยืนยันแล้วเข้าสู่ระบบ', toastLoggedIn:'เข้าสู่ระบบแล้ว', toastLoggedOut:'ออกจากระบบแล้ว', sharedNeedLoginTitle:'เข้าสู่ระบบเพื่อดูพูลสูตรแชร์', sharedNeedLoginDesc:'พูลสูตรแชร์คือคลังสูตรที่ทุกคนช่วยดูแล เข้าสู่ระบบเพื่อดู ไลก์ และเผยแพร่สูตรของคุณ', navLogin:'เข้าสู่ระบบ', navRegister:'สมัคร', navLogout:'ออกจากระบบ', favMgrTitle:'รายการโปรด', favMgrBtn:'รายการโปรด', favNew:'โฟลเดอร์ใหม่', favRenameTitle:'เปลี่ยนชื่อโฟลเดอร์', favRename:'เปลี่ยนชื่อ', favDelete:'ลบ', favPickTitle:'เพิ่มในรายการโปรด', favPick:'เพิ่มในรายการโปรด', favDefault:'ค่าเริ่มต้น', favRecipeCount:'{n} สูตร', favView:'ดู', favRemoveRecipe:'นำออก', favAlbumEmpty:'โฟลเดอร์นี้ว่างเปล่า', favSelIn:'เลือก {n}', favEmpty:'ยังไม่มีโฟลเดอร์', favNameEmpty:'กรุณาใส่ชื่อโฟลเดอร์', favNameExists:'มีโฟลเดอร์ชื่อนี้อยู่แล้ว', toastFavAdded:'เพิ่มในรายการโปรดแล้ว', confirmDeleteFolder:'ลบโฟลเดอร์ «{name}» หรือไม่? สูตรข้างในจะไม่ถูกลบ', favPickNone:'กรุณาเลือกสูตรที่จะเพิ่ม', favAll:'รายการโปรดทั้งหมด', meNeedLoginTitle:'เข้าสู่ระบบเพื่อใช้ฟีเจอร์เต็มรูปแบบ', meNeedLoginDesc:'เข้าสู่ระบบเพื่อจัดการบัญชีและดูสูตรที่เพิ่งดู/กดไลก์', meRecentTitle:'เพิ่งดู', meNoRecent:'ไม่มีประวัติการดู', meLikedTitle:'สูตรที่กดไลก์', meNoLiked:'ยังไม่เคยกดไลก์สูตรแชร์', favEmptyTitle:'ยังไม่มีรายการโปรด', favEmptyDesc:'กดปุ่มรายการโปรดบนการ์ดหรือหน้ารายละเอียดเพื่อเพิ่มสูตร', batchBtn:'จัดการหลายรายการ', batchTitle:'จัดการหลายรายการ（กดค้างที่การ์ดได้ด้วย）', batchSelectAll:'เลือกทั้งหมด', batchCancel:'ยกเลิก', batchCount:'เลือก {n}', batchDel:'ลบ', batchCopy:'คัดลอก', batchFav:'โปรด', batchPin:'ปักหมุด', batchExport:'ส่งออก', batchImport:'นำเข้า', batchPersonalOnly:'จัดการหลายรายการใช้ได้เฉพาะคิชชันส่วนตัว', batchNone:'กรุณาเลือกสูตรก่อน', confirmDeleteBatch:'ลบสูตรที่เลือก {n} รายการหรือไม่?', batchDeleted:'ลบสูตร {n} รายการแล้ว', batchCopied:'คัดลอกสูตร {n} รายการแล้ว', batchPinned:'ปักหมุด {n} รายการแล้ว', copySuffix:' (สำเนา)', untitled:'ไม่มีชื่อ', navManage:'จัดการ', ucTitle:'จัดการบัญชี', ucAccountInfo:'ข้อมูลบัญชี', ucSecurity:'ความปลอดภัย', ucSaveUsername:'บันทึกชื่อ', ucUsernameSaved:'อัปเดตชื่อผู้ใช้แล้ว', ucPwdSection:'เปลี่ยนรหัสผ่าน', ucOldPwd:'รหัสผ่านปัจจุบัน', ucNewPwd:'รหัสผ่านใหม่', ucSavePwd:'เปลี่ยนรหัสผ่าน', ucPwdUpdated:'เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่', ucOldPwdWrong:'รหัสผ่านปัจจุบันไม่ถูกต้อง', ucOldPwdEmpty:'กรุณาใส่รหัสผ่านปัจจุบัน', ucLogout:'ออกจากระบบ', ucEdit:'แก้ไข', ucCancel:'ยกเลิก', ucPwdDialogTitle:'เปลี่ยนรหัสผ่าน', authContinue:'ดำเนินการต่อ', authEmail:'อีเมล', authUsername:'ชื่อผู้ใช้', authPassword:'รหัสผ่าน', authTitle:'บัญชี', authEmailInvalid:'กรุณากรอกอีเมลที่ถูกต้อง', authPwdShort:'รหัสผ่านอย่างน้อย 6 ตัวอักษร', authToRegister:'ยังไม่มีบัญชี? สมัครเลย', authToLogin:'มีบัญชีแล้ว? เข้าสู่ระบบ', authConfirmPassword:'ยืนยันรหัสผ่าน', authPwdMismatch:'รหัสผ่านไม่ตรงกัน', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน', sbRateLimit:'พยายามบ่อยเกินไป กรุณาลองใหม่ในอีกไม่กี่นาที', sbEmailNotConfirmed:'ยังไม่ยืนยันอีเมล กรุณาตรวจสอบอีเมลยืนยัน', sbAlreadyRegistered:'อีเมลนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ', sbWrongPwd:'อีเมลยังไม่ได้ลงทะเบียนหรือรหัสผ่านไม่ถูกต้อง', sbNetworkError:'การเชื่อมต่อเครือข่ายล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', sbUserBanned:'บัญชีนี้ถูกระงับ กรุณาติดต่อแอดมิน', sbUserLocked:'บัญชีถูกล็อก กรุณาลองใหม่ในภายหลัง', sbPwdTooShort:'รหัสผ่านไม่เป็นไปตามข้อกำหนด', sbSignupNotAllowed:'อีเมลนี้ไม่อนุญาตให้สมัคร', adminTitle:'คอนโซลแอดมิน', adminRecipes:'จัดการสูตร', adminUsers:'จัดการผู้ใช้', adminSeedBuiltins:'เพิ่มสูตรในตัว', adminRecipesCount:'ทั้งหมด {n} รายการ', adminNoRecipes:'พูลแชร์ว่างเปล่า', adminLoadingUsers:'กำลังโหลดผู้ใช้…', adminEdgeMissing:'ยังไม่ได้เปิดใช้ API จัดการผู้ใช้ (ให้ Deploy manage-users Edge Function)', adminNoPerm:'ไม่มีสิทธิ์แอดมิน', adminRoleAdmin:'แอดมิน', adminRoleUser:'ผู้ใช้', adminBanned:'ถูกระงับ', adminMakeAdmin:'ตั้งเป็นแอดมิน', adminRevokeAdmin:'ยกเลิกแอดมิน', adminBan:'ระงับ', adminUnban:'ปลดระงับ', adminDeleteUser:'ลบผู้ใช้', adminActionFail:'ดำเนินการล้มเหลว: ', toastDone:'เสร็จสิ้น', confirmOk:'ตกลง', navAdmin:'แผงผู้ดูแล', viewSingle:'หนึ่งคอลัมน์', viewDouble:'สองคอลัมน์', toastUpToDate:'เป็นปัจจุบันแล้ว'
 }
 };
 let currentLang = loadLang();
@@ -2345,6 +2397,7 @@ let pendingDeleteKind = 'recipe';  // 待删除对象类型：recipe / price
 let pendingDeleteWorkspace = 'personal'; // 待删除对象所属工作台
 let currentDetailId = null;        // 详情面板中的食谱 id
 let currentDetailWorkspace = 'personal'; // 详情面板中的食谱所属工作台
+let lastFlippedCard = null;        // 详情打开时翻转隐藏的原卡片（关闭详情后恢复显示）
 let pendingCover = null;           // 编辑表单中待保存的自定义封面（dataURL）
 let formCat = '蛋糕';               // 表单中当前选中的分类（有效名称）
 
@@ -2400,7 +2453,7 @@ function toast(msg, type){
 }
 
 /* 弹层显隐（同时锁定/解锁页面滚动） */
-const OVERLAYS = ['formOverlay','detailOverlay','confirmOverlay','priceOverlay','priceFormOverlay','promptOverlay','catDialogOverlay','appConfirmOverlay','favPickOverlay','favMgrOverlay','userCenterOverlay'];  // 新弹窗需加入以支持 ESC/点遮罩关闭
+const OVERLAYS = ['formOverlay','detailOverlay','confirmOverlay','priceOverlay','priceFormOverlay','promptOverlay','catDialogOverlay','appConfirmOverlay','favPickOverlay','favMgrOverlay','userCenterOverlay','ucPwdOverlay'];  // 新弹窗需加入以支持 ESC/点遮罩关闭
 function show(id){ byId(id).classList.remove('hidden'); document.body.classList.add('lock'); }
 function hide(id){
   /* 详情弹窗：用反向 3D 翻转动画收起后再真正隐藏（animationend 不触发时 480ms 兜底，避免卡死） */
@@ -2416,6 +2469,9 @@ function hide(id){
         sheet.removeEventListener('animationend', finish);
         sheet.classList.remove('closing');
         ov.classList.add('hidden');
+        // 恢复详情打开时隐藏的原卡片（若仍在 DOM）
+        if(lastFlippedCard && lastFlippedCard.isConnected){ lastFlippedCard.classList.remove('card-gone'); }
+        lastFlippedCard = null;
         if(!OVERLAYS.some(o => !byId(o).classList.contains('hidden'))) document.body.classList.remove('lock');
       };
       sheet.addEventListener('animationend', finish);
@@ -2820,6 +2876,15 @@ function openFavPick(ids){
   show('favPickOverlay');
 }
 function closeFavPick(){ hide('favPickOverlay'); pendingFavIds = []; }
+/* 取消收藏：从所有收藏夹移除该食谱（已收藏后再次点击收藏按钮直接取消） */
+function unfavAll(recipeId){
+  favoriteFolders.forEach(f => { f.recipeIds = (f.recipeIds || []).filter(id => id !== recipeId); });
+  const r = recipes.find(x => x.id === recipeId);
+  if(r && r.favFolderIds){ delete r.favFolderIds; }
+  saveFavFolders(); saveRecipes();
+  render();
+  toast(t('toastFavRemoved', {name: r ? r.name : ''}));
+}
 function favPickSelect(folderId){
   const f = favFolderById(folderId);
   if(!f || !pendingFavIds.length) return;
@@ -3291,6 +3356,13 @@ function openUserCenter(){
   show('userCenterOverlay');
 }
 function closeUserCenter(){ hide('userCenterOverlay'); }
+/* 「我的」页：用户名编辑模式开关 */
+let ucEditingName = false;
+function ucEditUsername(){
+  ucEditingName = !ucEditingName;
+  renderMePage();
+  if(ucEditingName){ const inp = byId('ucUsername'); if(inp) inp.focus(); }
+}
 async function ucSaveUsername(){
   const name = byId('ucUsername').value.trim();
   if(!name){ byId('ucHint').textContent = t('fillAuthorFirst'); return; }
@@ -3298,25 +3370,32 @@ async function ucSaveUsername(){
   const { error } = await SB.auth.updateUser({ data: { username: name } });
   if(error){ byId('ucHint').textContent = sbFriendlyError(error.message); return; }
   currentUser.username = name;
+  ucEditingName = false;
   updateAuthUI();
   try{ await SB.from('profiles').update({ username: name }).eq('id', currentUser.id); }catch(e){ /* RLS 未开放时静默，重新登录后回退 auth metadata */ }
   toast(t('ucUsernameSaved'));
 }
+/* 「我的」页：修改密码 → 弹窗 */
+function ucOpenPwd(){
+  byId('ucPwdOld').value = ''; byId('ucPwdNew').value = ''; byId('ucPwdConfirm').value = ''; byId('ucPwdHint').textContent = '';
+  show('ucPwdOverlay');
+}
+function ucPwdClose(){ hide('ucPwdOverlay'); }
 async function ucSavePwd(){
-  const oldPwd = byId('ucOldPwd').value;
-  const newPwd = byId('ucNewPwd').value;
-  const confirmPwd = byId('ucConfirmPwd').value;
-  if(!oldPwd){ byId('ucHint').textContent = t('ucOldPwdEmpty'); return; }
-  if(newPwd.length < 6){ byId('ucHint').textContent = t('authPwdShort'); return; }
-  if(newPwd !== confirmPwd){ byId('ucHint').textContent = t('authPwdMismatch'); return; }
-  byId('ucHint').textContent = '';
+  const oldPwd = byId('ucPwdOld').value;
+  const newPwd = byId('ucPwdNew').value;
+  const confirmPwd = byId('ucPwdConfirm').value;
+  if(!oldPwd){ byId('ucPwdHint').textContent = t('ucOldPwdEmpty'); return; }
+  if(newPwd.length < 6){ byId('ucPwdHint').textContent = t('authPwdShort'); return; }
+  if(newPwd !== confirmPwd){ byId('ucPwdHint').textContent = t('authPwdMismatch'); return; }
+  byId('ucPwdHint').textContent = '';
   const { error: verr } = await SB.auth.signInWithPassword({ email: currentUser.email, password: oldPwd });
-  if(verr){ byId('ucHint').textContent = t('ucOldPwdWrong'); return; }
+  if(verr){ byId('ucPwdHint').textContent = t('ucOldPwdWrong'); return; }
   const { error } = await SB.auth.updateUser({ password: newPwd });
-  if(error){ byId('ucHint').textContent = sbFriendlyError(error.message); return; }
-  toast(t('ucPwdUpdated'));
-  hide('userCenterOverlay');   // 兼容旧弹窗入口
-  renderMePage();   // 页面视图：改密成功后停留在「我的」页（随后退出登录）
+  if(error){ byId('ucPwdHint').textContent = sbFriendlyError(error.message); return; }
+  hide('ucPwdOverlay');
+  toast(t('ucPwdUpdated'));   // 提示修改成功
+  renderMePage();
   sbSignOut();   // 修改密码后强制重新登录，避免旧 token 失效导致后续请求异常
 }
 
@@ -3399,6 +3478,8 @@ function render(){
   byId('searchEmpty').classList.add('hidden');
   byId('favEmptyState').classList.add('hidden');
   byId('mePage').classList.add('hidden');
+  // 「我也是有底线的」：仅在卡片列表存在时显示，位于列表底部（me 视图隐藏）
+  byId('gridFooter').classList.add('hidden');
 
   if(currentView === 'shared') return renderShared();
   if(currentView === 'favorites') return renderFavorites();
@@ -3409,8 +3490,11 @@ function render(){
 
 /* ─────────── 收藏视图：页面显示已收藏的食谱卡片 ─────────── */
 function renderFavorites(){
-  // 进入时默认选中第一个收藏夹（若存在）
-  if(activeFolder === '' && favoriteFolders.length){ activeFolder = favoriteFolders[0].id; }
+  // 进入时默认选中第一个「非空」收藏夹（有食谱的），避免弹出空夹子
+  if(activeFolder === '' && favoriteFolders.length){
+    const nonEmpty = favoriteFolders.find(f => (f.recipeIds || []).length > 0);
+    activeFolder = nonEmpty ? nonEmpty.id : favoriteFolders[0].id;
+  }
   renderFavFilter();
   const q = searchTerm.trim().toLowerCase();
   const list = recipes.filter(r => {
@@ -3429,6 +3513,8 @@ function renderFavorites(){
   byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
   const hasAnyFav = recipes.some(r => (r.favFolderIds || []).length > 0);
   byId('favEmptyState').classList.toggle('hidden', hasAnyFav);
+  // 底线文案：有卡片才显示，位于列表底部
+  byId('gridFooter').classList.toggle('hidden', !(hasAnyFav && list.length > 0));
 }
 /* 收藏视图顶部：收藏夹 chips（全部 + 各收藏夹） */
 function renderFavFilter(){
@@ -3511,36 +3597,19 @@ function renderMePage(){
       <div class="uc-group-label" data-i18n="ucAccountInfo">${t('ucAccountInfo')}</div>
       <div class="uc-list">
         <div class="uc-item"><span class="uc-item-label" data-i18n="authEmail">${t('authEmail')}</span><span class="uc-item-value" id="ucEmailValue">${esc(email)}</span></div>
-        <div class="uc-item"><span class="uc-item-label" data-i18n="authUsername">${t('authUsername')}</span><input id="ucUsername" class="uc-input" type="text" maxlength="20" value="${esc(currentUser.username || '')}" style="flex:1;text-align:right;border:none;background:transparent;font-size:15px;outline:none;min-width:0"></div>
-        <div class="uc-item"><span class="uc-item-label"></span><button class="uc-item-action" data-act="ucSaveUsername">${t('ucSaveUsername')}</button></div>
+        <div class="uc-item">
+          <span class="uc-item-label" data-i18n="authUsername">${t('authUsername')}</span>
+          ${ucEditingName
+            ? `<input id="ucUsername" class="uc-input" type="text" maxlength="20" value="${esc(currentUser.username || '')}" autofocus><button class="uc-item-action" data-act="ucSaveUsername">${t('ucSaveUsername')}</button><button class="uc-item-action" data-act="ucEditUsername">${t('ucCancel')}</button>`
+            : `<span class="uc-item-value" id="ucNameValue">${esc(name)}</span><button class="uc-item-action" data-act="ucEditUsername">${t('ucEdit')}</button>`}
+        </div>
       </div>
     </div>
     <p class="auth-hint uc-hint" id="ucHint"></p>
     <div class="uc-group">
       <div class="uc-group-label" data-i18n="ucSecurity">${t('ucSecurity')}</div>
       <div class="uc-list">
-        <div class="uc-list-pad">
-          <div class="uc-pwd-block">
-            <div class="uc-pwd-title" data-i18n="ucOldPwd">${t('ucOldPwd')}</div>
-            <div class="pwd-wrap">
-              <input id="ucOldPwd" class="input" type="password" autocomplete="current-password">
-              <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucOldPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
-            </div>
-            <div class="uc-pwd-title" data-i18n="ucNewPwd">${t('ucNewPwd')}</div>
-            <div class="pwd-wrap">
-              <input id="ucNewPwd" class="input" type="password" autocomplete="new-password">
-              <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucNewPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
-            </div>
-            <div class="uc-pwd-title" data-i18n="authConfirmPassword">${t('authConfirmPassword')}</div>
-            <div class="pwd-wrap">
-              <input id="ucConfirmPwd" class="input" type="password" autocomplete="new-password">
-              <button type="button" class="pwd-toggle" data-act="togglePwd" data-target="ucConfirmPwd" data-i18n-title="showPassword" title="显示密码" aria-label="显示密码"><svg class="ic eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
-            </div>
-            <div class="uc-save-row">
-              <button class="btn" data-act="ucSavePwd" style="flex:1">${t('ucSavePwd')}</button>
-            </div>
-          </div>
-        </div>
+        <button class="uc-item uc-item-action" data-act="ucOpenPwd" style="width:100%;justify-content:flex-start;border-bottom:none"><svg class="ic" style="width:18px;height:18px;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${t('ucSavePwd')}</button>
       </div>
     </div>
     <div class="uc-group">
@@ -3554,7 +3623,6 @@ function renderMePage(){
     <div class="uc-group" style="margin-top:20px">
       <div class="uc-list"><button class="uc-item uc-item-danger" data-act="ucLogout" data-i18n="ucLogout">${t('ucLogout')}</button></div>
     </div>`;
-  byId('ucOldPwd').value = ''; byId('ucNewPwd').value = ''; byId('ucConfirmPwd').value = '';
   byId('ucHint').textContent = '';
 }
 
@@ -4026,9 +4094,17 @@ function openDetail(id, workspace, originCard){
       ${r.sourceUrl ? `<section class="d-sec"><h4>${t('detailSourceUrl')}</h4><a href="${esc(r.sourceUrl)}" class="source-link" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span>${esc(r.sourceUrl)}</span></a></section>` : ''}
     </div>`;
   byId('detailBody').scrollTop = 0;
-  // 卡片按下 110ms 后展开详情（联动：先缩卡片，再 3D 翻转飞出）
+  // 动态十足的开场：原卡片先从小放大 + 720° 翻转（两次 360°），完成后卡片隐藏消失、详情 3D 翻转呈现
+  let flipCard = null;
+  if(originCard && originCard.classList && originCard.classList.contains('recipe-card')){
+    flipCard = originCard;
+    lastFlippedCard = originCard;
+    originCard.classList.add('card-flip');
+    originCard.classList.remove('card-gone');
+  }
   setTimeout(() => {
-    if(originCard && originCard.classList) originCard.classList.remove('card-press');
+    if(flipCard && flipCard.isConnected) flipCard.classList.add('card-gone');
+    if(flipCard) flipCard.classList.remove('card-flip');
     show('detailOverlay');
     // 重置 + 触发 sheet 的 3D 翻转入场（强制 reflow 以重新触发动画）
     const sheetEl = document.querySelector('#detailOverlay .sheet');
@@ -4037,7 +4113,7 @@ function openDetail(id, workspace, originCard){
       void sheetEl.offsetWidth; // reflow
       sheetEl.style.animation = '';
     }
-  }, 110);
+  }, 620);
 }
 
 /* ═════════════════════ 删除确认 ═════════════════════ */
@@ -4818,6 +4894,10 @@ document.addEventListener('click', async e => {
     case 'togglePwd':      togglePwd(btn.dataset.target); break;
     case 'openUserCenter': openUserCenter(); break;
     case 'ucClose':        closeUserCenter(); break;
+    case 'ucEditUsername': ucEditUsername(); break;
+    case 'ucOpenPwd':      ucOpenPwd(); break;
+    case 'ucPwdClose':     ucPwdClose(); break;
+    case 'ucPwdSubmit':    ucSavePwd(); break;
     case 'ucSaveUsername': ucSaveUsername(); break;
     case 'ucSavePwd':      ucSavePwd(); break;
     case 'ucLogout':       renderMePage(); sbSignOut(); break;
@@ -4883,8 +4963,8 @@ document.addEventListener('click', async e => {
     }
     case 'edit':           openForm(id, workspace); break;
     case 'del':            askDelete(id, workspace); break;
-    case 'favPick':        if(workspace === 'personal') openFavPick([id]); break;
-    case 'favPickFromDetail': if(currentDetailWorkspace === 'personal' && currentDetailId) openFavPick([currentDetailId]); break;
+    case 'favPick':        if(workspace === 'personal'){ if(isFaved(id)){ unfavAll(id); } else { openFavPick([id]); } } break;
+    case 'favPickFromDetail': if(currentDetailWorkspace === 'personal' && currentDetailId){ if(isFaved(currentDetailId)){ unfavAll(currentDetailId); } else { openFavPick([currentDetailId]); } } break;
     case 'favPickSelect':  favPickSelect(btn.dataset.id); break;
     case 'favPickClose':   closeFavPick(); break;
     case 'favPickNew':     favPickNew(); break;
