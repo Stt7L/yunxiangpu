@@ -422,7 +422,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     padding:12px 14px calc(12px + env(safe-area-inset-bottom));
     border-radius:44px;
   }
-  .dock-indicator{top:10px;bottom:calc(10px + env(safe-area-inset-bottom));}
+  .dock-indicator{top:50%;bottom:auto;height:66px;transform:translateY(-50%);}
   .dock-item{min-width:0;flex:1;padding:12px 6px;gap:4px;font-size:12px;border-radius:30px}
   .dock-item .ic{width:26px;height:26px}
   .dock-fab{width:64px;height:64px;margin:0 6px;border-radius:22px;flex:none}
@@ -1230,8 +1230,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 </main>
 
 <!-- 批处理底部操作栏 -->
-<!-- 批处理底部悬浮操作栏（v57 重写：JS 按视图动态填充，悬浮胶囊位于 Dock 上方） -->
-<div id="batchActions" class="batch-actions hidden"></div>
+<!-- 批处理底部悬浮操作栏（v61 起用 .shown class + slide 动画控制显示；v63 修复：删除残留 hidden class 导致 display:none 永远不可见） -->
+<div id="batchActions" class="batch-actions"></div>
 
 <!-- 底部液态玻璃 Dock 导航（iOS 风格：个人工作台 / 共享池 / + / 收藏夹 / 我） -->
 <nav class="dock" id="bottomDock" aria-label="主导航">
