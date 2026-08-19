@@ -263,19 +263,8 @@ button{font-family:inherit}
 @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 .recipe-card:hover{transform:translateY(-5px) scale(1.005);box-shadow:var(--shadow),inset 0 .5px 0 rgba(255,255,255,.9)}
 .recipe-card:active{transform:scale(.985) translateY(-2px)}
-/* 点击卡片：从小放大 + 720° 翻转的入场动画（两次 360°） */
-.recipe-card.card-flip{
-  animation:cardFlip .62s cubic-bezier(.34,1.35,.44,1) both;
-  z-index:6;
-}
-@keyframes cardFlip{
-  0%  {transform:perspective(900px) scale(.45) rotateY(0deg);  opacity:.4; filter:brightness(1.5)}
-  35% {transform:perspective(900px) scale(1.06) rotateY(240deg); opacity:1; filter:brightness(1.25)}
-  60% {transform:perspective(900px) scale(1.16) rotateY(480deg); opacity:1}
-  100%{transform:perspective(900px) scale(1) rotateY(720deg);  opacity:1; filter:brightness(1)}
-}
 /* 详情显示后：原卡片隐藏消失 */
-.recipe-card.card-gone{opacity:0;transform:scale(.92);pointer-events:none;transition:opacity .35s var(--ease), transform .35s var(--ease)}
+.recipe-card.card-gone{opacity:0;transform:scale(.92);pointer-events:none;transition:opacity .3s var(--ease), transform .3s var(--ease)}
 @media (hover:none){.recipe-card:hover{transform:none;box-shadow:var(--shadow-sm),inset 0 .5px 0 rgba(255,255,255,.8)}}
 .cover{height:132px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .cover .cover-img{width:100%;height:100%;object-fit:cover;display:block}
@@ -465,9 +454,9 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   border:1px solid rgba(255,255,255,.65);
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes sheetIn{from{opacity:0;transform:perspective(1200px) rotateY(-14deg) scale(.7) translateZ(-80px);filter:blur(6px)}60%{opacity:1;filter:blur(0)}to{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateZ(0);filter:blur(0)}}
-@keyframes sheetOut{from{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateZ(0);filter:blur(0)}to{opacity:0;transform:perspective(1200px) rotateY(8deg) scale(.85) translateZ(-40px);filter:blur(3px)}}
-.sheet.closing{animation:sheetOut .35s cubic-bezier(.55,.06,.68,.19) both}
+@keyframes sheetIn{from{opacity:0;transform:perspective(1200px) rotateY(8deg) scale(.86) translateZ(-30px);filter:blur(2px)}55%{opacity:1;filter:blur(0)}to{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateZ(0);filter:blur(0)}}
+@keyframes sheetOut{from{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateZ(0);filter:blur(0)}to{opacity:0;transform:perspective(1200px) rotateY(-5deg) scale(.9) translateZ(-24px);filter:blur(2px)}}
+.sheet.closing{animation:sheetOut .32s cubic-bezier(.5,.05,.7,.3) both}
 .sheet-head{
   flex:none;display:flex;align-items:center;justify-content:space-between;
   padding:16px 26px;gap:12px;
@@ -4124,12 +4113,15 @@ function openDetail(id, workspace, originCard){
     const s = Math.max(1.02, sheetW / cRect.width);
     flipCard.style.zIndex = 60;
     try{
+      // 叙事三段：① 原地快速翻转一圈（拿起）→ ② 微预备 → ③ 飞向中心放大到详情尺寸并淡出
+      const liftY = Math.min(24, cRect.height * 0.06);
       const anim = flipCard.animate([
-        { transform: 'none', opacity: 1, filter: 'brightness(1)' },
-        { transform: `perspective(1100px) translate(${tx*0.55}px, ${ty*0.55}px) scale(${1+(s-1)*0.55}) rotateY(360deg)`, opacity: 1, filter: 'brightness(1.12)', offset: 0.5 },
-        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(720deg)`, opacity: 1, filter: 'brightness(1.18)', offset: 0.82 },
-        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(720deg)`, opacity: 0, filter: 'brightness(1.25)' }
-      ], { duration: 720, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' });
+        { transform: 'perspective(1100px) translateY(0) scale(1)', opacity: 1, filter: 'brightness(1)' },
+        { transform: `perspective(1100px) translateY(-${liftY}px) scale(1.1) rotateY(360deg)`, opacity: 1, filter: 'brightness(1.1)', offset: 0.5 },
+        { transform: `perspective(1100px) translateY(-${liftY}px) scale(${1+(s-1)*0.55}) rotateY(360deg)`, opacity: 1, filter: 'brightness(1.14)', offset: 0.68 },
+        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(360deg)`, opacity: 1, filter: 'brightness(1.16)', offset: 0.92 },
+        { transform: `perspective(1100px) translate(${tx}px, ${ty}px) scale(${s}) rotateY(360deg)`, opacity: 0, filter: 'brightness(1.2)' }
+      ], { duration: 540, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
       lastCardAnim = { el: flipCard, anim };
       anim.onfinish = () => {
         if(flipCard.isConnected){ flipCard.classList.add('card-gone'); flipCard.style.zIndex = ''; }
@@ -4164,7 +4156,7 @@ function reverseCardAnim(){
       // 兜底：若动画无法倒放（已 cancel），立即恢复卡片
       setTimeout(() => {
         if(el && el.isConnected && el.classList.contains('card-gone')){ el.classList.remove('card-gone'); el.style.transform=''; el.style.opacity=''; el.style.filter=''; el.style.zIndex=''; }
-      }, 850);
+      }, 620);
     } else if(el && el.isConnected){
       el.classList.remove('card-gone');
     }
