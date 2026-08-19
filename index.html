@@ -102,7 +102,7 @@ button{font-family:inherit}
 }
 .nav-inner{
   max-width:1080px;margin:0 auto;
-  padding:10px 22px;
+  padding:10px 14px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 }
 .brand{display:flex;align-items:center;gap:12px;margin-right:auto}
@@ -1060,6 +1060,21 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .batch-act.batch-primary{color:var(--accent)}
 .batch-act.batch-on{background:rgba(0,113,227,.12);color:var(--accent)}
 .batch-sep{width:1px;height:28px;background:rgba(0,0,0,.10);margin:0 4px}
+/* v68：手机端批处理胶囊防止左右溢出，图标化+紧凑间距 */
+@media (max-width:640px){
+  .batch-actions{
+    bottom:calc(118px + env(safe-area-inset-bottom));
+    padding:6px 10px calc(6px + env(safe-area-inset-bottom));
+    gap:2px;
+    max-width:calc(100vw - 20px);
+    border-radius:28px;
+  }
+  .batch-count-pill{padding:4px 10px;font-size:11px;margin-right:4px}
+  .batch-act{min-width:40px;padding:5px 4px 4px;gap:1px}
+  .batch-act .ic{width:16px;height:16px}
+  .batch-act span{display:none}
+  .batch-sep{height:22px;margin:0 2px}
+}
 .recipe-card{position:relative}
 .recipe-card.batch-mode{cursor:pointer}
 .recipe-card.batch-mode .batch-check{position:absolute;top:10px;left:10px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.22)}
