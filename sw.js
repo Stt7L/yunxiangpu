@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v57：取消卡片翻转动画（正常点击出详情，保留 sheet 3D 入场）；重写批处理为 Dock 上方悬浮胶囊（不被覆盖，加号不再隐藏，支持收藏视图批量操作）；收藏视图加删除收藏夹与批处理入口。
+// v58：批处理整合（删除顶部 batchBar，全选/取消合并进底部胶囊，胶囊风格同步 Dock 36px 圆角）；共享池支持批处理（点赞/导入/复制/导出/删除-admin）+ 共享池卡片加「添加到个人工作台」按钮（单卡片+批量）；登录后无条件 sbRefreshShared + render，确保切到共享池立即有内容。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v57';
+const CACHE = 'dessert-v58';
 const SHELL = [
   './',
   './manifest.json',
