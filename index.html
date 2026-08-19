@@ -1102,15 +1102,15 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .batch-act .ic{width:17px;height:17px}
   .batch-sep{height:24px;margin:0 4px;flex:none}
 }
-/* v71：共享池加载骨架屏（skeleton + shimmer） */
-.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
-@media (max-width:640px){.skeleton-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
+/* v72：共享池加载骨架屏（skeleton + shimmer，卡片直接作为 grid 子项复用正常布局） */
 .skeleton-card{
   border-radius:var(--radius);overflow:hidden;
   background:rgba(255,255,255,.78);border:1px solid rgba(0,0,0,.06);
   box-shadow:var(--shadow-sm);
+  animation:skIn .35s var(--ease) both;
 }
-.skeleton-card .sk-cover{height:150px;background:#e9e9ee}
+@keyframes skIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.skeleton-card .sk-cover{height:160px;background:#e9e9ee}
 .skeleton-card .sk-line{height:12px;border-radius:6px;background:#e9e9ee;margin:12px 14px 0}
 .skeleton-card .sk-line.short{width:45%}
 .skeleton-card .sk-line.mini{width:30%;height:10px;margin-bottom:16px}
@@ -3382,17 +3382,18 @@ async function sbRefreshShared(){
   saveSharedRecipes();
   if(currentWorkspace === 'shared') renderShared();
 }
-/* v71：共享池骨架屏渲染 */
+/* v72：共享池骨架屏渲染——骨架卡片直接作为 recipeGrid 子项，复用正常卡片网格布局 */
 function renderSharedSkeleton(){
   const grid = byId('recipeGrid');
   if(!grid) return;
   const n = (window.innerWidth && window.innerWidth <= 640) ? 6 : 8;
   let cards = '';
   for(let i = 0; i < n; i++){
-    cards += `<div class="skeleton-card"><div class="sk-cover"></div><div class="sk-line short"></div><div class="sk-line"></div><div class="sk-line mini"></div></div>`;
+    cards += `<div class="skeleton-card" style="animation-delay:${(i % 8) * 40}ms"><div class="sk-cover"></div><div class="sk-line short"></div><div class="sk-line"></div><div class="sk-line mini"></div></div>`;
   }
-  grid.innerHTML = `<div class="skeleton-grid">${cards}</div>`;
+  grid.classList.add('grid');
   grid.classList.remove('grid-single', 'grid-double');
+  grid.innerHTML = cards;
   const eg = byId('emptyState'); if(eg) eg.classList.add('hidden');
   const gate = byId('sharedGate'); if(gate) gate.classList.add('hidden');
   const se = byId('searchEmpty'); if(se) se.classList.add('hidden');
@@ -4222,6 +4223,8 @@ function openForm(id, workspace){
   if(authorRow) authorRow.style.display = workspace === 'shared' ? 'block' : 'none';
 
   const pool = workspace === 'shared' ? sharedRecipes : recipes;
+  // v72：共享池作者名自动填充——优先用原作者名（编辑时），否则用登录用户名，用户仍可手动修改
+  const defaultAuthor = (currentUser && (currentUser.username || (currentUser.email ? currentUser.email.split('@')[0] : ''))) || '';
   if(id){
     const r = pool.find(x => x.id === id);
     if(!r) return;
@@ -4231,7 +4234,7 @@ function openForm(id, workspace){
     byId('fSteps').value = (r.steps||[]).join('\n');
     byId('fNotes').value = r.notes || '';
     byId('fSourceUrl').value = r.sourceUrl || '';
-    if(authorRow) byId('fAuthor').value = r.author || '';
+    if(authorRow) byId('fAuthor').value = (r.author || defaultAuthor);
   }else{
     byId('fName').value = '';
     setCat('蛋糕');
@@ -4239,7 +4242,7 @@ function openForm(id, workspace){
     byId('fSteps').value = '';
     byId('fNotes').value = '';
     byId('fSourceUrl').value = '';
-    if(authorRow) byId('fAuthor').value = '';
+    if(authorRow) byId('fAuthor').value = defaultAuthor;
   }
   // 封面
   pendingCover = (id ? ((pool.find(x => x.id === id) || {}).cover) : null) || null;
