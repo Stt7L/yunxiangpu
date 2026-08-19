@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v50：修复收藏夹按钮 i18n 漏键（favMgrBtn）并增强 i18n 测试覆盖 data-i18n 属性；重写账号管理中心为 iOS 设置风格（头像卡片+分组列表）。
+// v51：共享池登录后自动加载；删除顶部加号；底部 Dock 改为 5 项液态玻璃导航（工作台/共享/+/收藏/我）；收藏夹管理页重做为相册卡片风格并支持取消收藏；全界面加 iOS 液态玻璃质感与弹性动画。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v50';
+const CACHE = 'dessert-v51';
 const SHELL = [
   './',
   './manifest.json',
