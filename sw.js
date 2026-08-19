@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v55：卡片→详情联动动画（WAAPI：缩放+720°旋转+移动到中心，关闭时倒放）；修复 closeDetail 未定义导致关闭无反应；修复「我的」页残留食谱卡片；移除「全部收藏」chips（单夹隐藏）。
+// v56：优化卡片→详情联动动画（360° 一圈前段利落翻转 + 飞向中心放大，540ms 更短更有层次；sheet 入场柔化）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v55';
+const CACHE = 'dessert-v56';
 const SHELL = [
   './',
   './manifest.json',
