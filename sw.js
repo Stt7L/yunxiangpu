@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v68：电脑端顶部导航左右贴边（.nav-inner padding 22→14px）；手机端批处理胶囊防溢出（图标化、紧凑间距、max-width 限制）。
+// v69：电脑端顶部导航进一步贴边（.nav-inner padding 14→8px）；手机端批处理胶囊改为横向滚动并保留文字；修复新建共享配方后本地临时 id 未清理导致的「作者无法编辑自己作品」bug；「我的」页面新增「我发布的」共享配方历史。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v68';
+const CACHE = 'dessert-v69';
 const SHELL = [
   './',
   './manifest.json',
