@@ -102,8 +102,9 @@ button{font-family:inherit}
 }
 .nav-inner{
   max-width:none;margin:0 auto;
-  padding:10px 10px;
+  padding:10px 12px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  justify-content:space-between;   /* v71：品牌靠最左、工具靠最右，杜绝居中留白 */
 }
 .brand{display:flex;align-items:center;gap:12px;margin-right:auto}
 .brand-icon{
@@ -1101,6 +1102,25 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .batch-act .ic{width:17px;height:17px}
   .batch-sep{height:24px;margin:0 4px;flex:none}
 }
+/* v71：共享池加载骨架屏（skeleton + shimmer） */
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+@media (max-width:640px){.skeleton-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
+.skeleton-card{
+  border-radius:var(--radius);overflow:hidden;
+  background:rgba(255,255,255,.78);border:1px solid rgba(0,0,0,.06);
+  box-shadow:var(--shadow-sm);
+}
+.skeleton-card .sk-cover{height:150px;background:#e9e9ee}
+.skeleton-card .sk-line{height:12px;border-radius:6px;background:#e9e9ee;margin:12px 14px 0}
+.skeleton-card .sk-line.short{width:45%}
+.skeleton-card .sk-line.mini{width:30%;height:10px;margin-bottom:16px}
+.skeleton-card .sk-cover,.skeleton-card .sk-line{position:relative;overflow:hidden}
+.skeleton-card .sk-cover::after,.skeleton-card .sk-line::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+  animation:shimmer 1.4s infinite;
+}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 .recipe-card{position:relative}
 .recipe-card.batch-mode{cursor:pointer}
 .recipe-card.batch-mode .batch-check{position:absolute;top:10px;left:10px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.22)}
@@ -2477,7 +2497,8 @@ let pendingDeleteWorkspace = 'personal'; // 待删除对象所属工作台
 let currentDetailId = null;        // 详情面板中的食谱 id
 let currentDetailWorkspace = 'personal'; // 详情面板中的食谱所属工作台
 let pendingCover = null;           // 编辑表单中待保存的自定义封面（dataURL）
-let sharedSort = localStorage.getItem('yx-shared-sort') === 'new' ? 'new' : 'likes';  // v67：共享池排序（likes / new）
+let sharedSort = localStorage.getItem('yx-shared-sort') || '';  // v71：默认不排序（按创建时间倒序），只有点「最多点赞/最新发布」才触发排序
+let sharedLoading = false;  // v71：共享池加载中标记（用于骨架屏）
 let formCat = '蛋糕';               // 表单中当前选中的分类（有效名称）
 
 /* ═════════════════════ 工具函数 ═════════════════════ */
@@ -3339,16 +3360,43 @@ function normalizeShared(row){
     notes: row.notes || '', sourceUrl: row.source_url || '', cover: row.cover || '',
     author: row.author_name || '', likes: row.likes || 0,
     owner_id: row.owner_id || null,
-    createdAt: row.created_at || Date.now(), updatedAt: row.updated_at || Date.now()
+    // v71：Supabase timestamptz 是字符串，统一转时间戳数字，保证「最新发布」排序正确
+    createdAt: row.created_at ? (typeof row.created_at === 'number' ? row.created_at : new Date(row.created_at).getTime() || Date.now()) : Date.now(),
+    updatedAt: row.updated_at ? (typeof row.updated_at === 'number' ? row.updated_at : new Date(row.updated_at).getTime() || Date.now()) : Date.now()
   };
 }
 async function sbRefreshShared(){
   if(!SB_ENABLED) return;
-  const { data, error } = await SB.from('recipes_shared').select('*').order('likes', { ascending:false });
-  if(error){ toast(t('sbLoadFail') + error.message, 'error'); return; }
+  // v71：加载中显示骨架屏
+  sharedLoading = true;
+  if(currentWorkspace === 'shared' && (!sharedRecipes || sharedRecipes.length === 0)) renderSharedSkeleton();
+  // v71：默认按创建时间倒序返回（最新在前），点赞排序交给「最多点赞」按钮触发
+  const { data, error } = await SB.from('recipes_shared').select('*').order('created_at', { ascending:false });
+  sharedLoading = false;
+  if(error){
+    toast(t('sbLoadFail') + error.message, 'error');
+    if(currentWorkspace === 'shared') renderShared();
+    return;
+  }
   sharedRecipes = (data || []).map(normalizeShared);
   saveSharedRecipes();
   if(currentWorkspace === 'shared') renderShared();
+}
+/* v71：共享池骨架屏渲染 */
+function renderSharedSkeleton(){
+  const grid = byId('recipeGrid');
+  if(!grid) return;
+  const n = (window.innerWidth && window.innerWidth <= 640) ? 6 : 8;
+  let cards = '';
+  for(let i = 0; i < n; i++){
+    cards += `<div class="skeleton-card"><div class="sk-cover"></div><div class="sk-line short"></div><div class="sk-line"></div><div class="sk-line mini"></div></div>`;
+  }
+  grid.innerHTML = `<div class="skeleton-grid">${cards}</div>`;
+  grid.classList.remove('grid-single', 'grid-double');
+  const eg = byId('emptyState'); if(eg) eg.classList.add('hidden');
+  const gate = byId('sharedGate'); if(gate) gate.classList.add('hidden');
+  const se = byId('searchEmpty'); if(se) se.classList.add('hidden');
+  const gf = byId('gridFooter'); if(gf) gf.classList.add('hidden');
 }
 async function sbUpsertShared(rec){
   if(!SB_ENABLED) return false;
@@ -3951,6 +3999,13 @@ function renderShared(){
     return;
   }
   byId('sharedGate').classList.add('hidden');
+  // v71：加载中且尚无数据时显示骨架屏
+  if(SB_ENABLED && sharedLoading && (!sharedRecipes || sharedRecipes.length === 0)){
+    renderSharedSkeleton();
+    renderSharedSort();
+    updateBatchUI();
+    return;
+  }
   const q = searchTerm.trim().toLowerCase();
   // 支持按分类筛选（与个人工作台一致：displayCat 映射 + 重命名跟随）
   const list = sharedRecipes.filter(r => {
@@ -3959,11 +4014,15 @@ function renderShared(){
       ((r.name||'').toLowerCase().includes(q) ||
        flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
   });
-  const sorted = [...list].sort((a,b) =>
-    sharedSort === 'new'
-      ? ((b.createdAt||0) - (a.createdAt||0)) || ((b.updatedAt||0) - (a.updatedAt||0)) || ((b.likes||0) - (a.likes||0))
-      : ((b.likes || 0) - (a.likes || 0)) || ((b.updatedAt || 0) - (a.updatedAt || 0))
-  );
+  // v71：默认不排序（沿用数据原始顺序）；仅「最多点赞」/「最新发布」按钮触发对应排序
+  let sorted;
+  if(sharedSort === 'likes'){
+    sorted = [...list].sort((a,b) => ((b.likes || 0) - (a.likes || 0)) || ((b.createdAt || 0) - (a.createdAt || 0)));
+  }else if(sharedSort === 'new'){
+    sorted = [...list].sort((a,b) => ((b.createdAt || 0) - (a.createdAt || 0)) || ((b.updatedAt || 0) - (a.updatedAt || 0)) || ((b.likes || 0) - (a.likes || 0)));
+  }else{
+    sorted = [...list];
+  }
   byId('recipeGrid').innerHTML = sorted.map((r, i) => sharedCardHTML(r, i)).join('');
   byId('recipeGrid').classList.toggle('grid-single', cardViewMode === 'single');
   byId('recipeGrid').classList.toggle('grid-double', cardViewMode === 'double');
