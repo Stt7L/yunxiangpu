@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v62：修复批处理工具栏呼不出（胶囊 bottom 96→134px 避开加大后的 Dock 遮挡）；修复批处理点卡片整页闪烁（toggleBatchSelect 轻量更新目标卡片，不再整页 render）；手机端 Dock 几乎占满底部（96vw，不出格）+ 滑块 pad 3→5 更大 + item flex:1 间距更宽 + 号 64px。
+// v63：修复批处理工具栏真正呼不出（根因：#batchActions HTML 残留 hidden class → display:none!important 永远不可见，已移除）；手机端高亮滑块改垂直居中固定高度 66px（与 item 协调贴合白色 dock）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v62';
+const CACHE = 'dessert-v63';
 const SHELL = [
   './',
   './manifest.json',
