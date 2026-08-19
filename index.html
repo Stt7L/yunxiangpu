@@ -101,8 +101,8 @@ button{font-family:inherit}
   box-shadow:0 1px 0 rgba(0,0,0,.04);
 }
 .nav-inner{
-  max-width:1080px;margin:0 auto;
-  padding:10px 8px;
+  max-width:none;margin:0 auto;
+  padding:10px 10px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 }
 .brand{display:flex;align-items:center;gap:12px;margin-right:auto}
@@ -444,8 +444,31 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .back-to-top:hover{background:rgba(255,255,255,.9);color:var(--text)}
 .back-to-top:active{transform:scale(.94)}
 .back-to-top .ic{width:20px;height:20px}
+/* v70：批处理悬浮按钮（个人工作台，回到顶部按钮上方） */
+.batch-fab-float{
+  position:fixed;right:22px;bottom:184px;z-index:60;
+  width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(0,113,227,.92);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(0,113,227,.32);
+  transition:opacity .3s var(--ease), transform .3s var(--ease), background .2s;
+  -webkit-backdrop-filter:saturate(180%) blur(12px);backdrop-filter:saturate(180%) blur(12px);
+  opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;
+}
+.batch-fab-float.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.batch-fab-float:hover{background:var(--accent-hover)}
+.batch-fab-float:active{transform:scale(.94)}
+.batch-fab-float.on{background:#ff3b30;box-shadow:0 6px 18px rgba(255,59,48,.36)}
+.batch-fab-float .ic{width:22px;height:22px}
+.batch-fab-float .fab-dot{
+  position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;
+  background:#ff3b30;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  padding:0 5px;border:2px solid var(--bg);
+}
 @media (max-width:640px){
   .back-to-top{right:16px;bottom:104px;width:44px;height:44px}
+  .batch-fab-float{right:16px;bottom:158px;width:44px;height:44px}
+  .batch-fab-float .ic{width:18px;height:18px}
   .dock{bottom:12px;padding:6px 8px calc(8px + env(safe-area-inset-bottom));gap:1px}
   .dock-item{min-width:52px;padding:6px 6px;font-size:10px}
   .dock-item .ic{width:20px;height:20px}
@@ -1294,6 +1317,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 <!-- 回到顶部 -->
 <button id="backToTop" class="back-to-top" data-i18n-aria="backToTop" aria-label="回到顶部"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
+<button id="batchFabFloat" class="batch-fab-float" data-act="openBatch" data-i18n-aria="batchTitle" aria-label="批处理" title="批处理"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="fab-dot" id="batchFabDot" style="display:none">0</span></button>
 
 <!-- ═════════════ 新建 / 编辑 表单面板 ═════════════ -->
 <div id="formOverlay" class="overlay hidden">
@@ -3255,6 +3279,7 @@ function updateBatchUI(){
   const el = byId('batchActions');
   if(inBatch){ renderBatchActions(); el.classList.add('shown'); }
   else { el.classList.remove('shown'); }
+  updateBatchFab();
 }
 
 /* v67：共享池排序按钮（最多点赞 / 最新发布） */
@@ -3333,7 +3358,10 @@ async function sbUpsertShared(rec){
     notes: rec.notes, source_url: rec.sourceUrl, cover: rec.cover,
     author_name: rec.author, likes: rec.likes || 0
   };
-  if(rec._new){ payload.owner_id = currentUser.id; }
+  // v70：编辑时显式带上 owner_id，保证 RLS WITH CHECK (owner_id = auth.uid()) 通过
+  const localRec = sharedRecipes.find(x => x.id === rec.id);
+  const isLocalOwner = !!(localRec && currentUser && localRec.owner_id === currentUser.id);
+  if(rec._new || isLocalOwner){ payload.owner_id = currentUser.id; }
   else { payload.id = rec.id; }
   const { data, error } = await SB.from('recipes_shared').upsert(payload, { onConflict:'id' }).select().single();
   if(error){
@@ -5370,11 +5398,26 @@ byId('pfKindSeg').addEventListener('click', e => {
   if(b) setPriceKind(b.dataset.kind);
 });
 
-/* 回到顶部：滚动监听 + 点击 */
+/* 回到顶部 + 批处理悬浮按钮 */
 function updateBackToTop(){
   const btn = byId('backToTop');
-  if(!btn) return;
-  btn.classList.toggle('show', (window.scrollY || window.pageYOffset) > 200);
+  if(btn) btn.classList.toggle('show', (window.scrollY || window.pageYOffset) > 200);
+  updateBatchFab();
+}
+/* v70：批处理悬浮按钮——个人工作台滚动后出现，批处理模式下变红色显示已选数 */
+function updateBatchFab(){
+  const fab = byId('batchFabFloat');
+  if(!fab) return;
+  const showPersonal = currentView === 'personal';
+  const scrolled = (window.scrollY || window.pageYOffset) > 200;
+  fab.classList.toggle('show', showPersonal && scrolled);
+  fab.classList.toggle('on', batchMode);
+  const dot = byId('batchFabDot');
+  if(dot){
+    const n = batchSelected ? batchSelected.size : 0;
+    dot.style.display = (batchMode && n > 0) ? 'flex' : 'none';
+    dot.textContent = n;
+  }
 }
 window.addEventListener('scroll', updateBackToTop, { passive:true });
 byId('backToTop').addEventListener('click', () => {
