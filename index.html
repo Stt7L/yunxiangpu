@@ -422,7 +422,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     padding:12px 14px calc(12px + env(safe-area-inset-bottom));
     border-radius:44px;
   }
-  .dock-indicator{top:50%;bottom:auto;height:66px;transform:translateY(-50%);}
+  .dock-indicator{top:50%;bottom:auto;height:61px;transform:translateY(-50%);}
   .dock-item{min-width:0;flex:1;padding:12px 6px;gap:4px;font-size:12px;border-radius:30px}
   .dock-item .ic{width:26px;height:26px}
   .dock-fab{width:64px;height:64px;margin:0 6px;border-radius:22px;flex:none}
@@ -3602,7 +3602,7 @@ function render(){
 
   if(currentView === 'shared') return renderShared();
   if(currentView === 'favorites') return renderFavorites();
-  if(currentView === 'me') return renderMePage();
+  if(currentView === 'me'){ renderMePage(); updateBatchUI(); return; }
   renderPersonal();
   updateBatchUI();
 }
@@ -3759,8 +3759,8 @@ function updateDockIndicator(){
   if(!active){ ind.classList.remove('show'); return; }
   const dRect = dock.getBoundingClientRect();
   const aRect = active.getBoundingClientRect();
-  // 滑块比 item 大一圈（左右各扩 5px，v62 更大），并 clamp 在 Dock 范围内，视觉更贴合
-  const pad = 5;
+  // 滑块比 item 大一圈（v64：左右各扩 4px，上下留白一致），并 clamp 在 Dock 范围内，视觉更贴合
+  const pad = 4;
   const left = Math.max(2, aRect.left - dRect.left - pad);
   const right = Math.min(Math.max(0, dRect.width - 2), aRect.right - dRect.left + pad);
   ind.style.left = left + 'px';
