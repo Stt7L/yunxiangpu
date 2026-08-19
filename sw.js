@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v70：修复共享池保存 RLS 失败（编辑时显式带 owner_id 让 WITH CHECK 通过）；电脑端顶部导航真正贴边（去掉 max-width 居中）；回到顶部按钮旁新增批处理悬浮快捷按钮（个人工作台滚动后出现，批处理模式下变红+显示已选数）。
+// v71：修复共享池「最新发布」排序（createdAt 字符串转时间戳）；取消默认按点赞排序（仅点按钮触发）；导航品牌/工具强制左右贴边；共享池加载骨架屏 shimmer。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v70';
+const CACHE = 'dessert-v71';
 const SHELL = [
   './',
   './manifest.json',
