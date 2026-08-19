@@ -270,9 +270,10 @@ button{font-family:inherit}
 .grid-list .recipe-card .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:none;gap:8px}
 .grid-list .recipe-card .card-foot-left{display:flex;gap:10px;font-size:12px}
 .grid-list .recipe-card .cost{font-size:15px}
-/* v75：列表视图把操作按钮改为行内右侧，始终可见，不再 absolute 遮挡作者名 */
-.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:4px;flex:none;align-self:center;margin-left:6px;padding-right:6px}
-.grid-list .recipe-card .card-actions button{width:30px;height:30px}
+/* v75→v76：列表视图把操作按钮改为行内右侧居中并放大，不再遮挡封面/名字 */
+.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:6px;flex:none;align-self:center;order:99;margin-left:auto;padding:0 8px}
+.grid-list .recipe-card .card-actions button{width:38px;height:38px;border-radius:12px}
+.grid-list .recipe-card .card-actions .ic{width:18px;height:18px}
 .grid-double .card-copy{padding:5px}
 .grid-double .card-copy .copy-text{display:none}
 .recipe-card{
@@ -343,6 +344,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 /* v75：共享池卡片操作按钮始终可见，确保「导入到工作台」入口可被发现 */
 .recipe-card[data-workspace="shared"] .card-actions{opacity:1;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(180%) blur(8px);backdrop-filter:saturate(180%) blur(8px);border-radius:999px;padding:2px 4px}
 .recipe-card[data-workspace="shared"]:hover .card-actions{background:rgba(255,255,255,.92)}
+/* v76：列表视图下按钮已在行内右侧，去掉玻璃药丸背景，保持统一卡片底色 */
+.grid-list .recipe-card[data-workspace="shared"] .card-actions{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0;padding:0}
 .card-actions button{
   width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
   background:rgba(255,255,255,.72);box-shadow:0 1px 6px rgba(0,0,0,.14);
@@ -355,6 +358,19 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .card-actions .fav-btn{color:var(--text3)}
 .card-actions .fav-btn .ic{fill:none}
 .card-actions .fav-btn.favorited{color:#ff9f0a}
+/* v76：共享池「导入到工作台」主色 CTA——始终醒目 */
+.card-actions .card-import-cta{
+  background:var(--accent);color:#fff;font-weight:600;
+  width:auto;height:34px;border-radius:999px;padding:0 12px;
+  box-shadow:0 2px 8px rgba(0,113,227,.32);
+  font-size:12.5px;gap:5px;letter-spacing:-.01em;
+}
+.card-actions .card-import-cta:hover{background:var(--accent-hover);color:#fff;transform:translateY(-1px) scale(1.03)}
+.card-actions .card-import-cta .imp-text{display:inline-block}
+@media (max-width:640px){
+  .card-actions .card-import-cta .imp-text{display:none}
+  .card-actions .card-import-cta{width:34px;height:34px;padding:0;border-radius:50%}
+}
 .card-actions .fav-btn.favorited .ic{fill:currentColor}
 
 /* ═══════════════════ 空状态 ═══════════════════ */
@@ -2540,6 +2556,7 @@ let pendingCover = null;           // 编辑表单中待保存的自定义封面
 // v74：个人 / 共享统一 6 种排序（名称/种类/点赞/上次打开/创建正序/创建倒序），默认创建倒序
 let personalSort = localStorage.getItem('yx-personal-sort') || 'createdDesc';
 let sharedSort = localStorage.getItem('yx-shared-sort') || 'createdDesc';
+let favSort = localStorage.getItem('yx-fav-sort') || 'createdDesc';   // v76：收藏夹独立排序
 let sharedLoading = false;  // v71：共享池加载中标记（用于骨架屏）
 // v74：上次打开时间记录（key: `${workspace}:${id}` → timestamp）
 let openedMap = {};
@@ -3366,7 +3383,8 @@ function sortRecipes(list, key){
       arr.sort((a,b) => (b.likes||0) - (a.likes||0));
       break;
     case 'opened':
-      arr.sort((a,b) => (openedAtFor(a) - openedAtFor(b)));
+      // v76：上次打开方向修正——最新打开排最上方（降序）
+      arr.sort((a,b) => (openedAtFor(b) - openedAtFor(a)));
       break;
     case 'createdAsc':
       arr.sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
@@ -3392,11 +3410,11 @@ function openedAtFor(r){
 function renderSortRow(){
   const row = byId('sharedSortRow');
   if(!row) return;
-  const show = currentView === 'personal' || currentView === 'shared';
+  const show = currentView === 'personal' || currentView === 'shared' || currentView === 'favorites';
   row.classList.toggle('hidden', !show);
   if(!show) return;
   const inShared = currentView === 'shared';
-  const cur = inShared ? sharedSort : personalSort;
+  const cur = currentView === 'shared' ? sharedSort : (currentView === 'favorites' ? favSort : personalSort);
   // v75：个人工作台没有点赞 → 去掉「最多点赞」；新增价格正/倒序
   const personalOpts = [
     ['name','sortName'], ['cat','sortCat'], ['opened','sortOpened'],
@@ -3415,6 +3433,7 @@ function renderSortRow(){
 /* 切换当前视图的排序 */
 function setSort(key){
   if(currentView === 'shared'){ sharedSort = key; try{ localStorage.setItem('yx-shared-sort', key); }catch(e){} }
+  else if(currentView === 'favorites'){ favSort = key; try{ localStorage.setItem('yx-fav-sort', key); }catch(e){} }
   else { personalSort = key; try{ localStorage.setItem('yx-personal-sort', key); }catch(e){} }
   render();
 }
@@ -3839,7 +3858,7 @@ function render(){
   // 工具栏显隐：统计行仅工作台/共享显示；批处理按钮仅个人工作台
   const sl = document.querySelector('.stats-line');
   if(sl) sl.style.display = (currentView === 'personal' || currentView === 'shared') ? '' : 'none';
-  byId('viewToggle').style.display = (currentView === 'personal' || currentView === 'shared') ? '' : 'none';
+  byId('viewToggle').style.display = (currentView === 'personal' || currentView === 'shared' || currentView === 'favorites') ? '' : 'none';   // v76：收藏夹也支持视图切换
   document.querySelector('.sync-tools').style.display = (currentView === 'personal' || currentView === 'shared') ? '' : 'none';
   // 共享池只保留批处理入口（导出/导入是个人专属）
   document.querySelectorAll('.sync-tools [data-act]').forEach(b => {
@@ -3885,7 +3904,7 @@ function renderFavorites(){
       ((r.name||'').toLowerCase().includes(q) ||
        flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
   });
-  const sorted = sortRecipes(list, personalSort);
+  const sorted = sortRecipes(list, favSort);   // v76：收藏夹独立排序
   byId('recipeGrid').innerHTML = sorted.map((r, i) => cardHTML(r, i)).join('');
   applyViewMode();
   renderSortRow();   // 收藏视图不显示排序行（内部会隐藏）
@@ -4161,11 +4180,11 @@ function sharedCardHTML(r, i){
   const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
   const likeCount = (r.likes || 0);
   const isSel = batchSelected.has(r.id);
-  // v67：发布者（owner）显示「编辑」；其他用户显示「导入到工作台」
+  // v67：发布者（owner）显示「编辑」；其他用户显示「导入到工作台」（v76 加文字标签 + 主色高亮，确保入口醒目）
   const isOwner = isSharedOwner(r);
   const primaryAct = isOwner
     ? `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`
-    : `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>`;
+    : `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import card-import-cta" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="imp-text">${t('sharedImport')}</span></button>`;
   // 发布者额外提供删除按钮
   const ownerDel = isOwner
     ? `<button data-act="del" data-id="${r.id}" data-workspace="shared" class="card-import act-del" title="${t('detailDelete')}" aria-label="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>`
