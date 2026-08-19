@@ -1461,6 +1461,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <div class="sheet-foot detail-foot">
       <div class="detail-actions">
         <button class="btn btn-outline" data-act="copyDetail"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg> <span data-i18n="detailCopy">复制食材</span></button>
+        <button class="btn btn-outline" data-act="publishToShared" id="detailPublishBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> <span data-i18n="publishToShared">发布到共享池</span></button>
         <button class="btn btn-outline" data-act="editFromDetail" id="detailEditBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg> <span data-i18n="detailEdit">编辑</span></button>
         <button class="btn btn-outline" data-act="importSharedToPersonal" id="detailImportBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> <span data-i18n="sharedImport">导入到工作台</span></button>
       </div>
@@ -1930,7 +1931,7 @@ const I18N = {
   ingContains:'含食材 {name}', noIngredients:'暂无食材', viewRecipe:'查看食谱 {name}',
   copyIngredientsTip:'一键复制食材文本',
   fillNameFirst:'请先填写食谱名称', fillAuthorFirst:'请填写作者名称', recipeUpdated:'食谱已更新', recipeAdded:'食谱已保存',
-  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方', sharedSortLabel:'排序', sharedSortLikes:'最多点赞', sharedSortNew:'最新发布',
+  sharedRecipeUpdated:'共享配方已更新', sharedRecipeAdded:'共享配方已保存', sharedNameExists:'共享配方池中已有同名配方', sharedSortLabel:'排序', sharedSortLikes:'最多点赞', sharedSortNew:'最新发布', publishToShared:'发布到共享池', batchPublish:'发布',
   pasteRecipeFirst:'请先粘贴食谱文案', parseNoContent:'未解析出有效内容，请检查文案格式',
   importedRecipes:'已导入 {n} 条配方（单价未填，可在编辑中补充）', builtinUpToDate:'配方库已是最新，无需重复导入',
   fillPriceName:'请填写材料名称', fillValidPrice:'请填写有效单价',
@@ -2030,7 +2031,7 @@ const I18N = {
   ingContains:'食材含む {name}', noIngredients:'食材がありません', viewRecipe:'レシピを見る {name}',
   copyIngredientsTip:'食材テキストをコピー',
   fillNameFirst:'レシピ名を入力してください', fillAuthorFirst:'作者名を入力してください', recipeUpdated:'レシピを更新しました', recipeAdded:'レシピを保存しました',
-  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します', sharedSortLabel:'並び替え', sharedSortLikes:'いいね順', sharedSortNew:'最新順',
+  sharedRecipeUpdated:'共有レシピを更新しました', sharedRecipeAdded:'共有レシピを保存しました', sharedNameExists:'同じ名前の共有レシピがすでに存在します', sharedSortLabel:'並び替え', sharedSortLikes:'いいね順', sharedSortNew:'最新順', publishToShared:'共有プールに公開', batchPublish:'公開',
   pasteRecipeFirst:'レシピ本文を貼り付けてください', parseNoContent:'有効な内容が解析できませんでした。本文の形式を確認してください',
   importedRecipes:'{n} 件のレシピをインポートしました（単価未入力は編集で補完）', builtinUpToDate:'レシピライブラリは最新です',
   fillPriceName:'材料名を入力してください', fillValidPrice:'有効な単価を入力してください',
@@ -2130,7 +2131,7 @@ const I18N = {
   ingContains:'식재료 포함 {name}', noIngredients:'식재료가 없습니다', viewRecipe:'레시피 보기 {name}',
   copyIngredientsTip:'식재료 텍스트 복사',
   fillNameFirst:'레시피명을 입력하세요', fillAuthorFirst:'작가명을 입력하세요', recipeUpdated:'레시피를 업데이트했습니다', recipeAdded:'레시피를 저장했습니다',
-  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다', sharedSortLabel:'정렬', sharedSortLikes:'좋아요 순', sharedSortNew:'최신 순',
+  sharedRecipeUpdated:'공유 레시피를 업데이트했습니다', sharedRecipeAdded:'공유 레시피를 저장했습니다', sharedNameExists:'같은 이름의 공유 레시피가 이미 존재합니다', sharedSortLabel:'정렬', sharedSortLikes:'좋아요 순', sharedSortNew:'최신 순', publishToShared:'공유 풀에 게시', batchPublish:'게시',
   pasteRecipeFirst:'레시피 본문을 붙여넣으세요', parseNoContent:'유효한 내용을 분석하지 못했습니다. 본문 형식을 확인하세요',
   importedRecipes:'{n} 개 레시피를 가져왔습니다（단가 미입력은 수정에서 보완）', builtinUpToDate:'레시피 라이브러리가 최신 상태입니다',
   fillPriceName:'재료명을 입력하세요', fillValidPrice:'유효한 단가를 입력하세요',
@@ -2230,7 +2231,7 @@ const I18N = {
   ingContains:'Contains {name}', noIngredients:'No ingredients', viewRecipe:'View recipe {name}',
   copyIngredientsTip:'Copy ingredient text',
   fillNameFirst:'Please enter a recipe name', fillAuthorFirst:'Please enter an author name', recipeUpdated:'Recipe updated', recipeAdded:'Recipe saved',
-  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists', sharedSortLabel:'Sort', sharedSortLikes:'Most liked', sharedSortNew:'Newest',
+  sharedRecipeUpdated:'Shared recipe updated', sharedRecipeAdded:'Shared recipe saved', sharedNameExists:'A shared recipe with this name already exists', sharedSortLabel:'Sort', sharedSortLikes:'Most liked', sharedSortNew:'Newest', publishToShared:'Publish to shared pool', batchPublish:'Publish',
   pasteRecipeFirst:'Please paste recipe text first', parseNoContent:'No valid content parsed. Please check the text format',
   importedRecipes:'Imported {n} recipes (fill unit prices in edit if missing)', builtinUpToDate:'Recipe library is already up to date',
   fillPriceName:'Please enter ingredient name', fillValidPrice:'Please enter a valid price',
@@ -2341,7 +2342,7 @@ const I18N = {
   formNewShared:'สร้างสูตรแชร์ใหม่',
   authorLabel:'ชื่อผู้แต่ง *', authorPlaceholder:'ชื่อเล่นหรือลายเซ็นของคุณ', authorHint:'พูลสูตรแชร์ต้องระบุชื่อผู้แต่ง และชื่อผลิตภัณฑ์เดียวกันต้องไม่ซ้ำ',
   sharedAuthor:'ผู้แต่ง', sharedLikes:'{n} ไลก์', unknownAuthor:'ไม่ระบุชื่อ', like:'ไลก์', liked:'ไลก์แล้ว', likeSharedTip:'กดไลก์สูตรแชร์นี้', sharedImport:'เพิ่มเข้าที่ทำงานของฉัน', sharedImportDone:'เพิ่มเข้าที่ทำงาน: {name}', sharedImportAlready:'เพิ่มไปแล้ว: {name}', sharedImportBatchDone:'เพิ่ม {n} สูตรเข้าที่ทำงาน', batchLike:'ไลก์',
-  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว', sharedSortLabel:'จัดเรียง', sharedSortLikes:'ไลก์มากสุด', sharedSortNew:'ใหม่ล่าสุด',
+  fillAuthorFirst:'กรุณาใส่ชื่อผู้แต่ง', sharedRecipeUpdated:'อัปเดตสูตรแชร์แล้ว', sharedRecipeAdded:'บันทึกสูตรแชร์แล้ว', sharedNameExists:'มีสูตรชื่อเดียวกันในพูลสูตรแชร์แล้ว', sharedSortLabel:'จัดเรียง', sharedSortLikes:'ไลก์มากสุด', sharedSortNew:'ใหม่ล่าสุด', publishToShared:'เผยแพร่สู่พูลสูตรแชร์', batchPublish:'เผยแพร่',
   toastSharedBuiltinLoaded:'โหลดคลังสูตรแชร์แล้ว（{n} รายการ）', toastSharedSynced:'ซิงค์สูตรแชร์ใหม่ {n} รายการแล้ว',
   toastLike:'กดไลก์「{name}」แล้ว', toastUnlike:'ยกเลิกไลก์「{name}」แล้ว',
   sharedOfficialAuthor:'หยุนเซียงผู่',
@@ -3259,6 +3260,8 @@ function renderBatchActions(){
     acts.push(`<button class="batch-act" data-act="batchLike" title="${t('batchLike')}">${ic('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>')}<span>${t('batchLike')}</span></button>`);
   }else{
     // 个人工作台（v60：去掉「导入」按钮——导入是 sync-tools 顶部的外部文件导入，不属于批处理）
+    // v73：批处理新增「发布」——一键把选中的个人配方发布到共享池
+    acts.push(`<button class="batch-act batch-primary" data-act="batchPublish" title="${t('publishToShared')}">${ic('<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/>')}<span>${t('batchPublish')}</span></button>`);
     acts.push(`<button class="batch-act batch-primary" data-act="batchFav" title="${t('batchFav')}">${ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}<span>${t('batchFav')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchCopy" title="${t('batchCopy')}">${ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>')}<span>${t('batchCopy')}</span></button>`);
     acts.push(`<button class="batch-act" data-act="batchPin" title="${t('batchPin')}">${ic('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>')}<span>${t('batchPin')}</span></button>`);
@@ -4144,6 +4147,65 @@ function batchImportSelectedToPersonal(){
   render();
 }
 
+/* v73：个人工作台一键发布到共享池（卡片 / 详情 / 批处理共用） */
+async function publishToShared(id){
+  if(!SB_ENABLED || !currentUser){
+    toast(t('sbNotConfigured'), 'error');
+    return;
+  }
+  const r = recipes.find(x => x.id === id);
+  if(!r) return;
+  if(sharedRecipes.some(x => x.name === r.name)){
+    toast(t('sharedNameExists'), 'error');
+    return;
+  }
+  const author = (currentUser.username || (currentUser.email ? currentUser.email.split('@')[0] : '') || t('unknownAuthor'));
+  const rec = {
+    _new: true,
+    name: r.name, category: r.category,
+    ingredientGroups: recipeGroups(r),
+    steps: r.steps || [], notes: r.notes || '',
+    sourceUrl: r.sourceUrl || '', cover: r.cover || '',
+    author: author, likes: 0,
+    id: uid(), createdAt: Date.now(), updatedAt: Date.now()
+  };
+  const ok = await sbUpsertShared(rec);
+  if(ok){
+    toast(t('sharedRecipeAdded'));
+    renderShared();
+  }
+}
+/* v73：批处理——一键把选中的个人配方发布到共享池（同名跳过） */
+async function batchPublishSelected(){
+  if(!SB_ENABLED || !currentUser){
+    toast(t('sbNotConfigured'), 'error');
+    return;
+  }
+  const sel = [...batchSelected];
+  if(!sel.length) return;
+  let n = 0, skipped = 0;
+  for(const id of sel){
+    const r = recipes.find(x => x.id === id);
+    if(!r) continue;
+    if(sharedRecipes.some(x => x.name === r.name)){ skipped++; continue; }
+    const author = (currentUser.username || (currentUser.email ? currentUser.email.split('@')[0] : '') || t('unknownAuthor'));
+    const rec = {
+      _new: true,
+      name: r.name, category: r.category,
+      ingredientGroups: recipeGroups(r),
+      steps: r.steps || [], notes: r.notes || '',
+      sourceUrl: r.sourceUrl || '', cover: r.cover || '',
+      author: author, likes: 0,
+      id: uid(), createdAt: Date.now(), updatedAt: Date.now()
+    };
+    if(await sbUpsertShared(rec)) n++;
+  }
+  exitBatch();
+  if(n) toast(t('sharedImportBatchDone', {n}));
+  if(skipped) toast(t('sharedNameExists') + `（${skipped}）`, 'error');
+  renderShared();
+}
+
 async function likeShared(id){
   const r = sharedRecipes.find(x => x.id === id);
   if(!r) return;
@@ -4187,6 +4249,7 @@ function cardHTML(r, i){
   <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
     ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
+      <button data-act="publishToShared" data-id="${r.id}" aria-label="${t('publishToShared')}" title="${t('publishToShared')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
       <button data-act="favPick" data-id="${r.id}" class="fav-btn ${isFaved(r.id) ? 'favorited' : ''}" aria-label="${t('favPick')}" title="${t('favPick')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
       <button data-act="edit" aria-label="${t('detailEdit')}" title="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>
       <button data-act="del" class="act-del" aria-label="${t('detailDelete')}" title="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>
@@ -4440,8 +4503,11 @@ function openDetail(id, workspace, originCard){
   const editBtn = byId('detailEditBtn');
   const delBtn = byId('detailDelBtn');
   const likeBtn = byId('detailLikeBtn');
+  const publishBtn = byId('detailPublishBtn');
   const isOwner = workspace === 'shared' && isSharedOwner(r);
   if(importBtn){ importBtn.style.display = (workspace === 'shared' && !isOwner) ? '' : 'none'; importBtn.dataset.id = id; }
+  // v73：个人池详情提供「发布到共享池」
+  if(publishBtn){ publishBtn.style.display = workspace === 'personal' ? '' : 'none'; publishBtn.dataset.id = id; }
   if(likeBtn){
     likeBtn.style.display = workspace === 'shared' ? '' : 'none';
     likeBtn.dataset.id = id;
@@ -5370,6 +5436,8 @@ document.addEventListener('click', async e => {
     case 'likeShared':     likeShared(btn.dataset.id); break;
     case 'importSharedToPersonal': importSharedToPersonal(btn.dataset.id); break;
     case 'batchImportShared': batchImportSelectedToPersonal(); break;
+    case 'publishToShared':  publishToShared(btn.dataset.id || currentDetailId); break;
+    case 'batchPublish':     batchPublishSelected(); break;
     case 'copyDetail':     copyIngredients(currentDetailId, currentDetailWorkspace); break;
     case 'coverCamera':    byId('coverCameraInput').click(); break;
     case 'coverAlbum':     byId('coverAlbumInput').click(); break;
