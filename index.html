@@ -1360,9 +1360,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <div class="sheet-foot detail-foot">
       <div class="detail-actions">
         <button class="btn btn-outline" data-act="copyDetail"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg> <span data-i18n="detailCopy">复制食材</span></button>
-        <button class="btn btn-outline" data-act="editFromDetail"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg> <span data-i18n="detailEdit">编辑</span></button>
+        <button class="btn btn-outline" data-act="editFromDetail" id="detailEditBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg> <span data-i18n="detailEdit">编辑</span></button>
+        <button class="btn btn-outline" data-act="importSharedToPersonal" id="detailImportBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> <span data-i18n="sharedImport">导入到工作台</span></button>
       </div>
-      <button class="btn btn-danger" data-act="delFromDetail"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg> <span data-i18n="detailDelete">删除</span></button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-outline" data-act="likeShared" id="detailLikeBtn" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span id="detailLikeText">点赞</span></button>
+        <button class="btn btn-danger" data-act="delFromDetail" id="detailDelBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg> <span data-i18n="detailDelete">删除</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -3540,7 +3544,13 @@ function render(){
   const sl = document.querySelector('.stats-line');
   if(sl) sl.style.display = (currentView === 'personal' || currentView === 'shared') ? '' : 'none';
   byId('viewToggle').style.display = currentView === 'personal' ? '' : 'none';
-  document.querySelector('.sync-tools').style.display = currentView === 'personal' ? '' : 'none';
+  document.querySelector('.sync-tools').style.display = (currentView === 'personal' || currentView === 'shared') ? '' : 'none';
+  // 共享池只保留批处理入口（导出/导入是个人专属）
+  document.querySelectorAll('.sync-tools [data-act]').forEach(b => {
+    const inShared = currentView === 'shared';
+    const a = b.dataset.act;
+    b.style.display = (inShared && (a === 'importData' || a === 'exportData')) ? 'none' : '';
+  });
   // 搜索栏：个人/共享/收藏显示，我的隐藏
   byId('searchBar').style.display = currentView === 'me' ? 'none' : '';
   // 分类筛选：个人/共享显示分类；收藏显示收藏夹 chips；我的隐藏
@@ -3851,7 +3861,6 @@ function sharedCardHTML(r, i){
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
           <button data-act="likeShared" data-id="${r.id}" class="card-copy ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
-          <button data-act="importSharedToPersonal" data-id="${r.id}" class="card-copy" title="${t('sharedImport')}" style="margin-left:6px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> <span class="copy-text">${t('sharedImport')}</span></button>
         </div>
       </div>
     </div>
@@ -4195,6 +4204,20 @@ function openDetail(id, workspace, originCard){
   byId('detailPinBtn').style.display = workspace === 'personal' ? '' : 'none';
   byId('detailFavBtn').classList.toggle('favorited', isFaved(r.id));
   byId('detailFavBtn').style.display = workspace === 'personal' ? '' : 'none';
+  // 共享池专属：导入到工作台 + 点赞（个人池隐藏）；编辑/删除仅个人
+  const importBtn = byId('detailImportBtn');
+  const likeBtn = byId('detailLikeBtn');
+  const editBtn = byId('detailEditBtn');
+  const delBtn = byId('detailDelBtn');
+  if(importBtn){ importBtn.style.display = workspace === 'shared' ? '' : 'none'; importBtn.dataset.id = id; }
+  if(likeBtn){
+    likeBtn.style.display = workspace === 'shared' ? '' : 'none';
+    likeBtn.dataset.id = id;
+    byId('detailLikeText').textContent = isLiked(r) ? t('liked') : t('like');
+    likeBtn.classList.toggle('liked', isLiked(r));
+  }
+  if(editBtn) editBtn.style.display = workspace === 'personal' ? '' : 'none';
+  if(delBtn) delBtn.style.display = workspace === 'personal' ? '' : 'none';
   const isCustomCover = !!r.cover;
   const heroHTML = cover ? `
     <div class="detail-hero ${isCustomCover ? '' : 'detail-hero-auto'}" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">
