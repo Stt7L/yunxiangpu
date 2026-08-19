@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v69：电脑端顶部导航进一步贴边（.nav-inner padding 14→8px）；手机端批处理胶囊改为横向滚动并保留文字；修复新建共享配方后本地临时 id 未清理导致的「作者无法编辑自己作品」bug；「我的」页面新增「我发布的」共享配方历史。
+// v70：修复共享池保存 RLS 失败（编辑时显式带 owner_id 让 WITH CHECK 通过）；电脑端顶部导航真正贴边（去掉 max-width 居中）；回到顶部按钮旁新增批处理悬浮快捷按钮（个人工作台滚动后出现，批处理模式下变红+显示已选数）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v69';
+const CACHE = 'dessert-v70';
 const SHELL = [
   './',
   './manifest.json',
