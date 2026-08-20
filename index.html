@@ -373,9 +373,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .card-actions .fav-btn.favorited .ic{fill:currentColor}
 /* v79/v81：置顶 / 点赞 状态色（置顶后按钮实心蓝，一目了然） */
 .card-actions .pin-act.on{background:var(--accent);color:#fff}
-.card-actions .like-act{color:#ff3b30}
+.card-actions .like-act{color:var(--text3)}   /* v81：未点赞灰色，与白色按钮一致 */
 .card-actions .like-act .ic{fill:none}
+.card-actions .like-act:hover{color:var(--text)}
+.card-actions .like-act.on{color:#ff3b30}
 .card-actions .like-act.on .ic{fill:#ff3b30}
+/* v81：共享点赞计数默认灰色（不再红色抢眼） */
+.shared-likes{color:var(--text3);display:inline-flex;align-items:center;gap:3px}
+.shared-likes .ic{width:13px;height:13px}
+/* v81：列表视图作者名内联在食谱名旁边 */
+.name-author{font-size:12px;font-weight:500;color:var(--text3)}
 @media (max-width:640px){
   .card-actions button{width:26px;height:26px;gap:4px}
   .card-actions{gap:4px}
@@ -1118,11 +1125,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .sort-row::-webkit-scrollbar{display:none}
 .sort-row .chip-btn{flex:none}
 .sort-label{font-size:12px;font-weight:600;color:var(--text3);margin-right:2px;flex:none}
-/* v62 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（bottom 130px 避开加大后的 Dock） */
+/* v62 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（v81 更贴近 Dock，去掉取消/计数，只保留删除分割线） */
 .batch-actions{
-  position:fixed;left:50%;bottom:calc(134px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
+  position:fixed;left:50%;bottom:calc(102px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
   z-index:70;display:flex;gap:4px;align-items:center;
-  padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+  padding:7px 12px calc(7px + env(safe-area-inset-bottom));
   background:rgba(255,255,255,.55);
   -webkit-backdrop-filter:saturate(180%) blur(26px);backdrop-filter:saturate(180%) blur(26px);
   border:1px solid rgba(255,255,255,.62);
@@ -1131,7 +1138,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   transition:transform .42s cubic-bezier(.16,1,.3,1), opacity .32s cubic-bezier(.16,1,.3,1);
 }
 .batch-actions.shown{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
-.batch-count-pill{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:5px 12px;white-space:nowrap;margin-right:6px}
+/* v81：已选计数悬浮在胶囊上方 */
+.batch-count-float{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(164px + env(safe-area-inset-bottom));z-index:71;
+  font-size:12px;font-weight:700;color:#fff;background:var(--accent);
+  border-radius:999px;padding:5px 14px;white-space:nowrap;
+  box-shadow:0 6px 20px rgba(0,113,227,.35);
+  animation:countPop .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes countPop{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.8)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
 .batch-act{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   min-width:54px;padding:6px 8px 5px;border:none;border-radius:18px;background:transparent;
@@ -1145,10 +1161,10 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .batch-act.batch-primary{color:var(--accent)}
 .batch-act.batch-on{background:rgba(0,113,227,.12);color:var(--accent)}
 .batch-sep{width:1px;height:28px;background:rgba(0,0,0,.10);margin:0 4px}
-/* v69：手机端批处理胶囊改为横向滚动，保留文字说明 */
+/* v69：手机端批处理胶囊改为横向滚动，保留文字说明（v81 更贴近 Dock） */
 @media (max-width:640px){
   .batch-actions{
-    bottom:calc(118px + env(safe-area-inset-bottom));
+    bottom:calc(92px + env(safe-area-inset-bottom));
     padding:6px 10px calc(6px + env(safe-area-inset-bottom));
     gap:4px;
     width:calc(100vw - 20px);max-width:none;
@@ -1158,7 +1174,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     justify-content:flex-start;
   }
   .batch-actions::-webkit-scrollbar{display:none}
-  .batch-count-pill{padding:4px 10px;font-size:11px;margin-right:4px;flex:none}
+  .batch-count-float{bottom:calc(150px + env(safe-area-inset-bottom));padding:4px 12px;font-size:11px}
   .batch-act{min-width:46px;padding:6px 6px 5px;gap:1px;flex:none}
   .batch-act .ic{width:17px;height:17px}
   .batch-sep{height:24px;margin:0 4px;flex:none}
@@ -1399,6 +1415,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 <!-- 批处理底部操作栏 -->
 <!-- 批处理底部悬浮操作栏（v61 起用 .shown class + slide 动画控制显示；v63 修复：删除残留 hidden class 导致 display:none 永远不可见） -->
 <div id="batchActions" class="batch-actions"></div>
+<!-- v81：批处理已选计数（悬浮在胶囊上方） -->
+<div id="batchCountFloat" class="batch-count-float" style="display:none">0</div>
 
 <!-- 底部液态玻璃 Dock 导航（iOS 风格：个人工作台 / 共享池 / + / 收藏夹 / 我） -->
 <nav class="dock" id="bottomDock" aria-label="主导航">
@@ -3345,15 +3363,13 @@ async function batchExport(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast(t('exportShareTip'));
 }
-/* v58 批处理底部悬浮胶囊：左侧 [已选 N] [全选] [取消]，右侧按视图的操作按钮集；风格与 Dock 一致 */
+/* v58 批处理底部悬浮胶囊：左侧 [全选]，右侧按视图的操作按钮集；v81 计数移到胶囊上方、去掉取消、只有删除前有分割线 */
 function renderBatchActions(){
   const inFav = currentView === 'favorites';
   const inShared = currentView === 'shared';
   const ic = (d) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
   const left = `
-    <span class="batch-count-pill">${t('batchCount', {n: batchSelected.size})}</span>
-    <button class="batch-act" data-act="batchSelectAll" title="${t('batchSelectAll')}">${ic('<path d="M5 12l5 5L20 7"/>')}<span>${t('batchSelectAll')}</span></button>
-    <button class="batch-act" data-act="batchCancel" title="${t('batchCancel')}">${ic('<path d="M6 6 18 18M18 6 6 18"/>')}<span>${t('batchCancel')}</span></button>`;
+    <button class="batch-act" data-act="batchSelectAll" title="${t('batchSelectAll')}">${ic('<path d="M5 12l5 5L20 7"/>')}<span>${t('batchSelectAll')}</span></button>`;
   const acts = [];
   if(inFav){
     acts.push(`<button class="batch-act batch-primary" data-act="batchFav" title="${t('favRemoveRecipe')}">${ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M10 12h4"/>')}<span>${t('batchUnfav')}</span></button>`);
@@ -3375,10 +3391,10 @@ function renderBatchActions(){
     acts.push(`<button class="batch-act" data-act="batchExport" title="${t('batchExport')}">${ic('<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>')}<span>${t('batchExport')}</span></button>`);
   }
   const sep = `<span class="batch-sep"></span>`;
-  // v60：删除仅个人工作台支持（共享池无意义）
+  // v60：删除仅个人工作台支持（共享池无意义）；v81：只有删除按钮前有分割线，其余按钮直接相邻
   const del = !inShared
- ? `<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>` : '';
-  byId('batchActions').innerHTML = left + sep + acts.join('') + (del ? sep + del : '');
+ ? `${sep}<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>` : '';
+  byId('batchActions').innerHTML = left + acts.join('') + del;
 }
 /* 共享池批处理：批量点赞 */
 async function batchLikeSelected(){
@@ -3410,6 +3426,13 @@ function updateBatchUI(){
   const el = byId('batchActions');
   if(inBatch){ renderBatchActions(); el.classList.add('shown'); }
   else { el.classList.remove('shown'); }
+  // v81：已选计数悬浮在胶囊上方
+  const cf = byId('batchCountFloat');
+  if(cf){
+    const n = batchSelected ? batchSelected.size : 0;
+    cf.style.display = (inBatch && n > 0) ? 'flex' : 'none';
+    cf.textContent = n;
+  }
   updateBatchFab();
 }
 
@@ -4238,8 +4261,10 @@ function sharedCardHTML(r, i){
   // v78→v79：共享池卡片操作区 = 复制 + 导入（统一白色圆形）+ 点赞 + 发布者编辑/删除
   const isOwner = isSharedOwner(r);
   const isLikedHere = isLiked(r);
+  const isList = cardViewMode === 'list';   // v81：列表视图作者内联到名称旁
   const importBtnHTML = `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>`;
-  const likeBtnHTML = `<button data-act="likeShared" data-id="${r.id}" class="like-act ${isLikedHere ? 'on' : ''}" title="${t('likeSharedTip')}" aria-label="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLikedHere ? '#ff3b30' : 'none'}" stroke="#ff3b30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>`;
+  // v81：未点赞为灰色（与白色按钮一致），已点赞才变红心
+  const likeBtnHTML = `<button data-act="likeShared" data-id="${r.id}" class="like-act ${isLikedHere ? 'on' : ''}" title="${t('likeSharedTip')}" aria-label="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>`;
   const editBtnHTML = isOwner
     ? `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`
     : '';
@@ -4258,12 +4283,12 @@ function sharedCardHTML(r, i){
     </div>
     <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
     <div class="card-body">
-      <div class="card-meta"><span class="badge">${tCat(cat.name)}</span><span class="time">${esc(r.author || t('unknownAuthor'))}</span></div>
-      <h3>${highlight(r.name, searchTerm)}</h3>
+      <div class="card-meta"><span class="badge">${tCat(cat.name)}</span><span class="time"${isList ? ' style="display:none"' : ''}>${esc(r.author || t('unknownAuthor'))}</span></div>
+      <h3>${highlight(r.name, searchTerm)}${isList ? `<span class="name-author"> · ${esc(r.author || t('unknownAuthor'))}</span>` : ''}</h3>
       <p class="ing-summary">${ingLine}</p>
       <div class="card-foot">
         <div class="card-foot-left">
-          <span class="shared-likes" style="color:#ff3b30"><svg class="ic" viewBox="0 0 24 24" fill="#ff3b30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${likeCount}</span>
+          <span class="shared-likes"><svg class="ic" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${likeCount}</span>
         </div>
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
@@ -5745,9 +5770,10 @@ function updateBackToTop(){
 function updateBatchFab(){
   const fab = byId('batchFabFloat');
   if(!fab) return;
-  const showPersonal = currentView === 'personal';
+  // v81：下滑出现的批处理入口——个人/共享/收藏三个视图都显示（原仅个人）
+  const showInView = currentView === 'personal' || currentView === 'shared' || currentView === 'favorites';
   const scrolled = (window.scrollY || window.pageYOffset) > 200;
-  fab.classList.toggle('show', showPersonal && scrolled);
+  fab.classList.toggle('show', showInView && scrolled);
   fab.classList.toggle('on', batchMode);
   const dot = byId('batchFabDot');
   if(dot){
