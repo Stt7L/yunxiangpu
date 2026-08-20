@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v84：收藏页顶部工具（批处理/删除）强制推到最右且顺序为「批处理在左、删除在右」；移除批处理胶囊上方「已选 N」蓝色浮标。
+// v85-fix：收藏页 .fav-filter-row 必须 width:100% 填满 .cat-filter，配合 flex:1 的 chips 才能把「批处理/删除」真正推到最右。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v84';
+const CACHE = 'dessert-v85';
 const SHELL = [
   './',
   './manifest.json',
