@@ -1269,8 +1269,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 }
 .me-card-published .me-edit:active{transform:scale(.88)}
 .me-card-published .me-edit .ic{width:14px;height:14px}
-/* 收藏视图顶部：收藏夹 chips（复用分类栏位） */
-.fav-filter-row{display:flex;gap:8px;align-items:center;padding:2px 2px 12px}
+/* 收藏视图顶部：收藏夹 chips（复用分类栏位）；v84-fix：fav-filter-row 必须 100% 填满 .cat-filter 才能让工具真正贴右 */
+.fav-filter-row{display:flex;gap:8px;align-items:center;padding:2px 2px 12px;width:100%}
 .fav-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
 .fav-chips::-webkit-scrollbar{display:none}
 /* v79：收藏页工具按钮固定右侧，与个人/共享批处理风格一致（chip-btn）；v84：margin-left:auto 强制推到最右 */
