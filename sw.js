@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v85-fix：收藏页 .fav-filter-row 必须 width:100% 填满 .cat-filter，配合 flex:1 的 chips 才能把「批处理/删除」真正推到最右。
+// v86-fix：移除 Dock 高亮滑块(.dock-indicator)上等大的白色内阴影填充，改为纯蓝透明玻璃高亮(蓝色描边)，消除白/蓝大小差。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v85';
+const CACHE = 'dessert-v86';
 const SHELL = [
   './',
   './manifest.json',
