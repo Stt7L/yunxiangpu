@@ -899,7 +899,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .grid-single{grid-template-columns:1fr}
   .grid-single .recipe-card .meta-row{font-size:12px}
   .grid-single .recipe-card .cost{font-size:16px}
-  /* v74：移动端三卡片/列表紧凑适配 */
+  /* v83：列表视图在移动端也必须是单列（此前被上方 .grid 双列规则覆盖导致错乱） */
+  .grid-list{grid-template-columns:1fr;gap:10px}
+  /* v83：移动端双/三卡片空间小，隐藏卡片操作小按钮，避免杂乱 */
+  .grid-double .card-actions,.grid-triple .card-actions{display:none}
+  /* v74：移动端三卡片紧凑适配 */
   .grid-triple{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   .grid-triple .cover{height:80px}
   .grid-triple .card-body{padding:8px 8px 10px}
@@ -908,6 +912,10 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .grid-list .recipe-card .cover{width:72px;height:64px;margin:6px}
   .grid-list .recipe-card .cover .cover-mono{font-size:20px}
   .grid-list .recipe-card .card-foot-left{gap:8px;font-size:11px}
+  /* v83：手机端顶部标签/排序行间距收紧 */
+  .cat-filter{gap:6px}
+  .sort-row{gap:6px}
+  .cat-filter .cat-chip,.sort-row .chip-btn{padding:0 10px;height:30px;font-size:12.5px}
   .cover{height:112px}
   .sheet-head{padding:16px 20px 0}
   .sheet-body{padding:16px 20px 22px}
@@ -1138,6 +1146,8 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   transition:transform .42s cubic-bezier(.16,1,.3,1), opacity .32s cubic-bezier(.16,1,.3,1);
 }
 .batch-actions.shown{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+/* v83：胶囊内按钮容器——桌面/移动端都居中，溢出时可滚动 */
+.batch-inner{display:flex;gap:4px;align-items:center;margin:0 auto;min-width:0}
 /* v81：已选计数悬浮在胶囊上方 */
 .batch-count-float{
   position:fixed;left:50%;transform:translateX(-50%);
@@ -3243,14 +3253,38 @@ function favFolderSelect(id){
 let batchMode = false;
 let batchSelected = new Set();
 /* 个人工作台当前过滤列表（与 renderPersonal 同一过滤规则，供渲染/全选共用） */
+/* v83：模糊搜索——分词 + 子序列匹配 + 扩展字段（名称/食材/分类/备注/步骤） */
+function searchTokens(){
+  return searchTerm.trim().toLowerCase().split(/\s+/).filter(Boolean);
+}
+/* 子序列匹配：token 每个字符按顺序出现在 text 中（「奥奶」→「奥利奥奶油蛋糕」）；单字符只做包含匹配避免过度命中 */
+function fuzzyMatch(text, token){
+  if(!text || !token) return false;
+  text = text.toLowerCase();
+  if(text.includes(token)) return true;
+  if(token.length < 2) return false;
+  let ti = 0;
+  for(let i = 0; i < text.length && ti < token.length; i++){
+    if(text[i] === token[ti]) ti++;
+  }
+  return ti === token.length;
+}
+function searchMatch(r, tokens){
+  if(!tokens.length) return true;
+  const name = r.name || '';
+  const ingText = flatIngredients(r).map(i => i.name || '').join(' ');
+  const cat = displayCat(r.category) || '';
+  const notes = r.notes || '';
+  const steps = (r.steps || []).join(' ');
+  const haystacks = [name, ingText, cat, notes, steps];
+  return tokens.every(tok => haystacks.some(h => fuzzyMatch(h, tok)));
+}
 function personalFiltered(){
-  const q = searchTerm.trim().toLowerCase();
+  const tokens = searchTokens();
   return recipes.filter(r => {
     const folderMatch = activeFolder === '' ? true : (r.favFolderIds || []).includes(activeFolder);
     const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
-    return folderMatch && catMatch &&
-      ((r.name||'').toLowerCase().includes(q) ||
-       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+    return folderMatch && catMatch && searchMatch(r, tokens);
   });
 }
 function openBatch(){
@@ -3282,19 +3316,18 @@ function toggleBatchSelect(id){
 }
 /* 当前视图的候选列表（个人=过滤后的配方；收藏=当前夹的收藏配方；共享池=当前过滤后的共享配方） */
 function batchFilteredList(){
+  const tokens = searchTokens();   // v83：模糊搜索
   if(currentView === 'favorites'){
-    const q = searchTerm.trim().toLowerCase();
     return recipes.filter(r => {
       const ids = r.favFolderIds || [];
       const folderMatch = activeFolder === '' ? ids.length > 0 : ids.includes(activeFolder);
-      return folderMatch && ((r.name||'').toLowerCase().includes(q) || flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+      return folderMatch && searchMatch(r, tokens);
     });
   }
   if(currentView === 'shared'){
-    const q = searchTerm.trim().toLowerCase();
     return sharedRecipes.filter(r => {
       const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
-      return catMatch && ((r.name||'').toLowerCase().includes(q) || flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+      return catMatch && searchMatch(r, tokens);
     });
   }
   return personalFiltered();
@@ -3394,7 +3427,7 @@ function renderBatchActions(){
   // v60：删除仅个人工作台支持（共享池无意义）；v81：只有删除按钮前有分割线，其余按钮直接相邻
   const del = !inShared
  ? `${sep}<button class="batch-act batch-danger" data-act="batchDel" title="${t('batchDel')}">${ic('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>')}<span>${t('batchDel')}</span></button>` : '';
-  byId('batchActions').innerHTML = left + acts.join('') + del;
+  byId('batchActions').innerHTML = `<div class="batch-inner">${left + acts.join('') + del}</div>`;
 }
 /* 共享池批处理：批量点赞 */
 async function batchLikeSelected(){
@@ -3426,12 +3459,12 @@ function updateBatchUI(){
   const el = byId('batchActions');
   if(inBatch){ renderBatchActions(); el.classList.add('shown'); }
   else { el.classList.remove('shown'); }
-  // v81：已选计数悬浮在胶囊上方
+  // v81：已选计数悬浮在胶囊上方（v83 显示「已选 N」文字）
   const cf = byId('batchCountFloat');
   if(cf){
     const n = batchSelected ? batchSelected.size : 0;
     cf.style.display = (inBatch && n > 0) ? 'flex' : 'none';
-    cf.textContent = n;
+    cf.textContent = t('batchCount', {n});
   }
   updateBatchFab();
 }
@@ -3959,13 +3992,12 @@ function renderFavorites(){
     activeFolder = nonEmpty ? nonEmpty.id : favoriteFolders[0].id;
   }
   renderFavFilter();
-  const q = searchTerm.trim().toLowerCase();
+  // v83：模糊搜索（分词 + 子序列 + 扩展字段）
+  const tokens = searchTokens();
   const list = recipes.filter(r => {
     const ids = r.favFolderIds || [];
     const folderMatch = activeFolder === '' ? ids.length > 0 : ids.includes(activeFolder);
-    return folderMatch &&
-      ((r.name||'').toLowerCase().includes(q) ||
-       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+    return folderMatch && searchMatch(r, tokens);
   });
   const sorted = sortRecipes(list, favSort);   // v76：收藏夹独立排序
   byId('recipeGrid').innerHTML = sorted.map((r, i) => cardHTML(r, i)).join('');
@@ -4218,13 +4250,11 @@ function renderShared(){
     updateBatchUI();
     return;
   }
-  const q = searchTerm.trim().toLowerCase();
-  // 支持按分类筛选（与个人工作台一致：displayCat 映射 + 重命名跟随）
+  // v83：模糊搜索（分词 + 子序列 + 扩展字段）
+  const tokens = searchTokens();
   const list = sharedRecipes.filter(r => {
     const catMatch = activeCat === '' ? true : displayCat(r.category) === activeCat;
-    return catMatch &&
-      ((r.name||'').toLowerCase().includes(q) ||
-       flatIngredients(r).some(i => (i.name||'').toLowerCase().includes(q)));
+    return catMatch && searchMatch(r, tokens);
   });
   // v74：统一排序系统
   const sorted = sortRecipes(list, sharedSort);
