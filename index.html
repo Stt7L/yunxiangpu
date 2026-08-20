@@ -270,12 +270,16 @@ button{font-family:inherit}
 .grid-list .recipe-card .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:none;gap:8px}
 .grid-list .recipe-card .card-foot-left{display:flex;gap:10px;font-size:12px}
 .grid-list .recipe-card .cost{font-size:15px}
-/* v75→v77：列表视图操作按钮——垂直居中的独立列，右侧留白，不遮挡封面/名字/价格/作者 */
-.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:6px;flex:none;align-self:center;order:99;margin-left:auto;margin-right:16px}
-.grid-list .recipe-card .card-actions button{width:38px;height:38px;border-radius:50%}
-.grid-list .recipe-card .card-actions .ic{width:18px;height:18px}
-.grid-list .recipe-card .card-actions .card-import-cta{border-radius:999px;height:34px;width:auto}
-.grid-list .recipe-card .card-body{padding-right:8px}
+/* v75→v79：列表视图操作按钮——垂直居中靠右、放大、统一白色圆形、不遮挡文字 */
+.grid-list .recipe-card .card-actions{position:static;opacity:1;display:flex;gap:8px;flex:none;align-self:center;order:99;margin-left:auto;margin-right:18px;flex-wrap:nowrap;max-width:none;justify-content:flex-start}
+.grid-list .recipe-card .card-actions button{width:42px;height:42px;border-radius:50%}
+.grid-list .recipe-card .card-actions .ic{width:20px;height:20px}
+.grid-list .recipe-card .card-body{padding-right:10px}
+@media (max-width:640px){
+  .grid-list .recipe-card .card-actions{margin-right:10px;gap:4px}
+  .grid-list .recipe-card .card-actions button{width:30px;height:30px}
+  .grid-list .recipe-card .card-actions .ic{width:15px;height:15px}
+}
 /* v77：共享池「已导入」小标记 */
 .imported-tag{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);flex:none}
 .imported-tag .ic{width:15px;height:15px}
@@ -342,18 +346,15 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   margin-top:auto;margin-bottom:88px;
 }
 
-/* 卡片右上角操作 */
-.card-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity .2s;z-index:2}
+/* 卡片右上角操作（v79：统一白色圆形按钮，支持换行防溢出） */
+.card-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 18px);opacity:0;transition:opacity .2s;z-index:2}
 .recipe-card:hover .card-actions{opacity:1}
 @media (hover:none){.card-actions{opacity:1}}
-/* v75：共享池卡片操作按钮始终可见，确保「导入到工作台」入口可被发现 */
-.recipe-card[data-workspace="shared"] .card-actions{opacity:1;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(180%) blur(8px);backdrop-filter:saturate(180%) blur(8px);border-radius:999px;padding:2px 4px}
-.recipe-card[data-workspace="shared"]:hover .card-actions{background:rgba(255,255,255,.92)}
-/* v76：列表视图下按钮已在行内右侧，去掉玻璃药丸背景，保持统一卡片底色 */
-.grid-list .recipe-card[data-workspace="shared"] .card-actions{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0;padding:0}
+/* v79：共享池操作按钮始终可见（统一白色圆形，不再有蓝色 CTA / 玻璃药丸背景） */
+.recipe-card[data-workspace="shared"] .card-actions{opacity:1}
 .card-actions button{
-  width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
-  background:rgba(255,255,255,.72);box-shadow:0 1px 6px rgba(0,0,0,.14);
+  width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.82);box-shadow:0 1px 6px rgba(0,0,0,.14);
   font-size:13px;color:var(--text2);transition:all .18s var(--ease);
   display:flex;align-items:center;justify-content:center;
   -webkit-backdrop-filter:saturate(180%) blur(10px);backdrop-filter:saturate(180%) blur(10px);
@@ -363,20 +364,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .card-actions .fav-btn{color:var(--text3)}
 .card-actions .fav-btn .ic{fill:none}
 .card-actions .fav-btn.favorited{color:#ff9f0a}
-/* v76：共享池「导入到工作台」主色 CTA——始终醒目 */
-.card-actions .card-import-cta{
-  background:var(--accent);color:#fff;font-weight:600;
-  width:auto;height:34px;border-radius:999px;padding:0 12px;
-  box-shadow:0 2px 8px rgba(0,113,227,.32);
-  font-size:12.5px;gap:5px;letter-spacing:-.01em;
-}
-.card-actions .card-import-cta:hover{background:var(--accent-hover);color:#fff;transform:translateY(-1px) scale(1.03)}
-.card-actions .card-import-cta .imp-text{display:inline-block}
-@media (max-width:640px){
-  .card-actions .card-import-cta .imp-text{display:none}
-  .card-actions .card-import-cta{width:34px;height:34px;padding:0;border-radius:50%}
-}
 .card-actions .fav-btn.favorited .ic{fill:currentColor}
+/* v79：置顶 / 点赞 状态色 */
+.card-actions .pin-act.on{color:var(--accent)}
+.card-actions .like-act{color:#ff3b30}
+.card-actions .like-act .ic{fill:none}
+.card-actions .like-act.on .ic{fill:#ff3b30}
+@media (max-width:640px){
+  .card-actions button{width:26px;height:26px;gap:4px}
+  .card-actions{gap:4px}
+}
 
 /* ═══════════════════ 空状态 ═══════════════════ */
 .empty{text-align:center;padding:90px 24px;max-width:440px;margin:0 auto;animation:fadeUp .6s var(--ease) both}
@@ -2006,7 +2003,7 @@ const I18N = {
   toastRecipeSaved:'食谱已保存', toastRecipeDeleted:'食谱已删除', toastCoverRemoved:'封面已移除',
   toastNoCover:'没有选择图片', toastCameraNotSupported:'当前设备不支持摄像头',
   timeJustNow:'刚刚', timeMinutesAgo:'{n} 分钟前', timeHoursAgo:'{n} 小时前', timeDaysAgo:'{n} 天前',
-  cardIngCount:'{n} 种食材', cardStepCount:'{n} 步', cardCopy:'复制食材', cardPinned:'置顶', cardFavorite:'收藏', cardUnfavorite:'取消收藏',
+  cardIngCount:'{n} 种食材', cardStepCount:'{n} 步', cardCopy:'复制食材', cardPinned:'已置顶', cardUnpinned:'已取消置顶', cardFavorite:'收藏', cardUnfavorite:'取消收藏',
   sharedOfficialAuthor:'云享谱',
   emptyNoSearchText:'没有找到与「{term}」匹配的食谱',
   ingContains:'含食材 {name}', noIngredients:'暂无食材', viewRecipe:'查看食谱 {name}',
@@ -2106,7 +2103,7 @@ const I18N = {
   toastRecipeSaved:'レシピを保存しました', toastRecipeDeleted:'レシピを削除しました', toastCoverRemoved:'表紙を削除しました',
   toastNoCover:'画像が選択されていません', toastCameraNotSupported:'このデバイスはカメラをサポートしていません',
   timeJustNow:'たった今', timeMinutesAgo:'{n} 分前', timeHoursAgo:'{n} 時間前', timeDaysAgo:'{n} 日前',
-  cardIngCount:'食材 {n} 種類', cardStepCount:'{n} 手順', cardCopy:'食材コピー', cardPinned:'固定', cardFavorite:'お気に入り', cardUnfavorite:'お気に入り解除',
+  cardIngCount:'食材 {n} 種類', cardStepCount:'{n} 手順', cardCopy:'食材コピー', cardPinned:'固定中', cardUnpinned:'固定解除', cardFavorite:'お気に入り', cardUnfavorite:'お気に入り解除',
   sharedOfficialAuthor:'雲享譜',
   emptyNoSearchText:'「{term}」に一致するレシピが見つかりません',
   ingContains:'食材含む {name}', noIngredients:'食材がありません', viewRecipe:'レシピを見る {name}',
@@ -2206,7 +2203,7 @@ const I18N = {
   toastRecipeSaved:'레시피를 저장했습니다', toastRecipeDeleted:'레시피를 삭제했습니다', toastCoverRemoved:'표지를 제거했습니다',
   toastNoCover:'선택한 이미지가 없습니다', toastCameraNotSupported:'이 장치는 칩셋을 지원하지 않습니다',
   timeJustNow:'방금', timeMinutesAgo:'{n} 분 전', timeHoursAgo:'{n} 시간 전', timeDaysAgo:'{n} 일 전',
-  cardIngCount:'식재료 {n} 종', cardStepCount:'{n} 단계', cardCopy:'식재료 복사', cardPinned:'고정', cardFavorite:'즐겨찾기', cardUnfavorite:'즐겨찾기 해제',
+  cardIngCount:'식재료 {n} 종', cardStepCount:'{n} 단계', cardCopy:'식재료 복사', cardPinned:'고정됨', cardUnpinned:'고정 해제됨', cardFavorite:'즐겨찾기', cardUnfavorite:'즐겨찾기 해제',
   sharedOfficialAuthor:'운샹푸',
   emptyNoSearchText:'「{term}」와(과) 일치하는 레시피가 없습니다',
   ingContains:'식재료 포함 {name}', noIngredients:'식재료가 없습니다', viewRecipe:'레시피 보기 {name}',
@@ -2306,7 +2303,7 @@ const I18N = {
   toastRecipeSaved:'Recipe saved', toastRecipeDeleted:'Recipe deleted', toastCoverRemoved:'Cover removed',
   toastNoCover:'No image selected', toastCameraNotSupported:'Camera not supported on this device',
   timeJustNow:'Just now', timeMinutesAgo:'{n} min ago', timeHoursAgo:'{n} h ago', timeDaysAgo:'{n} d ago',
-  cardIngCount:'{n} ingredients', cardStepCount:'{n} steps', cardCopy:'Copy', cardPinned:'Pinned', cardFavorite:'Favorite', cardUnfavorite:'Unfavorite',
+  cardIngCount:'{n} ingredients', cardStepCount:'{n} steps', cardCopy:'Copy', cardPinned:'Pinned', cardUnpinned:'Unpinned', cardFavorite:'Favorite', cardUnfavorite:'Unfavorite',
   sharedOfficialAuthor:'YunXiangPu',
   emptyNoSearchText:'No recipes matching 「{term}」',
   ingContains:'Contains {name}', noIngredients:'No ingredients', viewRecipe:'View recipe {name}',
@@ -2399,7 +2396,7 @@ const I18N = {
   toastRecipeSaved:'บันทึกสูตรแล้ว', toastRecipeDeleted:'ลบสูตรแล้ว', toastCoverRemoved:'ลบหน้าปกแล้ว',
   toastNoCover:'ยังไม่ได้เลือกรูปภาพ', toastCameraNotSupported:'อุปกรณ์นี้ไม่รองรับกล้อง',
   timeJustNow:'เมื่อกี้', timeMinutesAgo:'{n} นาทีที่แล้ว', timeHoursAgo:'{n} ชั่วโมงที่แล้ว', timeDaysAgo:'{n} วันที่แล้ว',
-  cardIngCount:'{n} วัตถุดิบ', cardStepCount:'{n} ขั้นตอน', cardCopy:'คัดลอก', cardPinned:'ปักหมุด', cardFavorite:'รายการโปรด', cardUnfavorite:'ยกเลิกรายการโปรด',
+  cardIngCount:'{n} วัตถุดิบ', cardStepCount:'{n} ขั้นตอน', cardCopy:'คัดลอก', cardPinned:'ปักหมุดแล้ว', cardUnpinned:'ยกเลิกการปักหมุดแล้ว', cardFavorite:'รายการโปรด', cardUnfavorite:'ยกเลิกรายการโปรด',
   emptyNoSearchText:'ไม่พบสูตรที่ตรงกับ「{term}」',
   ingContains:'มี {name}', noIngredients:'ยังไม่มีวัตถุดิบ', viewRecipe:'ดูสูตร {name}',
   copyIngredientsTip:'คัดลอกข้อความวัตถุดิบ',
@@ -4223,10 +4220,11 @@ function sharedCardHTML(r, i){
   const ingLine = allIngs.length ? allIngs.map(i => esc(i.name)).join(' · ') : t('noIngredients');
   const likeCount = (r.likes || 0);
   const isSel = batchSelected.has(r.id);
-  // v67/v77：共享池卡片操作区 = 导入按钮（永远可见）+ 发布者编辑/删除
-  // —— 导入到个人工作台与是否发布者无关：只要用户想要，随时可导入自己的/别人的配方
+  // v78→v79：共享池卡片操作区 = 复制 + 导入（统一白色圆形）+ 点赞 + 发布者编辑/删除
   const isOwner = isSharedOwner(r);
-  const importBtnHTML = `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import card-import-cta" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="imp-text">${t('sharedImport')}</span></button>`;
+  const isLikedHere = isLiked(r);
+  const importBtnHTML = `<button data-act="importSharedToPersonal" data-id="${r.id}" class="card-import" title="${t('sharedImport')}" aria-label="${t('sharedImport')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>`;
+  const likeBtnHTML = `<button data-act="likeShared" data-id="${r.id}" class="like-act ${isLikedHere ? 'on' : ''}" title="${t('likeSharedTip')}" aria-label="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLikedHere ? '#ff3b30' : 'none'}" stroke="#ff3b30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>`;
   const editBtnHTML = isOwner
     ? `<button data-act="edit" data-id="${r.id}" data-workspace="shared" class="card-import" title="${t('detailEdit')}" aria-label="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>`
     : '';
@@ -4237,7 +4235,9 @@ function sharedCardHTML(r, i){
   <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" data-workspace="shared" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
     ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
+      <button data-act="copy" aria-label="${t('cardCopy')}" title="${t('cardCopy')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
       ${importBtnHTML}
+      ${likeBtnHTML}
       ${editBtnHTML}
       ${ownerDel}
     </div>
@@ -4252,7 +4252,6 @@ function sharedCardHTML(r, i){
         </div>
         <div class="card-foot-right">
           <span class="cost">${fmt(recipeCost(r))}</span>
-          <button data-act="likeShared" data-id="${r.id}" class="card-copy like-btn ${isLiked(r) ? 'liked' : ''}" title="${t('likeSharedTip')}"><svg class="ic" viewBox="0 0 24 24" fill="${isLiked(r) ? '#ff3b30' : 'none'}" stroke="#ff3b30" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> <span class="copy-text">${isLiked(r) ? t('liked') : t('like')}</span></button>
         </div>
       </div>
     </div>
@@ -4419,9 +4418,11 @@ function cardHTML(r, i){
   <article class="recipe-card${batchMode ? ' batch-mode' : ''}${isSel ? ' selected' : ''}" data-id="${r.id}" style="animation-delay:${(i % 10) * 35}ms" tabindex="0" role="button" aria-label="${t('viewRecipe', {name: esc(r.name)})}">
     ${batchMode ? `<span class="batch-check">${isSel ? '✓' : ''}</span>` : ''}
     <div class="card-actions">
+      <button data-act="copy" aria-label="${t('cardCopy')}" title="${t('cardCopy')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
       <button data-act="publishToShared" data-id="${r.id}" aria-label="${t('publishToShared')}" title="${t('publishToShared')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
       <button data-act="favPick" data-id="${r.id}" class="fav-btn ${isFaved(r.id) ? 'favorited' : ''}" aria-label="${t('favPick')}" title="${t('favPick')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
       <button data-act="edit" aria-label="${t('detailEdit')}" title="${t('detailEdit')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></button>
+      <button data-act="togglePinCard" data-id="${r.id}" class="pin-act ${r.pinned ? 'on' : ''}" aria-label="${t('detailPin')}" title="${t('detailPin')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></button>
       <button data-act="del" class="act-del" aria-label="${t('detailDelete')}" title="${t('detailDelete')}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="m6 7 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>
     </div>
     <div class="cover" style="background:${cat.grad}" data-mono="${esc((r.name||'?').charAt(0))}">${cover ? `<img class="cover-img" src="${cover}" alt="${esc(r.name)}" onerror="this.outerHTML='<span class=cover-mono>'+this.parentNode.dataset.mono+'</span>'">` : `<span class="cover-mono">${esc((r.name||'?').charAt(0))}</span>`}</div>
@@ -4772,6 +4773,16 @@ function togglePin(){
   byId('detailPinBtn').classList.toggle('pinned', !!r.pinned);
   render();
   toast(r.pinned ? `「${r.name}」已置顶` : `「${r.name}」已取消置顶`);
+}
+/* v79：卡片上的置顶按钮（个人工作台） */
+function togglePinCard(id){
+  const r = recipes.find(x => x.id === id);
+  if(!r) return;
+  r.pinned = !r.pinned;
+  r.updatedAt = Date.now();
+  saveRecipes();
+  render();
+  toast(r.pinned ? t('cardPinned') : t('cardUnpinned'));
 }
 
 /* ═════════════════════ 收藏 / 取消收藏 ═════════════════════ */
@@ -5633,6 +5644,7 @@ document.addEventListener('click', async e => {
     case 'fillCosts':      fillAllCosts(); break;
     case 'clearSearch':    clearSearch(); break;
     case 'togglePin':      togglePin(); break;
+    case 'togglePinCard':  togglePinCard(btn.dataset.id); break;
     case 'applyBulkPaste': applyBulkPaste(); break;
     case 'clearBulkPaste': byId('bulkPaste').value=''; break;
     case 'saveForm':       saveForm(); break;
