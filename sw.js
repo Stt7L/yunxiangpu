@@ -1,7 +1,7 @@
 // sw.js — 离线缓存壳
-// v86-fix：移除 Dock 高亮滑块(.dock-indicator)上等大的白色内阴影填充，改为纯蓝透明玻璃高亮(蓝色描边)，消除白/蓝大小差。
+// v87：修复移动端 Dock 底部多余留白。根因：bottom 与 padding-bottom 都加了 env(safe-area-inset-bottom)，safe-area 被重复计算，导致 Dock 下方出现一层白色空白。修复：bottom 使用 env(safe-area-inset-bottom) 贴边，padding-bottom 固定为 10px/6px，不再重复加 safe-area。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v86';
+const CACHE = 'dessert-v87';
 const SHELL = [
   './',
   './manifest.json',
