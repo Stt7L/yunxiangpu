@@ -412,11 +412,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .fab .ic{width:22px;height:22px}
 
 /* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
-/* v67 重构：Dock 统一构架——扁平液态玻璃底座，贴近底部，四周留白一致，滑块与 item 等高留白 4px */
+/* v87 重构：Dock 统一构架——贴近底部，四周留白一致，滑块与 item 等高留白 4px。修复 v86 之前 safe-area 被 bottom 与 padding-bottom 重复计入导致的底部多余留白 */
 .dock{
-  position:fixed;left:50%;bottom:max(10px, env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:80;
+  position:fixed;left:50%;bottom:env(safe-area-inset-bottom, 0px);transform:translateX(-50%);z-index:80;
   display:flex;align-items:center;gap:6px;
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  padding:10px 14px 10px;
   background:rgba(255,255,255,.60);
   -webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
   border:1px solid rgba(255,255,255,.65);
@@ -427,7 +427,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 /* v67：高亮滑块——与 item 等高（四周留白 4px），v67 加 overshoot 回弹过渡；v85-fix：去掉与蓝色滑块等大的白色内阴影填充，避免白色与蓝色大小差（玻璃感由 Dock 自身的 backdrop-filter 提供） */
 .dock-indicator{
   position:absolute;
-  top:6px;bottom:calc(6px + env(safe-area-inset-bottom));
+  top:6px;bottom:6px;
   border-radius:999px;
   background:rgba(0,113,227,.14);
   box-shadow:inset 0 0 0 1.5px rgba(0,113,227,.30);
@@ -469,19 +469,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .dock-fab:active{transform:scale(.88)}
 .dock-fab:active .ic{transform:rotate(90deg)}
 .dock-fab .ic{width:26px;height:26px;transition:transform .25s var(--ease)}
-@supports (bottom:env(safe-area-inset-bottom)){
-  .dock{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
-}
 /* v67 手机端 Dock：横向几乎占满底部（不出格），item 等高留白一致 */
 @media (max-width:640px){
   .dock{
     width:calc(100vw - 20px);max-width:620px;
     justify-content:space-between;gap:4px;
-    bottom:10px;
-    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    bottom:env(safe-area-inset-bottom, 0px);
+    padding:10px 12px 10px;
     border-radius:36px;
   }
-  .dock-indicator{top:8px;bottom:calc(8px + env(safe-area-inset-bottom));}
+  .dock-indicator{top:8px;bottom:8px;}
   .dock-item{min-width:0;flex:1;padding:9px 6px;gap:3px;font-size:11.5px;border-radius:26px}
   .dock-item .ic{width:24px;height:24px}
   .dock-fab{width:56px;height:56px;margin:0 4px;border-radius:19px;flex:none}
@@ -528,7 +525,7 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   .back-to-top{right:16px;bottom:104px;width:44px;height:44px}
   .batch-fab-float{right:16px;bottom:158px;width:44px;height:44px}
   .batch-fab-float .ic{width:18px;height:18px}
-  .dock{bottom:12px;padding:6px 8px calc(8px + env(safe-area-inset-bottom));gap:1px}
+  .dock{bottom:env(safe-area-inset-bottom, 0px);padding:6px 8px 6px;gap:1px}
   .dock-item{min-width:52px;padding:6px 6px;font-size:10px}
   .dock-item .ic{width:20px;height:20px}
   .dock-fab{width:46px;height:46px;border-radius:15px}
