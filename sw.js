@@ -1,9 +1,12 @@
 // sw.js — 离线缓存壳
-// v88：底部 Dock 与部分界面元素改用液态玻璃（Liquid Glass）质感——顶光层 + 蒙版描边高光（全平台可见）；
+// v89：调亮 Dock / 批处理胶囊的「玻璃感」——白雾 46%→30%（胶囊 55%→42%）、模糊 26px→12px（胶囊 14px），
+//      并加 .5px 暗色发丝内描边。原因：页面多为白底浅色内容，「重白雾 + 大模糊」会把背景糊成纯白，
+//      玻璃看起来就是一块白板；降低白雾、减小模糊后背景能透出来，玻璃感才成立。
+// v88：Dock 与部分界面改用液态玻璃（Liquid Glass）——顶光层 + 蒙版描边高光（全平台可见）；
 //      Chromium 下再把 SVG 位移贴图折射滤镜接进 backdrop-filter（blur+saturate+url(#lgWarp)）实现边缘折射与色差。
 //      关键：折射必须写在 backdrop-filter 里而非 filter，否则图标文字会被一起扭曲；Safari/Firefox 不支持，自动降级为纯模糊玻璃。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v88';
+const CACHE = 'dessert-v89';
 const SHELL = [
   './',
   './manifest.json',
