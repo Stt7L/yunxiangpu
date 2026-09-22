@@ -436,20 +436,21 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   background:radial-gradient(130% 72% at 50% -14%,rgba(255,255,255,.62),rgba(255,255,255,0) 62%);
   mix-blend-mode:overlay;opacity:.6;
 }
+/* v90 边缘高光层：背景图由 JS 注入「方向性受光贴图」——
+   贴图 alpha = pow(|dot(SDF法线, 光源45°)|, falloff)，只覆盖贴边 1px 的一圈，
+   受光侧为白边（.lg-ring-a，screen 提亮），背光侧为黑边（.lg-ring-b，正常混合压暗）。
+   黑边是浅色底上玻璃能显出轮廓的关键。贴图已自带裁剪，故不再需要蒙版/内边距；
+   下面的渐变只是 JS 未就绪时的兜底（刻意做弱，避免出错时难看）。 */
 .lg-ring{
-  z-index:5;padding:1.4px;
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.55),inset 0 1px 3px rgba(255,255,255,.30);
+  z-index:5;background-repeat:no-repeat;background-position:center;background-size:100% 100%;
+  filter:blur(.35px);
 }
 .lg-ring-a{
-  mix-blend-mode:screen;opacity:.5;
-  background:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.30) 22%,rgba(255,255,255,.80) 58%,rgba(255,255,255,0) 100%);
+  mix-blend-mode:screen;
+  background-image:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.20) 30%,rgba(255,255,255,.34) 62%,rgba(255,255,255,0) 100%);
 }
 .lg-ring-b{
-  mix-blend-mode:overlay;
-  background:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.48) 22%,rgba(255,255,255,.95) 58%,rgba(255,255,255,0) 100%);
+  background-image:linear-gradient(135deg,rgba(0,0,0,.07) 0%,rgba(0,0,0,0) 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.07) 100%);
 }
 
 /* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
@@ -463,15 +464,16 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   display:flex;align-items:center;gap:6px;
   padding:10px 14px 10px;
   background:rgba(255,255,255,.30);
-  -webkit-backdrop-filter:saturate(180%) blur(12px);backdrop-filter:saturate(180%) blur(12px);
+  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 12px));
+  backdrop-filter:saturate(180%) blur(var(--lg-blur, 12px));
   border-radius:34px;
   overflow:hidden;
   box-shadow:0 12px 36px rgba(0,0,0,.18), inset 0 0 0 .5px rgba(0,0,0,.06);
   transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
 html.lg-refract .dock{
-  -webkit-backdrop-filter:saturate(180%) blur(12px) url(#lgWarp);
-  backdrop-filter:saturate(180%) blur(12px) url(#lgWarp);
+  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 12px)) url(#lgWarp);
+  backdrop-filter:saturate(180%) blur(var(--lg-blur, 12px)) url(#lgWarp);
 }
 /* v67：高亮滑块——与 item 等高（四周留白 4px），v67 加 overshoot 回弹过渡；v85-fix：去掉与蓝色滑块等大的白色内阴影填充，避免白色与蓝色大小差（玻璃感由 Dock 自身的 backdrop-filter 提供） */
 .dock-indicator{
@@ -1534,27 +1536,19 @@ html.lg-refract .dock{
   </button>
 </nav>
 
-<!-- ═════════════ 液态玻璃折射滤镜（v88）═════════════
-     参考 liquid-glass-react（MIT）：位移贴图的 R 通道控制 X 位移、B 通道控制 Y 位移，
-     用三次 feDisplacementMap + 通道分离 + screen 混合实现边缘折射与轻微色差。
-     位移贴图由 JS 按 Dock 实际尺寸与圆角在 canvas 上实时生成（lgBuildDisplacementMap），
-     再写入下方 feImage 的 href。仅在支持「backdrop-filter 与 SVG filter 叠加」的引擎启用。 -->
+<!-- ═════════════ 液态玻璃折射滤镜（v90）═════════════
+     移植自 Kyant0/AndroidLiquidGlass（Apache-2.0）的 AGSL 着色器：
+     位移贴图的 R 通道控制 X 位移、G 通道控制 Y 位移（feDisplacementMap 的 xChannelSelector="R" yChannelSelector="G"）。
+     关键：filterUnits/primitiveUnits 都用 userSpaceOnUse，且滤镜区域由 JS 设为「元素的实际像素尺寸」，
+     这样 feImage 贴图才与元素精确对齐（v88 用百分比区域会大于元素，导致贴图被拉伸错位）。
+     ⚠️ 不要把模糊写进这个滤镜：模糊由 .dock 的 CSS backdrop-filter 承担，一旦 url() 不被支持整条声明会失效。 -->
 <svg class="lg-defs" aria-hidden="true" focusable="false">
   <defs>
-    <filter id="lgWarp" x="-25%" y="-45%" width="150%" height="190%" color-interpolation-filters="sRGB">
-      <feImage id="lgFeImage" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="DISP"/>
-      <!-- 红通道：位移量最大 -->
-      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="30" xChannelSelector="R" yChannelSelector="B" result="DISP_R"/>
-      <feColorMatrix in="DISP_R" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="CH_R"/>
-      <!-- 绿通道：略小，形成色差 -->
-      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="28" xChannelSelector="R" yChannelSelector="B" result="DISP_G"/>
-      <feColorMatrix in="DISP_G" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="CH_G"/>
-      <!-- 蓝通道：最小 -->
-      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="26" xChannelSelector="R" yChannelSelector="B" result="DISP_B"/>
-      <feColorMatrix in="DISP_B" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="CH_B"/>
-      <feBlend in="CH_G" in2="CH_B" mode="screen" result="CH_GB"/>
-      <feBlend in="CH_R" in2="CH_GB" mode="screen" result="CH_RGB"/>
-      <feGaussianBlur in="CH_RGB" stdDeviation="0.4"/>
+    <filter id="lgWarp" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"
+            x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+      <feImage id="lgFeImage" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="DISP"/>
+      <feDisplacementMap id="lgDispMap" in="SourceGraphic" in2="DISP" scale="30"
+                         xChannelSelector="R" yChannelSelector="G"/>
     </filter>
   </defs>
 </svg>
@@ -6239,76 +6233,196 @@ try{ init(); }catch(err){
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-/* ═════════════════ v88 液态玻璃（Liquid Glass）═════════════════
-   思路来自开源项目 liquid-glass-react（MIT）：
-   折射 = 位移贴图（R 通道→X 位移、B 通道→Y 位移）+ feDisplacementMap + 三通道 screen 混合做轻微色差。
-   这里用 canvas 按元素实际尺寸与圆角实时生成「圆角矩形向内挤压」的位移贴图，再注入 SVG 的 feImage。
-   ⚠️ 该效果依赖「backdrop-filter 与 SVG filter 叠加」，目前仅 Chromium 引擎完整支持；
-      Safari / Firefox 会跳过折射（只保留 .lg-tint/.lg-gloss/.lg-ring 的玻璃雾面与边缘高光），观感与旧版一致。 */
+/* ═════════════════ v90 液态玻璃（Liquid Glass）═════════════════
+   算法移植自 Kyant0/AndroidLiquidGlass（Apache-2.0）的 AGSL 着色器，
+   经 martin65536/liquid-glass-svg 的 SVG 移植路线验证（同为 backdrop-filter + feImage + feDisplacementMap）。
+   与 v88/v89 的关键区别：
+     ① 折射缓动曲线改用 circleMap(x)=1-sqrt(1-x²)（原为 u²）——位移更集中在极贴边的一圈，形成真正的透镜鼓边；
+     ② 梯度用「放大后的圆角」计算 gradRadius = min(r*1.5, min(halfW,halfH))，四角法线过渡更平滑；
+     ③ 可选 depthEffect：径向附加一个朝圆心的分量，让整面有「放大镜」感（参考实现的 Tab 栏未开启）；
+     ④ 边缘高光不再是斜向渐变，而是按 SDF 法线做方向性受光 pow(|dot(normal, lightDir)|, falloff)，
+        并同时生成「背光侧暗边」——这正是浅色底上玻璃能看出轮廓的关键；
+     ⑤ 滤镜区域精确等于元素尺寸（filterUnits/primitiveUnits="userSpaceOnUse"），
+        修正 v88 滤镜区域比元素大、导致位移贴图被拉伸错位的 bug。
+   浏览器支持：整个折射链依赖 backdrop-filter:url()，仅 Chromium 支持；
+   Safari/Firefox 由 JS 不加 .lg-refract 自动跳过，但仍能获得 ④ 的方向性边缘高光（纯图片叠加，全平台可用）。 */
 function lgIsRefractCapable(){
   const ua = (navigator.userAgent || '').toLowerCase();
-  if(ua.indexOf('firefox') >= 0 || ua.indexOf('fxios') >= 0) return false;  // Firefox 明确不支持
+  if(ua.indexOf('firefox') >= 0 || ua.indexOf('fxios') >= 0) return false;  // Firefox 不支持 backdrop-filter:url()
   if(/iphone|ipad|ipod/.test(ua)) return false;                             // iOS 全系 WebKit，不支持
-  return !!window.chrome;                                                   // Chromium 系
+  return !!window.chrome;                                                    // Chromium 系
 }
-/* 圆角矩形有向距离场：内部为负、边界为 0、外部为正 */
-function lgSdf(x, y, hw, hh, r){
-  const qx = Math.abs(x - hw) - (hw - r);
-  const qy = Math.abs(y - hh) - (hh - r);
-  const ax = qx > 0 ? qx : 0, ay = qy > 0 ? qy : 0;
-  return Math.sqrt(ax * ax + ay * ay) + Math.min(Math.max(qx, qy), 0) - r;
+/* ── 几何核心：圆角矩形 SDF 及其梯度（照搬 Shaders.kt 的 sdRoundedRect / gradSdRoundedRect） ── */
+function lgSdRoundedRect(cx, cy, hw, hh, radius){
+  const qx = Math.abs(cx) - (hw - radius);
+  const qy = Math.abs(cy) - (hh - radius);
+  const outside = Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) - radius;
+  const inside = Math.min(Math.max(qx, qy), 0);
+  return outside + inside;
 }
-/* 生成位移贴图：越靠近边缘，背景沿内法线挤压越强 → 玻璃透镜边缘 */
-function lgBuildDisplacementMap(w, h, radius, edge){
-  const cw = Math.max(4, Math.round(w)), ch = Math.max(4, Math.round(h));
+function lgGradSdRoundedRect(cx, cy, hw, hh, radius){
+  const qx = Math.abs(cx) - (hw - radius);
+  const qy = Math.abs(cy) - (hh - radius);
+  const sx = cx < 0 ? -1 : 1, sy = cy < 0 ? -1 : 1;
+  if(qx >= 0 || qy >= 0){
+    const gx = Math.max(qx, 0), gy = Math.max(qy, 0);
+    const len = Math.hypot(gx, gy) || 1e-6;
+    return [sx * gx / len, sy * gy / len];
+  }
+  const gradX = qx >= qy ? 1 : 0;
+  return [sx * gradX, sy * (1 - gradX)];
+}
+/* circleMap(x)=1-sqrt(1-x²)：0 在深处、1 在最边缘，形成透镜鼓边的缓动 */
+function lgCircleMap(x){
+  const c = x < 0 ? 0 : (x > 1 ? 1 : x);
+  return 1 - Math.sqrt(1 - c * c);
+}
+/* ── 位移贴图：R 通道→X 位移、G 通道→Y 位移（128 为不位移），scale 与 feDisplacementMap 对应 ── */
+function lgBuildDisplacementMap(W, H, radius, refractionHeight, refractionAmount, depthEffect){
+  const w = Math.max(4, Math.round(W)), h = Math.max(4, Math.round(H));
   const cv = document.createElement('canvas');
-  cv.width = cw; cv.height = ch;
+  cv.width = w; cv.height = h;
   const ctx = cv.getContext('2d');
-  if(!ctx) return '';
-  const img = ctx.createImageData(cw, ch), px = img.data;
-  const hw = cw / 2, hh = ch / 2;
-  const r = Math.max(0, Math.min(radius, hw, hh));
-  const ed = Math.max(6, Math.min(edge, hw, hh));
-  for(let y = 0; y < ch; y++){
-    for(let x = 0; x < cw; x++){
-      const fx = x + .5, fy = y + .5;
-      const d = lgSdf(fx, fy, hw, hh, r);
-      let u = 1 + d / ed;                        // 边界=1 → 向内 ed 像素处=0
-      u = u < 0 ? 0 : (u > 1 ? 1 : u);
-      const f = u * u;                           // 越靠边越强
-      const gx = lgSdf(fx + 1, fy, hw, hh, r) - lgSdf(fx - 1, fy, hw, hh, r);
-      const gy = lgSdf(fx, fy + 1, hw, hh, r) - lgSdf(fx, fy - 1, hw, hh, r);
-      const gl = Math.sqrt(gx * gx + gy * gy) || 1;
-      const i = (y * cw + x) * 4;
-      px[i]     = Math.round(128 - 127 * (gx / gl) * f);   // R → X 位移（向内挤压）
-      px[i + 1] = 128;                                     // G 通道未使用
-      px[i + 2] = Math.round(128 - 127 * (gy / gl) * f);   // B → Y 位移（向内挤压）
+  if(!ctx) return null;
+  const img = ctx.createImageData(w, h), px = img.data;
+  const hw = w / 2, hh = h / 2;
+  const r = Math.max(0, Math.min(radius, Math.min(w, h) / 2));
+  const band = Math.max(0.0001, lgPositive(refractionHeight));
+  const amount = Math.max(0, refractionAmount);
+  const gradRadius = Math.min(r * 1.5, Math.min(hw, hh));
+  const scale = Math.max(1, 2 * amount);
+  for(let y = 0; y < h; y++){
+    for(let x = 0; x < w; x++){
+      const cx = x - hw + 0.5, cy = y - hh + 0.5;
+      const i = (y * w + x) * 4;
+      const sd = lgSdRoundedRect(cx, cy, hw, hh, r);
+      let dx = 0, dy = 0;
+      if(-sd < band){
+        // 边界处 sd≈0 → xx=1（位移最大）；向内 band 像素处 → xx=0（不位移）
+        const sdClamped = Math.min(sd, 0);
+        const d = lgCircleMap(1 - (-sdClamped / band)) * -amount;   // 负数 = 向内采样
+        let g = lgGradSdRoundedRect(cx, cy, hw, hh, gradRadius);
+        if(depthEffect){
+          const cl = Math.hypot(cx, cy) || 1e-6;
+          let gx = g[0] + cx / cl, gy = g[1] + cy / cl;
+          const gl = Math.hypot(gx, gy) || 1e-6;
+          g = [gx / gl, gy / gl];
+        }
+        dx = d * g[0]; dy = d * g[1];
+      }
+      px[i]     = Math.max(0, Math.min(255, Math.round((0.5 + dx / scale) * 255)));
+      px[i + 1] = Math.max(0, Math.min(255, Math.round((0.5 + dy / scale) * 255)));
+      px[i + 2] = 128;
       px[i + 3] = 255;
     }
   }
   ctx.putImageData(img, 0, 0);
-  try{ return cv.toDataURL('image/png'); }catch(e){ return ''; }
+  try{ return { url: cv.toDataURL('image/png'), scale: scale }; }catch(e){ return null; }
+}
+function lgPositive(v){ return (typeof v === 'number' && isFinite(v) && v > 0) ? v : 1; }
+/* ── 边缘高光贴图：白色受光边（lit）+ 黑色背光边（shadow），2× 超采样后降采样抗锯齿 ──
+   额外按设备像素比放大生成，让 1px 描边在 Retina 上依然锐利（CSS 侧 background-size 拉回原尺寸）。 */
+function lgBuildHighlightMaps(W, H, radius, strokeWidth, angle, falloff, dpr){
+  const k = Math.max(1, Math.min(dpr || 1, 3));
+  const w = Math.max(4, Math.round(W * k)), h = Math.max(4, Math.round(H * k));
+  const SS = 2, W2 = w * SS, H2 = h * SS;
+  const hw2 = W2 / 2, hh2 = H2 / 2;
+  const r2 = Math.max(0, Math.min(radius * k, Math.min(w, h) / 2)) * SS;
+  const gradRadius2 = Math.min(r2 * 1.5, Math.min(hw2, hh2));
+  const stroke2 = Math.max(0.5, strokeWidth * k / 2) * SS;   // 可见宽度 = strokeWidth/2
+  const nx = Math.cos(angle), ny = Math.sin(angle);          // 光源方向（屏幕坐标 y 向下）
+  const lit2 = document.createElement('canvas'); lit2.width = W2; lit2.height = H2;
+  const sh2  = document.createElement('canvas'); sh2.width  = W2; sh2.height  = H2;
+  const lc2 = lit2.getContext('2d'), sc2 = sh2.getContext('2d');
+  if(!lc2 || !sc2) return null;
+  const lImg = lc2.createImageData(W2, H2), sImg = sc2.createImageData(W2, H2);
+  for(let y = 0; y < H2; y++){
+    for(let x = 0; x < W2; x++){
+      const cx = x - hw2 + 0.5, cy = y - hh2 + 0.5;
+      const inside = -lgSdRoundedRect(cx, cy, hw2, hh2, r2);
+      if(inside <= 0 || inside > stroke2) continue;          // 只取贴边的一圈
+      const g = lgGradSdRoundedRect(cx, cy, hw2, hh2, gradRadius2);
+      const dot = g[0] * nx + g[1] * ny;
+      const intensity = Math.pow(Math.abs(dot), falloff);
+      const a = Math.round(255 * intensity);
+      const i = (y * W2 + x) * 4;
+      if(dot >= 0){                                          // 受光侧 → 白边
+        lImg.data[i] = 255; lImg.data[i+1] = 255; lImg.data[i+2] = 255; lImg.data[i+3] = a;
+      }else{                                                 // 背光侧 → 黑边（给玻璃轮廓）
+        sImg.data[i] = 0; sImg.data[i+1] = 0; sImg.data[i+2] = 0; sImg.data[i+3] = a;
+      }
+    }
+  }
+  lc2.putImageData(lImg, 0, 0); sc2.putImageData(sImg, 0, 0);
+  const down = (src) => {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const x = c.getContext('2d');
+    if(!x) return '';
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+    x.drawImage(src, 0, 0, w, h);
+    try{ return c.toDataURL('image/png'); }catch(e){ return ''; }
+  };
+  return { lit: down(lit2), shadow: down(sh2) };
+}
+/* ── 参数：按参考实现底部 Tab 栏的比例（56~64dp 高、blur 8dp、lens(24dp,24dp)）折算到我们的 Dock ── */
+function lgParamsFor(w, h){
+  const bandRatio = 24 / 64;                    // 折射带高 / 栏高
+  return {
+    band: Math.max(6, h * bandRatio),
+    amount: Math.max(6, h * bandRatio * 0.92),  // 位移量略小于折射带，避免过度扭曲
+    depthEffect: false,                         // 参考实现的 Tab 栏未开启
+    blur: Math.max(6, Math.min(12, h * 0.14)),  // 约 8dp/64dp ≈ 12.5%
+    stroke: 2,                                  // 高光描边总宽 2px（可见半宽 1px）
+    // 光源角度：参考实现默认 45°，但那会让亮边落在右下角；底部 Dock 的合理受光是「上亮下暗」，
+    // 故取 -45°，使白边出现在顶缘与上两角、黑边落在底缘（黑边正好把 Dock 从页面上「压」出轮廓）。
+    angle: -Math.PI / 4,
+    falloff: 1
+  };
 }
 let lgMapKey = '';
 function lgApplyWarp(){
-  if(!document.documentElement.classList.contains('lg-refract')) return;
-  const el = byId('bottomDock'), fe = byId('lgFeImage');
-  if(!el || !fe) return;
+  const el = byId('bottomDock');
+  if(!el) return;
   const box = el.getBoundingClientRect();
   if(box.width < 12 || box.height < 12) return;
   const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
-  const key = Math.round(box.width) + 'x' + Math.round(box.height) + '@' + Math.round(radius);
-  if(key === lgMapKey) return;                        // 尺寸/圆角没变就不重算
-  const url = lgBuildDisplacementMap(box.width, box.height, radius, box.height * 0.36);
-  if(!url) return;
-  fe.setAttribute('href', url);
-  try{ fe.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url); }catch(e){}
+  const p = lgParamsFor(box.width, box.height);
+  const key = [Math.round(box.width), Math.round(box.height), Math.round(radius),
+               Math.round(p.band), Math.round(p.amount), p.depthEffect ? 1 : 0].join('|');
+  if(key === lgMapKey) return;                  // 尺寸/圆角/参数没变就不重算
+  const W = Math.round(box.width), H = Math.round(box.height);
+
+  // 模糊半径随尺寸走（参考实现约 8dp/64dp ≈ 12.5% 栏高）；全平台统一，Safari 也生效
+  el.style.setProperty('--lg-blur', p.blur.toFixed(1) + 'px');
+
+  // ① 方向性边缘高光（全平台可见，不依赖 backdrop-filter:url()）
+  const hl = lgBuildHighlightMaps(W, H, radius, p.stroke, p.angle, p.falloff, window.devicePixelRatio || 1);
+  if(hl){
+    const litEl = document.querySelector('.lg-ring-a');
+    const shEl  = document.querySelector('.lg-ring-b');
+    if(litEl && hl.lit) litEl.style.backgroundImage = 'url("' + hl.lit + '")';
+    if(shEl && hl.shadow) shEl.style.backgroundImage = 'url("' + hl.shadow + '")';
+  }
+
+  // ② 折射：仅在支持的引擎上生成并注入
+  if(!document.documentElement.classList.contains('lg-refract')){ lgMapKey = key; return; }
+  const filter = byId('lgWarp'), fe = byId('lgFeImage'), disp = byId('lgDispMap');
+  if(!filter || !fe || !disp) { lgMapKey = key; return; }
+  const dm = lgBuildDisplacementMap(W, H, radius, p.band, p.amount, p.depthEffect);
+  if(!dm){ lgMapKey = key; return; }
+  // 滤镜区域精确对齐元素尺寸（修掉 v88 区域大于元素导致贴图拉伸错位的 bug）
+  filter.setAttribute('x', 0); filter.setAttribute('y', 0);
+  filter.setAttribute('width', W); filter.setAttribute('height', H);
+  fe.setAttribute('x', 0); fe.setAttribute('y', 0);
+  fe.setAttribute('width', W); fe.setAttribute('height', H);
+  fe.setAttribute('href', dm.url);
+  try{ fe.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', dm.url); }catch(e){}
+  disp.setAttribute('scale', dm.scale);
   lgMapKey = key;
 }
 function lgInit(){
   if(lgIsRefractCapable()) document.documentElement.classList.add('lg-refract');
   lgApplyWarp();
-  // Dock 尺寸变化（窗口缩放 / 横竖屏 / 切换语言导致文案变宽）时重建贴图
   const dock = byId('bottomDock');
   if(dock && window.ResizeObserver){
     try{ new ResizeObserver(() => { try{ lgApplyWarp(); }catch(e){} }).observe(dock); }catch(e){}
