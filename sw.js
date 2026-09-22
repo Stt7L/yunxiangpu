@@ -1,4 +1,8 @@
 // sw.js — 离线缓存壳
+// v90：按开源项目 Kyant0/AndroidLiquidGlass（Apache-2.0）的 AGSL 着色器算法重写折射与边缘高光——
+//      折射缓动改用 circleMap(1-depth/h)（位移更集中在贴边一圈，形成真正的透镜鼓边）；
+//      梯度用放大后的圆角计算；滤镜区域改为精确等于元素尺寸（修掉 v88 区域过大导致位移贴图被拉伸错位的 bug）；
+//      边缘高光改为按 SDF 法线做方向性受光（顶缘白边、底缘黑边），并按设备像素比生成保证 Retina 锐利。
 // v89：调亮 Dock / 批处理胶囊的「玻璃感」——白雾 46%→30%（胶囊 55%→42%）、模糊 26px→12px（胶囊 14px），
 //      并加 .5px 暗色发丝内描边。原因：页面多为白底浅色内容，「重白雾 + 大模糊」会把背景糊成纯白，
 //      玻璃看起来就是一块白板；降低白雾、减小模糊后背景能透出来，玻璃感才成立。
@@ -6,7 +10,7 @@
 //      Chromium 下再把 SVG 位移贴图折射滤镜接进 backdrop-filter（blur+saturate+url(#lgWarp)）实现边缘折射与色差。
 //      关键：折射必须写在 backdrop-filter 里而非 filter，否则图标文字会被一起扭曲；Safari/Firefox 不支持，自动降级为纯模糊玻璃。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v89';
+const CACHE = 'dessert-v90';
 const SHELL = [
   './',
   './manifest.json',
