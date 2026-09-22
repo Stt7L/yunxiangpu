@@ -1,7 +1,9 @@
 // sw.js — 离线缓存壳
-// v87：修复移动端 Dock 底部多余留白。根因：bottom 与 padding-bottom 都加了 env(safe-area-inset-bottom)，safe-area 被重复计算，导致 Dock 下方出现一层白色空白。修复：bottom 使用 env(safe-area-inset-bottom) 贴边，padding-bottom 固定为 10px/6px，不再重复加 safe-area。
+// v88：底部 Dock 与部分界面元素改用液态玻璃（Liquid Glass）质感——顶光层 + 蒙版描边高光（全平台可见）；
+//      Chromium 下再把 SVG 位移贴图折射滤镜接进 backdrop-filter（blur+saturate+url(#lgWarp)）实现边缘折射与色差。
+//      关键：折射必须写在 backdrop-filter 里而非 filter，否则图标文字会被一起扭曲；Safari/Firefox 不支持，自动降级为纯模糊玻璃。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v87';
+const CACHE = 'dessert-v88';
 const SHELL = [
   './',
   './manifest.json',
