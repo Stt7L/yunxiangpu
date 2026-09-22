@@ -100,7 +100,14 @@ button{font-family:inherit}
   border-bottom:1px solid rgba(255,255,255,.55);
   box-shadow:0 1px 0 rgba(0,0,0,.04);
 }
+/* v88 液态玻璃顶光：让导航栏顶缘出现受光渐变（全平台可见，不依赖折射） */
+.nav::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(150% 100% at 50% -42%,rgba(255,255,255,.70),rgba(255,255,255,0) 62%);
+  mix-blend-mode:overlay;opacity:.85;
+}
 .nav-inner{
+  position:relative;z-index:1;
   max-width:none;margin:0 auto;
   padding:10px 12px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
@@ -411,18 +418,57 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .fab:active{transform:scale(.94)}
 .fab .ic{width:22px;height:22px}
 
+/* ═══════════════════ 液态玻璃（Liquid Glass）图层体系 ═══════════════════
+   参考开源实现 liquid-glass-react（MIT）：位移贴图 + feDisplacementMap 做边缘折射与三通道色差；
+   蒙版描边（padding + mask-composite:exclude）还原「玻璃边缘取光」的高光；顶光径向渐变补光。
+   ⚠️ 实测要点（很重要，改动前务必先读）：
+     1) backdrop-filter 放在 .dock 的**子元素**上在 Chromium 中完全不生效（连 brightness 都无变化），
+        只有直接放在 .dock 自身才有效 —— 所以背景模糊统一由 .dock 承担。
+     2) 折射不能走 `filter:url()`（那会把图标文字一起扭曲，且与 backdrop-filter 叠加时失效）；
+        正确做法是把 SVG 滤镜写进 `backdrop-filter` 的滤镜链尾部：`blur() saturate() url(#lgWarp)`，
+        它只作用于背景，内容保持清晰。Chromium 支持，Safari/Firefox 不支持。
+     3) 因此只在支持时给 <html> 加 .lg-refract（由 JS 判定）。默认声明里绝不出现 url()，
+        否则一旦引擎不认，整条 backdrop-filter 都会失效（连模糊一起丢）。 */
+.lg-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.lg-gloss,.lg-ring{position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+.lg-gloss{
+  z-index:3;
+  background:radial-gradient(130% 72% at 50% -14%,rgba(255,255,255,.62),rgba(255,255,255,0) 62%);
+  mix-blend-mode:overlay;opacity:.6;
+}
+.lg-ring{
+  z-index:5;padding:1.4px;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.55),inset 0 1px 3px rgba(255,255,255,.30);
+}
+.lg-ring-a{
+  mix-blend-mode:screen;opacity:.5;
+  background:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.30) 22%,rgba(255,255,255,.80) 58%,rgba(255,255,255,0) 100%);
+}
+.lg-ring-b{
+  mix-blend-mode:overlay;
+  background:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.48) 22%,rgba(255,255,255,.95) 58%,rgba(255,255,255,0) 100%);
+}
+
 /* ═══════════════════ 底部双工作台 Tab 导航 ═══════════════════ */
-/* v87 重构：Dock 统一构架——贴近底部，四周留白一致，滑块与 item 等高留白 4px。修复 v86 之前 safe-area 被 bottom 与 padding-bottom 重复计入导致的底部多余留白 */
+/* v88：液态玻璃——背景模糊由 .dock 自身承担（Chromium 下再叠加折射 url(#lgWarp)，仅作用于背景） */
+/* v87 修复：贴近底部、四周留白一致、滑块与 item 等高；safe-area 只算一次，避免底部多余留白 */
 .dock{
   position:fixed;left:50%;bottom:env(safe-area-inset-bottom, 0px);transform:translateX(-50%);z-index:80;
   display:flex;align-items:center;gap:6px;
   padding:10px 14px 10px;
-  background:rgba(255,255,255,.60);
-  -webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
-  border:1px solid rgba(255,255,255,.65);
+  background:rgba(255,255,255,.46);
+  -webkit-backdrop-filter:saturate(180%) blur(26px);backdrop-filter:saturate(180%) blur(26px);
   border-radius:34px;
-  box-shadow:0 12px 36px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.5);
+  overflow:hidden;
+  box-shadow:0 12px 36px rgba(0,0,0,.16);
   transition:transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+html.lg-refract .dock{
+  -webkit-backdrop-filter:saturate(180%) blur(26px) url(#lgWarp);
+  backdrop-filter:saturate(180%) blur(26px) url(#lgWarp);
 }
 /* v67：高亮滑块——与 item 等高（四周留白 4px），v67 加 overshoot 回弹过渡；v85-fix：去掉与蓝色滑块等大的白色内阴影填充，避免白色与蓝色大小差（玻璃感由 Dock 自身的 backdrop-filter 提供） */
 .dock-indicator{
@@ -433,12 +479,12 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   box-shadow:inset 0 0 0 1.5px rgba(0,113,227,.30);
   pointer-events:none;
   transition:left .55s cubic-bezier(.34,1.56,.64,1), width .55s cubic-bezier(.34,1.56,.64,1), opacity .25s;
-  z-index:0;
+  z-index:2;
   opacity:0;
 }
 .dock-indicator.show{opacity:1}
 .dock-item{
-  position:relative;z-index:1;
+  position:relative;z-index:4;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:3px;min-width:62px;padding:8px 13px;
   border:none;border-radius:24px;background:transparent;
@@ -455,16 +501,23 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
   background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0));pointer-events:none;opacity:0;transition:opacity .25s
 }
 .dock-item:hover::after{opacity:1}
-/* 中央 + 号：纯色圆角方块 */
+/* 中央 + 号：纯色圆角方块（v88 加液态玻璃顶光） */
 .dock-fab{
-  position:relative;z-index:1;
+  position:relative;z-index:4;
   width:52px;height:52px;margin:0 6px;border-radius:18px;border:none;
   background:var(--accent);color:#fff;
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 22px rgba(0,0,0,.20);
   cursor:pointer;transition:transform .2s var(--ease), background .2s;
   -webkit-tap-highlight-color:transparent;
+  overflow:hidden;
 }
+.dock-fab::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(165deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.10) 42%,rgba(255,255,255,0) 68%);
+  mix-blend-mode:overlay;
+}
+.dock-fab .ic{position:relative;z-index:1}
 .dock-fab:hover{background:var(--accent-hover)}
 .dock-fab:active{transform:scale(.88)}
 .dock-fab:active .ic{transform:rotate(90deg)}
@@ -500,6 +553,22 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .back-to-top:hover{background:rgba(255,255,255,.9);color:var(--text)}
 .back-to-top:active{transform:scale(.94)}
 .back-to-top .ic{width:20px;height:20px}
+/* v88 液态玻璃：圆形按钮的边缘取光描边 + 顶光 */
+.back-to-top::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  padding:1.2px;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  background:linear-gradient(140deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.55) 24%,rgba(255,255,255,.95) 60%,rgba(255,255,255,0) 100%);
+  mix-blend-mode:screen;opacity:.8;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.75);
+}
+.back-to-top::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(120% 80% at 50% -18%,rgba(255,255,255,.85),rgba(255,255,255,0) 62%);
+  mix-blend-mode:overlay;opacity:.7;
+}
 /* v70：批处理悬浮按钮（个人工作台，回到顶部按钮上方） */
 .batch-fab-float{
   position:fixed;right:22px;bottom:184px;z-index:60;
@@ -515,7 +584,13 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .batch-fab-float:hover{background:var(--accent-hover)}
 .batch-fab-float:active{transform:scale(.94)}
 .batch-fab-float.on{background:#ff3b30;box-shadow:0 6px 18px rgba(255,59,48,.36)}
-.batch-fab-float .ic{width:22px;height:22px}
+/* v88 液态玻璃：蓝色主按钮加顶光，保持 CTA 力度同时更通透 */
+.batch-fab-float::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(165deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.08) 44%,rgba(255,255,255,0) 70%);
+  mix-blend-mode:overlay;
+}
+.batch-fab-float .ic{position:relative;z-index:1;width:22px;height:22px}
 .batch-fab-float .fab-dot{
   position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;
   background:#ff3b30;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
@@ -1131,20 +1206,35 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .sort-row .chip-btn{flex:none}
 .sort-label{font-size:12px;font-weight:600;color:var(--text3);margin-right:2px;flex:none}
 /* v62 批处理底部操作：Dock 上方悬浮胶囊 + 滑入滑出动画（v81 更贴近 Dock，去掉取消/计数，只保留删除分割线） */
+/* v88 液态玻璃：去掉平面描边，改用蒙版描边高光 + 顶光 */
 .batch-actions{
   position:fixed;left:50%;bottom:calc(102px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);opacity:0;pointer-events:none;
   z-index:70;display:flex;gap:4px;align-items:center;
   padding:7px 12px calc(7px + env(safe-area-inset-bottom));
   background:rgba(255,255,255,.55);
   -webkit-backdrop-filter:saturate(180%) blur(26px);backdrop-filter:saturate(180%) blur(26px);
-  border:1px solid rgba(255,255,255,.62);
   border-radius:36px;
-  box-shadow:0 14px 44px rgba(0,0,0,.14), inset 0 .5px 0 rgba(255,255,255,.45);
+  box-shadow:0 14px 44px rgba(0,0,0,.14);
   transition:transform .42s cubic-bezier(.16,1,.3,1), opacity .32s cubic-bezier(.16,1,.3,1);
 }
 .batch-actions.shown{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.batch-actions::before{
+  content:'';position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;
+  padding:1.3px;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  background:linear-gradient(135deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.55) 22%,rgba(255,255,255,.95) 58%,rgba(255,255,255,0) 100%);
+  mix-blend-mode:screen;opacity:.62;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.6);
+}
+.batch-actions::after{
+  content:'';position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(130% 78% at 50% -16%,rgba(255,255,255,.75),rgba(255,255,255,0) 62%);
+  mix-blend-mode:overlay;opacity:.6;
+}
 /* v83：胶囊内按钮容器——桌面/移动端都居中，溢出时可滚动 */
-.batch-inner{display:flex;gap:4px;align-items:center;margin:0 auto;min-width:0}
+.batch-inner{position:relative;z-index:1;display:flex;gap:4px;align-items:center;margin:0 auto;min-width:0}
 .batch-act{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   min-width:54px;padding:6px 8px 5px;border:none;border-radius:18px;background:transparent;
@@ -1414,7 +1504,11 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 
 <!-- 底部液态玻璃 Dock 导航（iOS 风格：个人工作台 / 共享池 / + / 收藏夹 / 我） -->
 <nav class="dock" id="bottomDock" aria-label="主导航">
+  <!-- v88 液态玻璃：背景模糊与折射由 .dock 的 backdrop-filter 承担，以下为顶光与边缘高光图层 -->
   <span class="dock-indicator" id="dockIndicator"></span>
+  <span class="lg-gloss" aria-hidden="true"></span>
+  <span class="lg-ring lg-ring-a" aria-hidden="true"></span>
+  <span class="lg-ring lg-ring-b" aria-hidden="true"></span>
   <button type="button" class="dock-item" data-act="switchWorkspace" data-ws="personal" id="dockPersonal">
     <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span data-i18n="dockPersonal">工作台</span>
@@ -1435,6 +1529,31 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
     <span data-i18n="dockMe">我</span>
   </button>
 </nav>
+
+<!-- ═════════════ 液态玻璃折射滤镜（v88）═════════════
+     参考 liquid-glass-react（MIT）：位移贴图的 R 通道控制 X 位移、B 通道控制 Y 位移，
+     用三次 feDisplacementMap + 通道分离 + screen 混合实现边缘折射与轻微色差。
+     位移贴图由 JS 按 Dock 实际尺寸与圆角在 canvas 上实时生成（lgBuildDisplacementMap），
+     再写入下方 feImage 的 href。仅在支持「backdrop-filter 与 SVG filter 叠加」的引擎启用。 -->
+<svg class="lg-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="lgWarp" x="-25%" y="-45%" width="150%" height="190%" color-interpolation-filters="sRGB">
+      <feImage id="lgFeImage" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="DISP"/>
+      <!-- 红通道：位移量最大 -->
+      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="30" xChannelSelector="R" yChannelSelector="B" result="DISP_R"/>
+      <feColorMatrix in="DISP_R" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="CH_R"/>
+      <!-- 绿通道：略小，形成色差 -->
+      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="28" xChannelSelector="R" yChannelSelector="B" result="DISP_G"/>
+      <feColorMatrix in="DISP_G" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="CH_G"/>
+      <!-- 蓝通道：最小 -->
+      <feDisplacementMap in="SourceGraphic" in2="DISP" scale="26" xChannelSelector="R" yChannelSelector="B" result="DISP_B"/>
+      <feColorMatrix in="DISP_B" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="CH_B"/>
+      <feBlend in="CH_G" in2="CH_B" mode="screen" result="CH_GB"/>
+      <feBlend in="CH_R" in2="CH_GB" mode="screen" result="CH_RGB"/>
+      <feGaussianBlur in="CH_RGB" stdDeviation="0.4"/>
+    </filter>
+  </defs>
+</svg>
 
 <!-- 回到顶部 -->
 <button id="backToTop" class="back-to-top" data-i18n-aria="backToTop" aria-label="回到顶部"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
@@ -6116,6 +6235,82 @@ try{ init(); }catch(err){
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
+/* ═════════════════ v88 液态玻璃（Liquid Glass）═════════════════
+   思路来自开源项目 liquid-glass-react（MIT）：
+   折射 = 位移贴图（R 通道→X 位移、B 通道→Y 位移）+ feDisplacementMap + 三通道 screen 混合做轻微色差。
+   这里用 canvas 按元素实际尺寸与圆角实时生成「圆角矩形向内挤压」的位移贴图，再注入 SVG 的 feImage。
+   ⚠️ 该效果依赖「backdrop-filter 与 SVG filter 叠加」，目前仅 Chromium 引擎完整支持；
+      Safari / Firefox 会跳过折射（只保留 .lg-tint/.lg-gloss/.lg-ring 的玻璃雾面与边缘高光），观感与旧版一致。 */
+function lgIsRefractCapable(){
+  const ua = (navigator.userAgent || '').toLowerCase();
+  if(ua.indexOf('firefox') >= 0 || ua.indexOf('fxios') >= 0) return false;  // Firefox 明确不支持
+  if(/iphone|ipad|ipod/.test(ua)) return false;                             // iOS 全系 WebKit，不支持
+  return !!window.chrome;                                                   // Chromium 系
+}
+/* 圆角矩形有向距离场：内部为负、边界为 0、外部为正 */
+function lgSdf(x, y, hw, hh, r){
+  const qx = Math.abs(x - hw) - (hw - r);
+  const qy = Math.abs(y - hh) - (hh - r);
+  const ax = qx > 0 ? qx : 0, ay = qy > 0 ? qy : 0;
+  return Math.sqrt(ax * ax + ay * ay) + Math.min(Math.max(qx, qy), 0) - r;
+}
+/* 生成位移贴图：越靠近边缘，背景沿内法线挤压越强 → 玻璃透镜边缘 */
+function lgBuildDisplacementMap(w, h, radius, edge){
+  const cw = Math.max(4, Math.round(w)), ch = Math.max(4, Math.round(h));
+  const cv = document.createElement('canvas');
+  cv.width = cw; cv.height = ch;
+  const ctx = cv.getContext('2d');
+  if(!ctx) return '';
+  const img = ctx.createImageData(cw, ch), px = img.data;
+  const hw = cw / 2, hh = ch / 2;
+  const r = Math.max(0, Math.min(radius, hw, hh));
+  const ed = Math.max(6, Math.min(edge, hw, hh));
+  for(let y = 0; y < ch; y++){
+    for(let x = 0; x < cw; x++){
+      const fx = x + .5, fy = y + .5;
+      const d = lgSdf(fx, fy, hw, hh, r);
+      let u = 1 + d / ed;                        // 边界=1 → 向内 ed 像素处=0
+      u = u < 0 ? 0 : (u > 1 ? 1 : u);
+      const f = u * u;                           // 越靠边越强
+      const gx = lgSdf(fx + 1, fy, hw, hh, r) - lgSdf(fx - 1, fy, hw, hh, r);
+      const gy = lgSdf(fx, fy + 1, hw, hh, r) - lgSdf(fx, fy - 1, hw, hh, r);
+      const gl = Math.sqrt(gx * gx + gy * gy) || 1;
+      const i = (y * cw + x) * 4;
+      px[i]     = Math.round(128 - 127 * (gx / gl) * f);   // R → X 位移（向内挤压）
+      px[i + 1] = 128;                                     // G 通道未使用
+      px[i + 2] = Math.round(128 - 127 * (gy / gl) * f);   // B → Y 位移（向内挤压）
+      px[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  try{ return cv.toDataURL('image/png'); }catch(e){ return ''; }
+}
+let lgMapKey = '';
+function lgApplyWarp(){
+  if(!document.documentElement.classList.contains('lg-refract')) return;
+  const el = byId('bottomDock'), fe = byId('lgFeImage');
+  if(!el || !fe) return;
+  const box = el.getBoundingClientRect();
+  if(box.width < 12 || box.height < 12) return;
+  const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+  const key = Math.round(box.width) + 'x' + Math.round(box.height) + '@' + Math.round(radius);
+  if(key === lgMapKey) return;                        // 尺寸/圆角没变就不重算
+  const url = lgBuildDisplacementMap(box.width, box.height, radius, box.height * 0.36);
+  if(!url) return;
+  fe.setAttribute('href', url);
+  try{ fe.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url); }catch(e){}
+  lgMapKey = key;
+}
+function lgInit(){
+  if(lgIsRefractCapable()) document.documentElement.classList.add('lg-refract');
+  lgApplyWarp();
+  // Dock 尺寸变化（窗口缩放 / 横竖屏 / 切换语言导致文案变宽）时重建贴图
+  const dock = byId('bottomDock');
+  if(dock && window.ResizeObserver){
+    try{ new ResizeObserver(() => { try{ lgApplyWarp(); }catch(e){} }).observe(dock); }catch(e){}
+  }
+}
+lgInit();
 /* Dock 滑块指示器在 resize / 旋转时同步位置 */
 window.addEventListener('resize', () => { try{ updateDockIndicator(); }catch(_){ } });
 /* 打开收藏夹弹窗时让 dockFavorites 临时激活，关闭后清除 */
