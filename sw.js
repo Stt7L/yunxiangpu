@@ -12,8 +12,11 @@
 // v88：Dock 与部分界面改用液态玻璃（Liquid Glass）——顶光层 + 蒙版描边高光（全平台可见）；
 //      Chromium 下再把 SVG 位移贴图折射滤镜接进 backdrop-filter（blur+saturate+url(#lgWarp)）实现边缘折射与色差。
 //      关键：折射必须写在 backdrop-filter 里而非 filter，否则图标文字会被一起扭曲；Safari/Firefox 不支持，自动降级为纯模糊玻璃。
+// v92：应用名改为「云享谱demo」（标题/品牌/分享名/导出文件名/manifest，5 语言同步）；
+//      移除 v91 的彩色渐变底（暖桃/天蓝/薄荷/玫瑰），回到单一浅灰底 --bg；
+//      连带回退玻璃参数（Dock 白雾 18%→30%、饱和 240%→180%，批处理胶囊 26%→42%，导航栏 55%→72%）。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v91';
+const CACHE = 'dessert-v92';
 const SHELL = [
   './',
   './manifest.json',
