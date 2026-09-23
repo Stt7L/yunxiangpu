@@ -15,8 +15,13 @@
 // v92：应用名改为「云享谱demo」（标题/品牌/分享名/导出文件名/manifest，5 语言同步）；
 //      移除 v91 的彩色渐变底（暖桃/天蓝/薄荷/玫瑰），回到单一浅灰底 --bg；
 //      连带回退玻璃参数（Dock 白雾 18%→30%、饱和 240%→180%，批处理胶囊 26%→42%，导航栏 55%→72%）。
+// v93：底部 Dock 按 **iOS 27 Liquid Glass** 规则重做（WWDC 2026 方向）——
+//      ① 明确边框取代投影（外圈暗边 darkened edge + 内圈亮边 defined border），解决纯浅底上玻璃发灰；
+//      ② 镜面高光提亮（specular 更亮）；③ 扩散增强（白雾 30%→56%、模糊 10px→20px）提升可读性；
+//      ④ 标签栏选中项背景由浅蓝高亮改为中性深色（iOS 27 明确变化）；
+//      ⑤ 中央「＋」按 prominent tab 语义套用同一套边框语言。
 // 切换 CACHE 名称可彻底丢弃旧缓存，避免样式/图标残留。
-const CACHE = 'dessert-v92';
+const CACHE = 'dessert-v93';
 const SHELL = [
   './',
   './manifest.json',
