@@ -1,6 +1,6 @@
 {
-  "name": "云享谱 · 甜品配方成本管理",
-  "short_name": "云享谱",
+  "name": "云享谱demo · 甜品配方成本管理",
+  "short_name": "云享谱demo",
   "description": "甜品烘焙配方与原材料成本管理工具",
   "start_url": "./",
   "scope": "./",
