@@ -433,8 +433,10 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 .lg-gloss,.lg-ring{position:absolute;inset:0;pointer-events:none;border-radius:inherit}
 .lg-gloss{
   z-index:3;
-  background:radial-gradient(130% 72% at 50% -14%,rgba(255,255,255,.62),rgba(255,255,255,0) 62%);
-  mix-blend-mode:overlay;opacity:.6;
+  /* v93（iOS 27）：镜面高光提亮 —— 官方明确 iOS 27 的 specular highlights 更亮，
+     用来补足"暗化边缘"带来的深度感。 */
+  background:radial-gradient(135% 78% at 50% -16%,rgba(255,255,255,.92),rgba(255,255,255,0) 64%);
+  mix-blend-mode:overlay;opacity:.78;
 }
 /* v90 边缘高光层：背景图由 JS 注入「方向性受光贴图」——
    贴图 alpha = pow(|dot(SDF法线, 光源45°)|, falloff)，只覆盖贴边 1px 的一圈，
@@ -460,29 +462,47 @@ mark.hl{background:#ffe08a;color:inherit;border-radius:3px;padding:0 2px}
 /* v88：液态玻璃——背景模糊由 .dock 自身承担（Chromium 下再叠加折射 url(#lgWarp)，仅作用于背景） */
 /* v87 修复：贴近底部、四周留白一致、滑块与 item 等高；safe-area 只算一次，避免底部多余留白 */
 /* v91：白雾 30%→18%、饱和 180%→210%，让背景色彩透上来（液态玻璃的关键是「能看见后面的东西」） */
+/* v93：按 **iOS 27 Liquid Glass** 规则重做 Dock（WWDC 2026 的调整方向）。
+   依据（官方描述 + 会后解读），逐条对应到下面实现：
+   ① 「改用更明确的边框、不再依赖投影」→ 外圈暗边 + 内圈亮边构成清晰描边，投影弱化。
+      这也正是「纯浅底上玻璃发灰糊成一片」的解法。
+   ② 「玻璃元素周围引入暗化边缘（darkened edge）」→ 0 0 0 .5px 暗色外描边，把它从背景中"切"出来。
+   ③ 「更亮的镜面高光（brighter specular highlights）」→ 见 .lg-gloss 提亮。
+   ④ 「更有效地扩散复杂内容，提升可读性」→ 白雾 30%→56%、模糊 10px→20px。
+      与 v89 的教训不冲突：v89 糊成白板是因为「高白雾 + 大模糊但缺边框」，
+      iOS 27 是「更强扩散 + 明确边框」一起给的。
+   ⑤ 「标签栏选中项背景改为更深（而非更浅）」→ .dock-indicator 由蓝色浅高亮改为中性深色玻璃。
+   ⑥ HIG：玻璃只用于导航层 —— Dock 本就是导航层，符合。 */
 .dock{
   position:fixed;left:50%;bottom:env(safe-area-inset-bottom, 0px);transform:translateX(-50%);z-index:80;
   display:flex;align-items:center;gap:6px;
   padding:10px 14px 10px;
-  background:rgba(255,255,255,.30);
-  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 10px));
-  backdrop-filter:saturate(180%) blur(var(--lg-blur, 10px));
+  background:rgba(255,255,255,.56);
+  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 20px));
+  backdrop-filter:saturate(180%) blur(var(--lg-blur, 20px));
   border-radius:34px;
   overflow:hidden;
-  box-shadow:0 12px 36px rgba(0,0,0,.18);
+  /* iOS 27 的边框三件套：外圈暗边（darkened edge）→ 内圈亮边 → 极轻投影 */
+  box-shadow:
+    0 0 0 .5px rgba(0,0,0,.12),
+    inset 0 0 0 .5px rgba(255,255,255,.72),
+    0 6px 20px rgba(0,0,0,.10);
   transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
 html.lg-refract .dock{
-  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 10px)) url(#lgWarp);
-  backdrop-filter:saturate(180%) blur(var(--lg-blur, 10px)) url(#lgWarp);
+  -webkit-backdrop-filter:saturate(180%) blur(var(--lg-blur, 20px)) url(#lgWarp);
+  backdrop-filter:saturate(180%) blur(var(--lg-blur, 20px)) url(#lgWarp);
 }
-/* v67：高亮滑块——与 item 等高（四周留白 4px），v67 加 overshoot 回弹过渡；v85-fix：去掉与蓝色滑块等大的白色内阴影填充，避免白色与蓝色大小差（玻璃感由 Dock 自身的 backdrop-filter 提供） */
+/* v93：iOS 27 —— 选中项背景「更深」。iOS 26 之前是浅蓝/白色高亮，现改为中性深色玻璃。
+   用系统灰（120,120,128）的半透明而非纯黑，保持苹果调性；再配一层内亮边做出玻璃厚度。 */
 .dock-indicator{
   position:absolute;
   top:6px;bottom:6px;
   border-radius:999px;
-  background:rgba(0,113,227,.14);
-  box-shadow:inset 0 0 0 1.5px rgba(0,113,227,.30);
+  background:rgba(120,120,128,.18);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.42),
+    inset 0 1px 2px rgba(0,0,0,.06);
   pointer-events:none;
   transition:left .55s cubic-bezier(.34,1.56,.64,1), width .55s cubic-bezier(.34,1.56,.64,1), opacity .25s;
   z-index:2;
@@ -513,7 +533,12 @@ html.lg-refract .dock{
   width:52px;height:52px;margin:0 6px;border-radius:18px;border:none;
   background:var(--accent);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 22px rgba(0,0,0,.20);
+  /* v93（iOS 27）：中央「＋」在语义上就是 iOS 27 新增的 **prominent tab**（突出项），
+     故套用与 Dock 相同的边框语言（外暗边 + 内亮边）＋ 品牌色的柔和投影，材质统一。 */
+  box-shadow:
+    0 0 0 .5px rgba(0,0,0,.14),
+    inset 0 0 0 .5px rgba(255,255,255,.34),
+    0 6px 18px rgba(0,113,227,.28);
   cursor:pointer;transition:transform .2s var(--ease), background .2s;
   -webkit-tap-highlight-color:transparent;
   overflow:hidden;
@@ -6372,7 +6397,10 @@ function lgParamsFor(w, h){
     band: Math.max(6, h * bandRatio),
     amount: Math.max(6, h * bandRatio * 0.92),  // 位移量略小于折射带，避免过度扭曲
     depthEffect: false,                         // 参考实现的 Tab 栏未开启
-    blur: Math.max(7, Math.min(14, h * 0.17)),  // 参考实现 8dp/64dp≈12.5%；这里略大以更通透
+    // v93（iOS 27）：官方明确 iOS 27 增强了玻璃对复杂内容的扩散能力以提升可读性，
+    // 故模糊从 h*0.17（≈10px）提高到 h*0.34（≈20px）。配合新增的明确边框，
+    // 不会退回 v89 那种「高白雾 + 大模糊但无边框 → 糊成白板」的老问题。
+    blur: Math.max(12, Math.min(24, h * 0.34)),
     stroke: 2.4,                                // 高光描边总宽（可见半宽 1.2px），浅底上更醒目
     // 光源角度：参考实现默认 45°，但那会让亮边落在右下角；底部 Dock 的合理受光是「上亮下暗」，
     // 故取 -45°，使白边出现在顶缘与上两角、黑边落在底缘（黑边正好把 Dock 从页面上「压」出轮廓）。
